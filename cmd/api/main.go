@@ -1,12 +1,9 @@
 package main
 
 import (
-	"fmt"
+	bootstrap "github.com/bcc-intern-13/app-name-backend/cmd/bootsrap"
 )
 
 func main() {
-	fmt.Println("hello world")
-	makanan := "mie ayam"
-
-	fmt.Println(makanan)
+	bootstrap.NewApp().Run()
 }

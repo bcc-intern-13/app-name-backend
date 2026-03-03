@@ -8,13 +8,15 @@ import (
 )
 
 type Config struct {
-	DatabaseURL string
+	DatabaseURL string `env:"DATABASE_URL"`
+	Port        string `port:"PORT"`
 }
 
 func Load() *Config {
 	if err := godotenv.Load(); err != nil {
 		log.Println("⚠️  .env not found, using system env")
 	}
+
 	return &Config{
 		DatabaseURL: mustGetEnv("DATABASE_URL"),
 	}
