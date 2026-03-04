@@ -28,7 +28,7 @@ func NewValidationError(err error) *APIError {
 	}
 	return &APIError{
 		Type:    "validation_error",
-		Message: "mismatch data sent",
+		Message: "Some fields are invalid or missing",
 		Status:  422,
 		Fields:  fields,
 	}
@@ -37,7 +37,7 @@ func NewValidationError(err error) *APIError {
 func NewParamValidationError(field, issue string) *APIError {
 	return &APIError{
 		Type:    "validation_error",
-		Message: "mismatch data sent",
+		Message: "Some fields are invalid or missing",
 		Status:  400,
 		Fields: map[string]string{
 			field: issue,
