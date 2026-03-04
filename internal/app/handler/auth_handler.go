@@ -9,7 +9,7 @@ import (
 var validate = validator.New()
 
 type authHandler struct {
-	service dto.UserAuthService // fix: pakai dto, bukan service package
+	service dto.UserAuthService
 }
 
 func NewAuthHandler(app *fiber.App, u dto.UserAuthService) {
@@ -20,7 +20,7 @@ func NewAuthHandler(app *fiber.App, u dto.UserAuthService) {
 }
 
 func (h *authHandler) register(ctx *fiber.Ctx) error {
-	var req dto.RegisterRequest // fix: RegisterRequest ada di dto
+	var req dto.RegisterRequest
 
 	if err := ctx.BodyParser(&req); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
