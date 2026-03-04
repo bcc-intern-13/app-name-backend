@@ -1,6 +1,10 @@
 package response
 
-import "github.com/go-playground/validator/v10"
+import (
+	"strings"
+
+	"github.com/go-playground/validator/v10"
+)
 
 type APIError struct {
 	Type    string            `json:"type"`
@@ -35,17 +39,18 @@ func NewValidationError(err error) *APIError {
 }
 
 func friendlyMessage(fe validator.FieldError) string {
+	field := strings.ToLower(fe.Field()) //to lower case so can give consistent variable to frontend
 	switch fe.Tag() {
 	case "required":
-		return fe.Field() + " is required"
+		return field + " is required"
 	case "email":
-		return fe.Field() + " must be a valid email"
+		return "must be a valid email address"
 	case "min":
-		return fe.Field() + " must be at least " + fe.Param() + " characters"
+		return field + " must be at least " + fe.Param() + " characters"
 	case "max":
-		return fe.Field() + " must be at most " + fe.Param() + " characters"
+		return field + " must be at most " + fe.Param() + " characters"
 	default:
-		return fe.Field() + " is invalid"
+		return field + " is invalid"
 	}
 }
 
