@@ -23,7 +23,7 @@ func NewValidationError(err error) *APIError {
 	fields := make(map[string]string)
 	if ve, ok := err.(validator.ValidationErrors); ok {
 		for _, fe := range ve {
-			fields[fe.Field()] = fe.Tag()
+			fields[fe.Field()] = friendlyMessage(fe)
 		}
 	}
 	return &APIError{
@@ -31,6 +31,21 @@ func NewValidationError(err error) *APIError {
 		Message: "Some fields are invalid or missing",
 		Status:  422,
 		Fields:  fields,
+	}
+}
+
+func friendlyMessage(fe validator.FieldError) string {
+	switch fe.Tag() {
+	case "required":
+		return fe.Field() + " is required"
+	case "email":
+		return fe.Field() + " must be a valid email"
+	case "min":
+		return fe.Field() + " must be at least " + fe.Param() + " characters"
+	case "max":
+		return fe.Field() + " must be at most " + fe.Param() + " characters"
+	default:
+		return fe.Field() + " is invalid"
 	}
 }
 
