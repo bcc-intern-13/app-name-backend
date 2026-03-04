@@ -23,7 +23,7 @@ func (s *userAuthService) Register(req *dto.RegisterRequest) (*entity.User, erro
 		return nil, err
 	}
 	if existing != nil {
-		return nil, errors.New("email is already registered")
+		return nil, errors.New("user is already registered")
 	}
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)

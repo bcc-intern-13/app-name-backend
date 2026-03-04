@@ -1,11 +1,11 @@
 package dto
 
 import (
-	"github.com/bcc-intern-13/app-name-backend/internal/domain/entity"
+	"github.com/bcc-intern-13/app-name-backend/internal/user/entity"
 )
 
 type RegisterRequest struct {
-	FullName string `json:"full_name" validate:"required,min=2"`
+	Username string `json:"username" validate:"required,min=2"`
 	Email    string `json:"email"     validate:"required,email"`
 	Password string `json:"password"  validate:"required,min=8"`
 }

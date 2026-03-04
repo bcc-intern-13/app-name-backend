@@ -1,7 +1,8 @@
 package handler
 
 import (
-	"github.com/bcc-intern-13/app-name-backend/internal/domain/dto"
+	"github.com/bcc-intern-13/app-name-backend/internal/user/dto"
+	"github.com/bcc-intern-13/app-name-backend/pkg/response"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
@@ -23,34 +24,26 @@ func (h *authHandler) register(ctx *fiber.Ctx) error {
 	var req dto.RegisterRequest
 
 	if err := ctx.BodyParser(&req); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "invalid request body",
-			"detail":  "The data you sent is incorrect, please check again",
-			"status":  400,
-		})
+		thing := response.ErrBadRequest("body format is invalid") //note mencoba belajar parse ke dalam parameter langsung dan di inferensikan ke variabel dulu
+		return response.Error(ctx, thing, err)
 	}
 
 	if err := validate.Struct(req); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": err.Error(),
-		})
+		return response.Error(ctx, response.NewValidationError(err), err)
 	}
 
 	res, err := h.service.Register(&req)
 	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": err.Error(),
-		})
+		switch err.Error() {
+		case "user is already registered":
+			return response.Error(ctx, response.ErrConflict(err.Error()), err)
+		default:
+			return response.Error(ctx, response.ErrInternal(err.Error()), err)
+		}
 	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"success": true,
-		"message": "Registration successful, please check your email for verification",
-		"data":    res,
-	})
+	return response.Success(ctx, fiber.StatusCreated, "Registration Success", res)
+
 }
 
 //todo error custom, response error, 2 macem buat end user dan dev team
