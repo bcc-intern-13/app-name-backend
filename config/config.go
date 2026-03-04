@@ -19,6 +19,7 @@ func Load() *Config {
 
 	return &Config{
 		DatabaseURL: mustGetEnv("DATABASE_URL"),
+		Port:        mustGetEnv("PORT"),
 	}
 }
 
