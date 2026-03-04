@@ -3,8 +3,8 @@ package service
 import (
 	"errors"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/domain/dto"
-	"github.com/bcc-intern-13/app-name-backend/internal/domain/entity"
+	"github.com/bcc-intern-13/app-name-backend/internal/user/dto"
+	"github.com/bcc-intern-13/app-name-backend/internal/user/entity"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
