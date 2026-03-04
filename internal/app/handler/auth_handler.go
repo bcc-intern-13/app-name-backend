@@ -1,34 +1,28 @@
 package handler
 
 import (
-	"github.com/bcc-intern-13/app-name-backend/internal/app/service"
+	"github.com/bcc-intern-13/app-name-backend/internal/domain/dto"
 	"github.com/go-playground/validator/v10"
-
 	"github.com/gofiber/fiber/v2"
 )
 
 var validate = validator.New()
 
 type authHandler struct {
-	service service.UserAuthSerivce
+	service dto.UserAuthService // fix: pakai dto, bukan service package
 }
 
-func NewAuthHandler(app *fiber.App, u service.UserAuthSerivce) {
-	handler := &authHandler{
-		service: u,
-	}
+func NewAuthHandler(app *fiber.App, u dto.UserAuthService) {
+	handler := &authHandler{service: u}
 
 	auth := app.Group("/auth")
-
 	auth.Post("/register", handler.register)
-
 }
 
 func (h *authHandler) register(ctx *fiber.Ctx) error {
-	var req service.RegisterRequest
+	var req dto.RegisterRequest // fix: RegisterRequest ada di dto
 
 	if err := ctx.BodyParser(&req); err != nil {
-
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
 			"message": "invalid request body",
@@ -58,3 +52,10 @@ func (h *authHandler) register(ctx *fiber.Ctx) error {
 		"data":    res,
 	})
 }
+
+//todo error custom, response error, 2 macem buat end user dan dev team
+//todo selesain authnya dulu , basic crud fiturnya
+//note wajib pahamin hal hal yang dilakuin
+//todo domain driven architecture
+//todo penugasan erd
+//todo refresh token
