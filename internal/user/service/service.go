@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 
+	jwt "github.com/bcc-intern-13/app-name-backend/internal/middleware"
 	"github.com/bcc-intern-13/app-name-backend/internal/user/dto"
 	"github.com/bcc-intern-13/app-name-backend/internal/user/entity"
 	"github.com/google/uuid"
@@ -10,11 +11,15 @@ import (
 )
 
 type userAuthService struct {
-	repo dto.UserRepository
+	repo      dto.UserRepository
+	jwtSecret string
 }
 
-func NewUserAuthService(repo dto.UserRepository) dto.UserAuthService {
-	return &userAuthService{repo: repo}
+func NewUserAuthService(repo dto.UserRepository, jwtSecret string) dto.UserAuthService {
+	return &userAuthService{
+		repo:      repo,
+		jwtSecret: jwtSecret,
+	}
 }
 
 func (s *userAuthService) Register(req *dto.RegisterRequest) (*entity.User, error) {
@@ -42,4 +47,32 @@ func (s *userAuthService) Register(req *dto.RegisterRequest) (*entity.User, erro
 	}
 
 	return user, nil
+}
+
+func (s *userAuthService) Login(req *dto.LoginRequest) (*dto.LoginResponse, error) {
+
+	user, err := s.repo.FindByEmail(req.Email)
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+	if user == nil {
+		return nil, errors.New("user not found")
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
+	if err != nil {
+		return nil, errors.New("Wrong password, please try again")
+	}
+	accessToken, err := jwt.GenerateToken(user, s.jwtSecret)
+	if err != nil {
+		return nil, errors.New("failed to generate token")
+	}
+
+	return &dto.LoginResponse{
+		AccessToken: accessToken,
+		User: dto.UserData{
+			ID:    user.ID.String(),
+			Email: user.Email,
+		},
+	}, nil
+
 }

@@ -10,7 +10,10 @@ import (
 type Config struct {
 	DatabaseURL string `env:"DATABASE_URL"`
 	Port        string `port:"PORT"`
+	JWTSecret   string
 }
+
+//todo : jalanin config kalo dia mauskin jwt token
 
 func Load() *Config {
 	if err := godotenv.Load(); err != nil {
@@ -20,6 +23,7 @@ func Load() *Config {
 	return &Config{
 		DatabaseURL: mustGetEnv("DATABASE_URL"),
 		Port:        mustGetEnv("PORT"),
+		JWTSecret:   mustGetEnv("JWT_SECRET"),
 	}
 }
 
