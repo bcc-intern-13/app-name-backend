@@ -13,14 +13,6 @@ type authHandler struct {
 	service dto.UserAuthService
 }
 
-func NewAuthHandler(app *fiber.App, u dto.UserAuthService) {
-	handler := &authHandler{service: u}
-
-	auth := app.Group("/auth")
-	auth.Post("/register", handler.register)
-	auth.Post("/login", handler.login)
-}
-
 func (h *authHandler) register(ctx *fiber.Ctx) error {
 	var req dto.RegisterRequest
 

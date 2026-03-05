@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 
-	jwt "github.com/bcc-intern-13/app-name-backend/internal/middleware"
+	jwt "github.com/bcc-intern-13/app-name-backend/internal/middleware/jwt"
 	"github.com/bcc-intern-13/app-name-backend/internal/user/dto"
 	"github.com/bcc-intern-13/app-name-backend/internal/user/entity"
 	"github.com/google/uuid"

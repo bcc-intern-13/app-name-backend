@@ -12,6 +12,9 @@ func main() {
 	app := bootstrap.NewApp()
 	userRepo := repository.NewUserRepository(app.DB)
 	userService := service.NewUserAuthService(userRepo, app.Config.JWTSecret)
-	handler.NewAuthHandler(app.Fiber, userService)
+
+	//centralized routes
+	handler.RegisterRoutes(app.Fiber, userService, app.Config.JWTSecret)
+
 	app.Run()
 }

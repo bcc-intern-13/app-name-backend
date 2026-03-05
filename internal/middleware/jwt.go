@@ -1,28 +1,31 @@
-package jwt
+package middleware
 
 import (
-	"time"
+	"strings"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/user/entity"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/bcc-intern-13/app-name-backend/internal/middleware/jwt"
+	"github.com/bcc-intern-13/app-name-backend/pkg/response"
+	"github.com/gofiber/fiber/v2"
 )
 
-type Claims struct {
-	UserID string `json:"user_id"`
-	Email  string `json:"email"`
-	jwt.RegisteredClaims
-}
+func JWTProtected(secret string) fiber.Handler {
+	return func(ctx *fiber.Ctx) error {
+		authHeader := ctx.Get("Authorization")
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			return response.Error(ctx, response.ErrUnAuthorized("missing token"), nil)
+		}
 
-func GenerateToken(user *entity.User, secret string) (string, error) {
-	claims := Claims{
-		UserID: user.ID.String(),
-		Email:  user.Email,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
-		},
+		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
+
+		claims, err := jwt.ParseToken(tokenStr, secret)
+		if err != nil {
+			return response.Error(ctx, response.ErrUnAuthorized("invalid or expired token"), err)
+		}
+
+		//todo pahamin kodingan ini
+		ctx.Locals("userID", claims.UserID)
+		ctx.Locals("email", claims.Email)
+
+		return ctx.Next()
 	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	return token.SignedString([]byte(secret))
 }
