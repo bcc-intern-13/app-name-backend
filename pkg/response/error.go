@@ -74,11 +74,15 @@ func ErrUnAuthorized(detail string) *APIError {
 }
 
 func ErrBadRequest(detail string) *APIError {
-	return newAPIError(400, "bad_request", "wrong data sent", detail)
+	return newAPIError(400, "bad_request", "The data you sent is incorrect, please check again", detail)
 }
 func ErrConflict(detail string) *APIError {
 	return newAPIError(409, "conflict", "Data is already existed", detail)
 }
 func ErrTooManyRequests(detail string) *APIError {
 	return newAPIError(429, "too_many_requests", "too much request, try again later", detail)
+}
+
+func ErrNotFound(detail string) *APIError {
+	return newAPIError(404, "not_found", "data not found", detail)
 }
