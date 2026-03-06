@@ -10,6 +10,7 @@ import (
 type Config struct {
 	DatabaseURL string `env:"DATABASE_URL"`
 	Port        string `port:"PORT"`
+	JWTSecret   string
 }
 
 func Load() *Config {
@@ -20,6 +21,7 @@ func Load() *Config {
 	return &Config{
 		DatabaseURL: mustGetEnv("DATABASE_URL"),
 		Port:        mustGetEnv("PORT"),
+		JWTSecret:   mustGetEnv("JWT_SECRET"),
 	}
 }
 
