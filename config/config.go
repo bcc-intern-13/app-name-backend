@@ -13,8 +13,6 @@ type Config struct {
 	JWTSecret   string
 }
 
-//todo : jalanin config kalo dia mauskin jwt token
-
 func Load() *Config {
 	if err := godotenv.Load(); err != nil {
 		log.Println("⚠️  .env not found, using system env")

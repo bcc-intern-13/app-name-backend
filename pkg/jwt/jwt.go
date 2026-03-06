@@ -1,6 +1,8 @@
 package jwt
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"time"
 
@@ -44,4 +46,11 @@ func ParseToken(tokenStr string, secret string) (*Claims, error) {
 	}
 
 	return claims, nil
+}
+
+// generate refresh token
+func GenerateRefreshToken() string {
+	b := make([]byte, 32)
+	rand.Read(b)
+	return hex.EncodeToString(b)
 }

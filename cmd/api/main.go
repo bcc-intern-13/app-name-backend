@@ -11,10 +11,12 @@ import (
 func main() {
 	app := bootstrap.NewApp()
 	userRepo := repository.NewUserRepository(app.DB)
-	userService := service.NewUserAuthService(userRepo, app.Config.JWTSecret)
+	refreshTokenRepo := repository.NewRefreshTokenRepository(app.DB)
+	userService := service.NewUserAuthService(userRepo, app.Config.JWTSecret, refreshTokenRepo)
 
 	//centralized routes
 	handler.RegisterRoutes(app.Fiber, userService, app.Config.JWTSecret)
 
 	app.Run()
+
 }

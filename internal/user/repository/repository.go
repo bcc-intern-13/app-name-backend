@@ -26,6 +26,15 @@ func (r *userRepository) FindByEmail(email string) (*entity.User, error) {
 	return &user, err
 }
 
+func (r *userRepository) FindByID(id string) (*entity.User, error) {
+	var user entity.User
+	err := r.db.Where("id = ?", id).First(&user).Error //use json field id
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &user, err
+}
+
 func (r *userRepository) Create(user *entity.User) error {
 	return r.db.Create(user).Error
 }

@@ -12,6 +12,8 @@ func RegisterRoutes(app *fiber.App, userService dto.UserAuthService, jwtSecret s
 	authH := &authHandler{service: userService}
 	auth.Post("/register", authH.register)
 	auth.Post("/login", authH.login)
+	auth.Post("/refresh", authH.refresh) // refresh)
+	auth.Post("/logout", authH.logout)
 
 	// Protected
 	userH := &userHandler{service: userService}

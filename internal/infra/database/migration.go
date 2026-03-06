@@ -11,6 +11,7 @@ import (
 func Migrate(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&entity.User{},
+		&entity.RefreshToken{},
 	)
 	if err != nil {
 		log.Println("Failed to Auto Migrate to database.")

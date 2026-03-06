@@ -3,7 +3,7 @@ package middleware
 import (
 	"strings"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/middleware/jwt"
+	"github.com/bcc-intern-13/app-name-backend/pkg/jwt"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
 	"github.com/gofiber/fiber/v2"
 )

@@ -1,8 +1,9 @@
 package dto
 
 type LoginResponse struct {
-	AccessToken string   `json:"access_token"`
-	User        UserData `json:"user"`
+	AccessToken  string   `json:"access_token"`
+	RefreshToken string   `json:"refresh_token"`
+	User         UserData `json:"user"`
 }
 
 type UserData struct {
