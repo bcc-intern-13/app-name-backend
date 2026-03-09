@@ -8,9 +8,14 @@ import (
 )
 
 type Config struct {
-	DatabaseURL string `env:"DATABASE_URL"`
-	Port        string `port:"PORT"`
-	JWTSecret   string
+	DatabaseURL  string `env:"DATABASE_URL"`
+	Port         string `port:"PORT"`
+	JWTSecret    string
+	SMTPHost     string
+	SMTPPort     string
+	SMTPEmail    string
+	SMTPPassword string
+	AppURL       string
 }
 
 func Load() *Config {
@@ -19,9 +24,13 @@ func Load() *Config {
 	}
 
 	return &Config{
-		DatabaseURL: mustGetEnv("DATABASE_URL"),
-		Port:        mustGetEnv("PORT"),
-		JWTSecret:   mustGetEnv("JWT_SECRET"),
+		DatabaseURL:  mustGetEnv("DATABASE_URL"),
+		Port:         mustGetEnv("PORT"),
+		JWTSecret:    mustGetEnv("JWT_SECRET"),
+		SMTPHost:     mustGetEnv("SMTP_HOST"),
+		SMTPPort:     mustGetEnv("SMTP_PORT"),
+		SMTPEmail:    mustGetEnv("SMTP_EMAIL"),
+		SMTPPassword: mustGetEnv("SMTP_PASSWORD"),
 	}
 }
 
