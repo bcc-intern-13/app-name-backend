@@ -58,6 +58,8 @@ func (h *authHandler) login(ctx *fiber.Ctx) error {
 		switch err.Error() {
 		case "user not found", "Wrong password, please try again":
 			return response.Error(ctx, response.ErrUnAuthorized("invalid email or password"), err)
+		case "email not verified yet.":
+			return response.Error(ctx, response.ErrUnAuthorized("please verify your email first"), err)
 		default:
 			return response.Error(ctx, response.ErrInternal(err.Error()), err)
 		}

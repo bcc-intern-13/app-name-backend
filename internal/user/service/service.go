@@ -89,6 +89,9 @@ func (s *userAuthService) Login(req *dto.LoginRequest) (*dto.LoginResponse, erro
 	if user == nil {
 		return nil, errors.New("user not found")
 	}
+	if !user.IsVerified {
+		return nil, errors.New("email not verified yet.")
+	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
 		return nil, errors.New("Wrong password, please try again")
