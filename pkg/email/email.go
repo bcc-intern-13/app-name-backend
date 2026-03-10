@@ -25,21 +25,14 @@ func NewEmailService(host, port, email, password, appURL string) *EmailService {
 
 func (e *EmailService) SendVerificationEmail(toEmail, token string) error {
 	link := fmt.Sprintf("%s/auth/verify?token=%s", e.appURL, token)
+	fmt.Println("APP URL:", e.appURL)
 
-	subject := "Verify your email"
-	body := fmt.Sprintf(`
-Hi!
+	fmt.Println(link)
 
-Please verify your email by clicking the link below:
+	subject := "Verify Your Email Address"
+	body := verificationEmailTemplate(toEmail, link) // ← panggil template
 
-%s
-
-This link will expire in 24 hours.
-
-If you did not register, please ignore this email.
-`, link)
-
-	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s",
+	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s",
 		e.email, toEmail, subject, body)
 
 	auth := smtp.PlainAuth("", e.email, e.password, e.host)
