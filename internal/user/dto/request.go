@@ -1,10 +1,5 @@
 package dto
 
-import (
-	"github.com/bcc-intern-13/app-name-backend/internal/user/entity"
-	"github.com/google/uuid"
-)
-
 type RegisterRequest struct {
 	Username string `json:"username" validate:"required,min=2"`
 	Email    string `json:"email"     validate:"required,email"`
@@ -17,24 +12,4 @@ type LoginRequest struct {
 
 type RefreshRequest struct {
 	RefreshToken string `json:"refresh_token" validate:"required"`
-}
-type RefreshTokenRepository interface {
-	Create(token *entity.RefreshToken) error
-	FindByToken(token string) (*entity.RefreshToken, error)
-	DeleteByToken(token string) error
-	DeleteByUserID(userID uuid.UUID) error
-}
-
-type UserAuthService interface {
-	Register(req *RegisterRequest) (*entity.User, error)
-	Login(req *LoginRequest) (*LoginResponse, error)
-	//using refresh token, to refresh
-	RefreshToken(token string) (*LoginResponse, error)
-	Logout(token string) error
-}
-
-type UserRepository interface {
-	FindByEmail(email string) (*entity.User, error)
-	Create(user *entity.User) error
-	FindByID(id string) (*entity.User, error)
 }

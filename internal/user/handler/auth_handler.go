@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strings"
+
 	"github.com/bcc-intern-13/app-name-backend/internal/user/dto"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
 	"github.com/go-playground/validator/v10"
@@ -96,7 +98,6 @@ func (h *authHandler) refresh(ctx *fiber.Ctx) error {
 }
 
 func (h *authHandler) logout(ctx *fiber.Ctx) error {
-	//ambil dto refresh
 	var req dto.RefreshRequest
 
 	if err := ctx.BodyParser(&req); err != nil {
@@ -108,7 +109,6 @@ func (h *authHandler) logout(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.NewValidationError(err), err)
 	}
 
-	// panggil logout
 	res, err := h, h.service.Logout(req.RefreshToken)
 	if err != nil {
 		return response.Error(ctx, response.ErrInternal(err.Error()), err)
@@ -118,8 +118,26 @@ func (h *authHandler) logout(ctx *fiber.Ctx) error {
 	return response.Success(ctx, fiber.StatusOK, "Logout Success, see you later! bye", res)
 }
 
-//todo selesain authnya dulu , basic crud fiturnya
+func (h *authHandler) verifyEmail(ctx *fiber.Ctx) error {
+
+	token := strings.TrimSpace(ctx.Query("token"))
+
+	if token == "" {
+		return response.Error(ctx, response.ErrBadRequest("token is required"), nil)
+	}
+
+	err := h.service.VerifyEmail(token)
+	if err != nil {
+		switch err.Error() {
+		case "verification token not found", "verification token expired":
+			return response.Error(ctx, response.ErrBadRequest("invalid or expired verification link"), err)
+		default:
+			return response.Error(ctx, response.ErrInternal(err.Error()), err)
+		}
+	}
+	return response.Success(ctx, fiber.StatusOK, "Email verification successful, you can now login", nil)
+
+}
+
 //note wajib pahamin hal hal yang dilakuin
-//todo domain driven architecture
 //todo penugasan erd
-//todo refresh token

@@ -5,6 +5,7 @@ import (
 
 	"github.com/bcc-intern-13/app-name-backend/internal/user/dto"
 	"github.com/bcc-intern-13/app-name-backend/internal/user/entity"
+	"github.com/google/uuid"
 
 	"gorm.io/gorm"
 )
@@ -37,4 +38,10 @@ func (r *userRepository) FindByID(id string) (*entity.User, error) {
 
 func (r *userRepository) Create(user *entity.User) error {
 	return r.db.Create(user).Error
+}
+
+// token update status verified true
+func (r *userRepository) UpdateVerified(userId uuid.UUID) error {
+	return r.db.Model(&entity.User{}).Where("id = ?", userId).
+		Update("is_verified", true).Error
 }

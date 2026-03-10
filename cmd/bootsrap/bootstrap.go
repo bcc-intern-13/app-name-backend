@@ -15,7 +15,7 @@ type App struct {
 	Fiber        *fiber.App
 	DB           *gorm.DB
 	Config       *config.Config
-	emailservice *email.EmailService
+	Emailservice *email.EmailService
 }
 
 func NewApp() *App {
@@ -27,7 +27,7 @@ func NewApp() *App {
 
 	database.Migrate(db)
 
-	emailSvc := email.NewEmailService(
+	EmailSvc := email.NewEmailService(
 		cfg.SMTPHost,
 		cfg.SMTPPort,
 		cfg.SMTPEmail,
@@ -39,7 +39,7 @@ func NewApp() *App {
 		Fiber:        fiber.New(),
 		DB:           db,
 		Config:       cfg,
-		emailservice: emailSvc,
+		Emailservice: EmailSvc,
 	}
 }
 
