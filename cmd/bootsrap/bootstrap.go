@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/bcc-intern-13/app-name-backend/config"
+	"github.com/bcc-intern-13/app-name-backend/pkg/email"
 
 	"github.com/bcc-intern-13/app-name-backend/internal/infra/database"
 	"github.com/gofiber/fiber/v2"
@@ -11,9 +12,10 @@ import (
 )
 
 type App struct {
-	Fiber  *fiber.App
-	DB     *gorm.DB
-	Config *config.Config
+	Fiber        *fiber.App
+	DB           *gorm.DB
+	Config       *config.Config
+	Emailservice *email.EmailService
 }
 
 func NewApp() *App {
@@ -25,10 +27,19 @@ func NewApp() *App {
 
 	database.Migrate(db)
 
+	EmailSvc := email.NewEmailService(
+		cfg.SMTPHost,
+		cfg.SMTPPort,
+		cfg.SMTPEmail,
+		cfg.SMTPPassword,
+		cfg.AppURL,
+	)
+
 	return &App{
-		Fiber:  fiber.New(),
-		DB:     db,
-		Config: cfg,
+		Fiber:        fiber.New(),
+		DB:           db,
+		Config:       cfg,
+		Emailservice: EmailSvc,
 	}
 }
 
