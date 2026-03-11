@@ -19,7 +19,7 @@ func verificationEmailTemplate(toEmail, link string) string {
                     <!-- Header -->
                     <tr>
                         <td align="center" style="background-color:#111827;padding:32px 40px;">
-                            <img src="YOUR_LOGO_URL_HERE" alt="Logo" width="120" style="display:block;" />
+                            <img src="https://i.imgur.com/FLIca23.png" alt="Logo" width="120" style="display:block;" />
                         </td>
                     </tr>
 

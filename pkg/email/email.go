@@ -30,7 +30,7 @@ func (e *EmailService) SendVerificationEmail(toEmail, token string) error {
 	fmt.Println(link)
 
 	subject := "Verify Your Email Address"
-	body := verificationEmailTemplate(toEmail, link) // ← panggil template
+	body := verificationEmailTemplate(toEmail, link)
 
 	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s",
 		e.email, toEmail, subject, body)
