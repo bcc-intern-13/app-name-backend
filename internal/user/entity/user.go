@@ -8,11 +8,13 @@ import (
 )
 
 type User struct {
-	ID         uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
-	Email      string    `gorm:"type:varchar(255);uniqueIndex;not null"         json:"email"`
-	Password   string    `gorm:"type:text;not null"                             json:"-"`
-	AvatarURL  string    `json:"avatar_url" gorm:"type:varchar(255);not null"`
-	IsVerified bool      `json:"is_verified" gorm:"type:boolean;default:false;not null"`
+	ID                  uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	Email               string    `gorm:"type:varchar(255);uniqueIndex;not null"         json:"email"`
+	Password            string    `gorm:"type:text;not null"                             json:"-"`
+	AvatarURL           string    `json:"avatar_url" gorm:"type:varchar(255);not null"`
+	IsVerified          bool      `json:"is_verified" gorm:"type:boolean;default:false;not null"`
+	IsPremium           bool      `gorm:"default:false" json:"is_premium"`
+	OnboardingCompleted bool      `gorm:"default:false" json:"onboarding_completed"`
 
 	CreatedAt time.Time      `gorm:"autoCreateTime"                                 json:"created_at"`
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"                                 json:"updated_at"`
