@@ -13,6 +13,7 @@ func Migrate(db *gorm.DB) {
 		&entity.User{},
 		&entity.RefreshToken{},
 		&entity.VerificationToken{},
+		&entity.UserProfile{},
 	)
 	if err != nil {
 		log.Println("Failed to Auto Migrate to database.")

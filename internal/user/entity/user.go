@@ -4,11 +4,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	ID                  uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	Nama                string    `gorm:"type:varchar(100)" json:"nama"`
 	Email               string    `gorm:"type:varchar(255);uniqueIndex;not null"         json:"email"`
 	Password            string    `gorm:"type:text;not null"                             json:"-"`
 	AvatarURL           string    `json:"avatar_url" gorm:"type:varchar(255);not null"`
@@ -21,13 +23,21 @@ type User struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"                                          json:"-"`
 }
 
-//will be using this for future features.
-// type Profile struct {
-// 	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
-// 	UserID    uuid.UUID `gorm:"type:uuid;uniqueIndex;not null"                 json:"user_id"`
-// 	FullName  string    `gorm:"type:varchar(100)"                              json:"full_name"`
-// 	Phone     string    `gorm:"type:varchar(20)"                               json:"phone,omitempty"`
-// 	Bio       string    `gorm:"type:text"                                      json:"bio,omitempty"`
-// 	AvatarURL string    `gorm:"type:text"                                      json:"avatar_url,omitempty"`
-// 	UpdatedAt time.Time `gorm:"autoUpdateTime"                                 json:"updated_at"`
-// }
+type UserProfile struct {
+	ID                   uuid.UUID      `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	UserID               uuid.UUID      `gorm:"type:uuid;not null" json:"user_id"`
+	Usia                 string         `gorm:"type:varchar(255);not null"         json:"usia"`
+	Kota                 string         `gorm:"type:varchar(255);not null"         json:"kota"`
+	Pendidikan           string         `gorm:"type:varchar(255);not null"         json:"pendidikan"`
+	BidangKerja          string         `gorm:"type:varchar(255);not null"         json:"bidang_kerja"`
+	TipePekerjaan        string         `gorm:"type:varchar(255);not null"         json:"tipe_pekerjaan"`
+	Status               string         `gorm:"type:varchar(255);not null"         json:"status"`
+	PreferensiKomunikasi string         `gorm:"type:varchar(255);not null"         json:"preferensi_komunikasi"`
+	LingkunganKerja      datatypes.JSON `gorm:"type:jsonb" json:"lingkungan_kerja"`
+	KebutuhanKhusus      datatypes.JSON `gorm:"type:jsonb" json:"kebutuhan_khusus"`
+	Nama                 string         `gorm:"type:varchar(100);not null" json:"nama"`
+
+	User User `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+
+	UpdatedAt time.Time `gorm:"autoUpdateTime"                                 json:"updated_at"`
+}
