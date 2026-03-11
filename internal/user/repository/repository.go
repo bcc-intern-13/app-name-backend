@@ -45,3 +45,10 @@ func (r *userRepository) UpdateVerified(userId uuid.UUID) error {
 	return r.db.Model(&entity.User{}).Where("id = ?", userId).
 		Update("is_verified", true).Error
 }
+
+// upadte onboarding completed true
+func (r *userRepository) UpdateOnboardingCompleted(userID uuid.UUID) error {
+	return r.db.Model(&entity.User{}).
+		Where("id = ?", userID).
+		Update("onboarding_completed", true).Error
+}
