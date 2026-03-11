@@ -31,6 +31,7 @@ func Load() *Config {
 		SMTPPort:     mustGetEnv("SMTP_PORT"),
 		SMTPEmail:    mustGetEnv("SMTP_EMAIL"),
 		SMTPPassword: mustGetEnv("SMTP_PASSWORD"),
+		AppURL:       mustGetEnv("APP_URL"),
 	}
 }
 

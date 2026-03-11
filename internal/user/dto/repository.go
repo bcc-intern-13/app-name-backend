@@ -17,6 +17,7 @@ type UserRepository interface {
 	Create(user *entity.User) error
 	FindByID(id string) (*entity.User, error)
 	UpdateVerified(userID uuid.UUID) error
+	UpdateOnboardingCompleted(userID uuid.UUID) error
 }
 
 type VerificationTokenRepository interface {
