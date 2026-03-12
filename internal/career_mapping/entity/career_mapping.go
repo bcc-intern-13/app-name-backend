@@ -32,9 +32,9 @@ type CareerMappingResult struct {
 }
 
 type CareerCategory struct {
-	ID            string         `gorm:"type:varchar(2);primaryKey" json:"id"`
-	Name          string         `gorm:"type:varchar(50);not null" json:"name"`
-	Description   string         `gorm:"type:text;not null" json:"description"`
-	JobsFormal    datatypes.JSON `gorm:"type:jsonb;not null" json:"jobs_formal"`
-	JobsWirausaha datatypes.JSON `gorm:"type:jsonb;not null" json:"jobs_wirausaha"`
+	ID          string         `gorm:"type:varchar(2);primaryKey" json:"id"`
+	Name        string         `gorm:"type:varchar(50);not null" json:"name"`
+	Description string         `gorm:"type:text;not null" json:"description"`
+	FormalJobs  datatypes.JSON `gorm:"type:jsonb;not null" json:"formal_jobs"`
+	SideJobs    datatypes.JSON `gorm:"type:jsonb;not null" json:"side_jobs"`
 }
