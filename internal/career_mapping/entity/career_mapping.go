@@ -30,3 +30,11 @@ type CareerMappingResult struct {
 	AttemptNumber int            `gorm:"not null" json:"attempt_number"`
 	CreatedAt     time.Time      `gorm:"autoCreateTime" json:"created_at"`
 }
+
+type CareerCategory struct {
+	ID            string         `gorm:"type:varchar(2);primaryKey" json:"id"`
+	Name          string         `gorm:"type:varchar(50);not null" json:"name"`
+	Description   string         `gorm:"type:text;not null" json:"description"`
+	JobsFormal    datatypes.JSON `gorm:"type:jsonb;not null" json:"jobs_formal"`
+	JobsWirausaha datatypes.JSON `gorm:"type:jsonb;not null" json:"jobs_wirausaha"`
+}

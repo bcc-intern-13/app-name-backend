@@ -17,6 +17,7 @@ func Migrate(db *gorm.DB) {
 		&entity.UserProfile{},
 		&careermapping.CareerMappingQuestion{},
 		&careermapping.CareerMappingResult{},
+		&careermapping.CareerCategory{},
 	)
 	if err != nil {
 		log.Println("Failed to Auto Migrate to database.")
