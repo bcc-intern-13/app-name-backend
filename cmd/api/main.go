@@ -12,6 +12,11 @@ import (
 	onboardingHandler "github.com/bcc-intern-13/app-name-backend/internal/onboarding/handler"
 	onboardingRepository "github.com/bcc-intern-13/app-name-backend/internal/onboarding/repository"
 	onboardingService "github.com/bcc-intern-13/app-name-backend/internal/onboarding/service"
+
+	// career mapping domain packages
+	careerMappingHandler "github.com/bcc-intern-13/app-name-backend/internal/career_mapping/handler"
+	careerMappingRepository "github.com/bcc-intern-13/app-name-backend/internal/career_mapping/repository"
+	careerMappingService "github.com/bcc-intern-13/app-name-backend/internal/career_mapping/service"
 )
 
 func main() {
@@ -35,7 +40,14 @@ func main() {
 
 	// routes
 	handler.RegisterRoutes(app.Fiber, userService, app.Config.JWTSecret)
-	onboardingHandler.RegisterOnboardingRoutes(app.Fiber, onboardingSvc, app.Config.JWTSecret) // ← tambah
+	onboardingHandler.RegisterOnboardingRoutes(app.Fiber, onboardingSvc, app.Config.JWTSecret)
+
+	// career mapping domain
+	careerMappingRepo := careerMappingRepository.NewCareerMappingRepository(app.DB)
+	careerMappingSvc := careerMappingService.NewCareerMappingService(careerMappingRepo)
+
+	// routes
+	careerMappingHandler.RegisterCareerMappingRoutes(app.Fiber, careerMappingSvc, app.Config.JWTSecret)
 
 	app.Run()
 }

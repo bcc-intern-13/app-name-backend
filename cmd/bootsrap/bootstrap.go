@@ -26,6 +26,7 @@ func NewApp() *App {
 	}
 
 	database.Migrate(db)
+	database.Seed(db)
 
 	EmailSvc := email.NewEmailService(
 		cfg.SMTPHost,
