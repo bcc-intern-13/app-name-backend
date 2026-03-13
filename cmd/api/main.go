@@ -22,6 +22,10 @@ import (
 	jobBoardHandler "github.com/bcc-intern-13/app-name-backend/internal/job_board/handler"
 	jobBoardRepository "github.com/bcc-intern-13/app-name-backend/internal/job_board/repository"
 	jobBoardService "github.com/bcc-intern-13/app-name-backend/internal/job_board/service"
+
+	// home domain packages
+	homeHandler "github.com/bcc-intern-13/app-name-backend/internal/home/handler"
+	homeService "github.com/bcc-intern-13/app-name-backend/internal/home/service"
 )
 
 func main() {
@@ -43,7 +47,7 @@ func main() {
 	onboardingRepo := onboardingRepository.NewOnboardingRepository(app.DB)
 	onboardingSvc := onboardingService.NewOnboardingService(onboardingRepo, userRepo)
 
-	// routes
+	// onboarding routes
 	handler.RegisterRoutes(app.Fiber, userService, app.Config.JWTSecret)
 	onboardingHandler.RegisterOnboardingRoutes(app.Fiber, onboardingSvc, app.Config.JWTSecret)
 
@@ -51,15 +55,21 @@ func main() {
 	careerMappingRepo := careerMappingRepository.NewCareerMappingRepository(app.DB)
 	careerMappingSvc := careerMappingService.NewCareerMappingService(careerMappingRepo)
 
-	// routes
+	// career mapping routes
 	careerMappingHandler.RegisterCareerMappingRoutes(app.Fiber, careerMappingSvc, app.Config.JWTSecret)
 
 	// job board domain
 	jobBoardRepo := jobBoardRepository.NewJobBoardRepository(app.DB)
 	jobBoardSvc := jobBoardService.NewJobBoardService(jobBoardRepo)
 
-	// routes
+	// job board routes
 	jobBoardHandler.RegisterJobBoardRoutes(app.Fiber, jobBoardSvc, app.Config.JWTSecret)
+
+	// home domain
+	homeSvc := homeService.NewHomeService(onboardingRepo, jobBoardSvc, careerMappingSvc)
+
+	// home routes
+	homeHandler.RegisterHomeRoutes(app.Fiber, homeSvc, app.Config.JWTSecret)
 
 	app.Run()
 }

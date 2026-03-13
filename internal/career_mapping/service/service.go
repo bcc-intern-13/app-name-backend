@@ -71,7 +71,6 @@ func (s *careerMappingService) Submit(userID uuid.UUID, req *dto.SubmitCareerMap
 		if sorted[i].Score != sorted[j].Score {
 			return sorted[i].Score > sorted[j].Score
 		}
-		// tiebreaker: priority order
 		pi, pj := 0, 0
 		for idx, p := range priority {
 			if p == sorted[i].Code {
