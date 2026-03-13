@@ -27,14 +27,9 @@ func (h *authHandler) register(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.NewValidationError(err), err)
 	}
 
-	res, err := h.service.Register(&req)
-	if err != nil {
-		switch err.Error() {
-		case "user is already registered":
-			return response.Error(ctx, response.ErrConflict(err.Error()), err)
-		default:
-			return response.Error(ctx, response.ErrInternal(err.Error()), err)
-		}
+	res, apiErr := h.service.Register(&req)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	return response.Success(ctx, fiber.StatusCreated, "Registration Success", res)
@@ -53,17 +48,9 @@ func (h *authHandler) login(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.NewValidationError(err), err)
 	}
 
-	res, err := h.service.Login(&req)
-	if err != nil {
-		switch err.Error() {
-		case "user not found", "Wrong password, please try again":
-			return response.Error(ctx, response.ErrUnAuthorized("invalid email or password"), err)
-		case "email not verified yet.":
-			return response.Error(ctx, response.ErrUnAuthorized("please verify your email first"), err)
-		default:
-			return response.Error(ctx, response.ErrInternal(err.Error()), err)
-		}
-
+	res, apiErr := h.service.Login(&req)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 	return response.Success(ctx, fiber.StatusCreated, "Login Success", res)
 
@@ -83,14 +70,9 @@ func (h *authHandler) refresh(ctx *fiber.Ctx) error {
 	}
 
 	//refresh token
-	res, err := h.service.RefreshToken(req.RefreshToken)
-	if err != nil {
-		switch err.Error() {
-		case "refresh token expired", "refresh token not found", "user not found":
-			return response.Error(ctx, response.ErrUnAuthorized("session expired, please login again"), err)
-		default:
-			return response.Error(ctx, response.ErrInternal(err.Error()), err)
-		}
+	res, apiErr := h.service.RefreshToken(req.RefreshToken)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	// return Successs
@@ -111,13 +93,13 @@ func (h *authHandler) logout(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.NewValidationError(err), err)
 	}
 
-	res, err := h, h.service.Logout(req.RefreshToken)
-	if err != nil {
-		return response.Error(ctx, response.ErrInternal(err.Error()), err)
+	apiErr := h.service.Logout(req.RefreshToken)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	// return
-	return response.Success(ctx, fiber.StatusOK, "Logout Success, see you later! bye", res)
+	return response.Success(ctx, fiber.StatusOK, "Logout Success, see you later! bye", nil)
 }
 
 func (h *authHandler) verifyEmail(ctx *fiber.Ctx) error {
@@ -128,14 +110,9 @@ func (h *authHandler) verifyEmail(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.ErrBadRequest("token is required"), nil)
 	}
 
-	err := h.service.VerifyEmail(token)
-	if err != nil {
-		switch err.Error() {
-		case "verification token not found", "verification token expired":
-			return response.Error(ctx, response.ErrBadRequest("invalid or expired verification link"), err)
-		default:
-			return response.Error(ctx, response.ErrInternal(err.Error()), err)
-		}
+	apiErr := h.service.VerifyEmail(token)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 	return response.Success(ctx, fiber.StatusOK, "Email verification successful, you can now login", nil)
 
