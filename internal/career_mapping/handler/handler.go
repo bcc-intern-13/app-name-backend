@@ -15,9 +15,9 @@ type careerMappingHandler struct {
 }
 
 func (h *careerMappingHandler) getQuestions(ctx *fiber.Ctx) error {
-	questions, err := h.service.GetQuestions()
-	if err != nil {
-		return response.Error(ctx, response.ErrInternal("failed to get questions"), err)
+	questions, apiErr := h.service.GetQuestions()
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 	return response.Success(ctx, fiber.StatusOK, "success", questions)
 }
@@ -38,9 +38,9 @@ func (h *careerMappingHandler) submit(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.NewValidationError(err), err)
 	}
 
-	result, err := h.service.Submit(userID, &req)
-	if err != nil {
-		return response.Error(ctx, response.ErrInternal(err.Error()), err)
+	result, apiErr := h.service.Submit(userID, &req)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	return response.Success(ctx, fiber.StatusOK, "success", result)
@@ -53,14 +53,9 @@ func (h *careerMappingHandler) getLatestResult(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
 	}
 
-	result, err := h.service.GetLatestResult(userID)
-	if err != nil {
-		switch err.Error() {
-		case "result not found":
-			return response.Error(ctx, response.ErrNotFound(err.Error()), err)
-		default:
-			return response.Error(ctx, response.ErrInternal(err.Error()), err)
-		}
+	result, apiErr := h.service.GetLatestResult(userID)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	return response.Success(ctx, fiber.StatusOK, "success", result)

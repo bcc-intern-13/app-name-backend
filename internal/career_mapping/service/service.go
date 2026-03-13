@@ -2,11 +2,12 @@ package service
 
 import (
 	"encoding/json"
-	"errors"
+	"log/slog"
 	"sort"
 
 	"github.com/bcc-intern-13/app-name-backend/internal/career_mapping/dto"
 	"github.com/bcc-intern-13/app-name-backend/internal/career_mapping/entity"
+	"github.com/bcc-intern-13/app-name-backend/pkg/response"
 	"github.com/google/uuid"
 	"gorm.io/datatypes"
 )
@@ -19,14 +20,20 @@ func NewCareerMappingService(repo dto.CareerMappingRepository) dto.CareerMapping
 	return &careerMappingService{repo: repo}
 }
 
-func (s *careerMappingService) GetQuestions() ([]entity.CareerMappingQuestion, error) {
-	return s.repo.GetAllQuestions()
-}
-
-func (s *careerMappingService) Submit(userID uuid.UUID, req *dto.SubmitCareerMappingRequest) (*dto.CareerMappingResponse, error) {
+func (s *careerMappingService) GetQuestions() ([]entity.CareerMappingQuestion, *response.APIError) {
 	questions, err := s.repo.GetAllQuestions()
 	if err != nil {
-		return nil, errors.New("failed to get questions")
+		slog.Error("failed to get questions", "error", err)
+		return nil, response.ErrInternal("failed to get questions")
+	}
+	return questions, nil
+}
+
+func (s *careerMappingService) Submit(userID uuid.UUID, req *dto.SubmitCareerMappingRequest) (*dto.CareerMappingResponse, *response.APIError) {
+	questions, err := s.repo.GetAllQuestions()
+	if err != nil {
+		slog.Error("failed to get questions", "error", err)
+		return nil, response.ErrInternal("failed to get questions")
 	}
 
 	scores := map[string]int{
@@ -50,7 +57,8 @@ func (s *careerMappingService) Submit(userID uuid.UUID, req *dto.SubmitCareerMap
 
 		var skor map[string]int
 		if err := json.Unmarshal(skorJSON, &skor); err != nil {
-			return nil, errors.New("failed to parse score")
+			slog.Error("failed to parse score", "error", err, "answer", answer)
+			return nil, response.ErrInternal("failed to parse score")
 		}
 		for cat, pts := range skor {
 			scores[cat] += pts
@@ -87,7 +95,11 @@ func (s *careerMappingService) Submit(userID uuid.UUID, req *dto.SubmitCareerMap
 	var topCategories []dto.CategoryScore
 	for rank, cat := range top3 {
 		category, err := s.repo.GetCategoryByID(cat.Code)
-		if err != nil || category == nil {
+		if err != nil {
+			slog.Error("failed to get category", "error", err, "code", cat.Code)
+			continue
+		}
+		if category == nil {
 			continue
 		}
 		topCategories = append(topCategories, dto.CategoryScore{
@@ -103,7 +115,8 @@ func (s *careerMappingService) Submit(userID uuid.UUID, req *dto.SubmitCareerMap
 
 	count, err := s.repo.CountByUserID(userID)
 	if err != nil {
-		return nil, errors.New("failed to count attempts")
+		slog.Error("failed to count attempts", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to count attempts")
 	}
 	attemptNumber := int(count) + 1
 
@@ -122,7 +135,8 @@ func (s *careerMappingService) Submit(userID uuid.UUID, req *dto.SubmitCareerMap
 	}
 
 	if err := s.repo.CreateResult(result); err != nil {
-		return nil, errors.New("failed to save result")
+		slog.Error("failed to save result", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to save result")
 	}
 
 	var allScores []dto.CategoryScore
@@ -144,13 +158,14 @@ func (s *careerMappingService) Submit(userID uuid.UUID, req *dto.SubmitCareerMap
 	}, nil
 }
 
-func (s *careerMappingService) GetLatestResult(userID uuid.UUID) (*dto.CareerMappingResponse, error) {
+func (s *careerMappingService) GetLatestResult(userID uuid.UUID) (*dto.CareerMappingResponse, *response.APIError) {
 	result, err := s.repo.FindLatestResultByUserID(userID)
 	if err != nil {
-		return nil, err
+		slog.Error("failed to get latest result", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to get latest result")
 	}
 	if result == nil {
-		return nil, errors.New("result not found")
+		return nil, response.ErrNotFound("result not found")
 	}
 
 	var topCatCodes []string
