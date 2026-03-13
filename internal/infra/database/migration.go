@@ -3,7 +3,8 @@ package database
 import (
 	"log"
 
-	careermapping "github.com/bcc-intern-13/app-name-backend/internal/career_mapping/entity"
+	careermappingentity "github.com/bcc-intern-13/app-name-backend/internal/career_mapping/entity"
+	jobboardidentity "github.com/bcc-intern-13/app-name-backend/internal/job_board/entity"
 	"github.com/bcc-intern-13/app-name-backend/internal/user/entity"
 
 	"gorm.io/gorm"
@@ -15,9 +16,12 @@ func Migrate(db *gorm.DB) {
 		&entity.RefreshToken{},
 		&entity.VerificationToken{},
 		&entity.UserProfile{},
-		&careermapping.CareerMappingQuestion{},
-		&careermapping.CareerMappingResult{},
-		&careermapping.CareerCategory{},
+		&careermappingentity.CareerMappingQuestion{},
+		&careermappingentity.CareerMappingResult{},
+		&careermappingentity.CareerCategory{},
+		&jobboardidentity.Company{},
+		&jobboardidentity.JobListing{},
+		&jobboardidentity.SavedJob{},
 	)
 	if err != nil {
 		log.Println("Failed to Auto Migrate to database.")

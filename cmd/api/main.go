@@ -17,6 +17,11 @@ import (
 	careerMappingHandler "github.com/bcc-intern-13/app-name-backend/internal/career_mapping/handler"
 	careerMappingRepository "github.com/bcc-intern-13/app-name-backend/internal/career_mapping/repository"
 	careerMappingService "github.com/bcc-intern-13/app-name-backend/internal/career_mapping/service"
+
+	// job board domain packages
+	jobBoardHandler "github.com/bcc-intern-13/app-name-backend/internal/job_board/handler"
+	jobBoardRepository "github.com/bcc-intern-13/app-name-backend/internal/job_board/repository"
+	jobBoardService "github.com/bcc-intern-13/app-name-backend/internal/job_board/service"
 )
 
 func main() {
@@ -48,6 +53,13 @@ func main() {
 
 	// routes
 	careerMappingHandler.RegisterCareerMappingRoutes(app.Fiber, careerMappingSvc, app.Config.JWTSecret)
+
+	// job board domain
+	jobBoardRepo := jobBoardRepository.NewJobBoardRepository(app.DB)
+	jobBoardSvc := jobBoardService.NewJobBoardService(jobBoardRepo)
+
+	// routes
+	jobBoardHandler.RegisterJobBoardRoutes(app.Fiber, jobBoardSvc, app.Config.JWTSecret)
 
 	app.Run()
 }
