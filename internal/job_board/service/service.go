@@ -1,9 +1,10 @@
 package service
 
 import (
-	"errors"
+	"log/slog"
 
 	"github.com/bcc-intern-13/app-name-backend/internal/job_board/dto"
+	"github.com/bcc-intern-13/app-name-backend/pkg/response"
 	"github.com/google/uuid"
 )
 
@@ -15,10 +16,11 @@ func NewJobBoardService(repo dto.JobBoardRepository) dto.JobBoardService {
 	return &jobBoardService{repo: repo}
 }
 
-func (s *jobBoardService) GetAll(filter dto.JobBoardFilter, userID uuid.UUID) (*dto.PaginatedJobResponse, error) {
+func (s *jobBoardService) GetAll(filter dto.JobBoardFilter, userID uuid.UUID) (*dto.PaginatedJobResponse, *response.APIError) {
 	jobs, total, err := s.repo.FindAll(filter)
 	if err != nil {
-		return nil, errors.New("failed to get job listings")
+		slog.Error("failed to get job listings", "error", err)
+		return nil, response.ErrInternal("failed to get job listings")
 	}
 
 	var result []dto.JobListingResponse
@@ -64,13 +66,14 @@ func (s *jobBoardService) GetAll(filter dto.JobBoardFilter, userID uuid.UUID) (*
 	}, nil
 }
 
-func (s *jobBoardService) GetByID(id uuid.UUID) (*dto.JobListingDetailResponse, error) {
+func (s *jobBoardService) GetByID(id uuid.UUID) (*dto.JobListingDetailResponse, *response.APIError) {
 	job, err := s.repo.FindByID(id)
 	if err != nil {
-		return nil, err
+		slog.Error("failed to get job by id", "error", err, "jobID", id)
+		return nil, response.ErrInternal("failed to get job")
 	}
 	if job == nil {
-		return nil, errors.New("job not found")
+		return nil, response.ErrNotFound("job not found")
 	}
 
 	company, _ := s.repo.FindCompanyByID(job.CompanyID)
@@ -101,41 +104,42 @@ func (s *jobBoardService) GetByID(id uuid.UUID) (*dto.JobListingDetailResponse, 
 	}, nil
 }
 
-func (s *jobBoardService) ToggleSave(userID, jobID uuid.UUID) (bool, error) {
-	// cek job exists
+func (s *jobBoardService) ToggleSave(userID, jobID uuid.UUID) (bool, *response.APIError) {
 	job, err := s.repo.FindByID(jobID)
 	if err != nil {
-		return false, err
+		slog.Error("failed to get job", "error", err, "jobID", jobID)
+		return false, response.ErrInternal("failed to get job")
 	}
 	if job == nil {
-		return false, errors.New("job not found")
+		return false, response.ErrNotFound("job not found")
 	}
 
-	// cek sudah disave atau belum
 	isSaved, err := s.repo.IsJobSaved(userID, jobID)
 	if err != nil {
-		return false, err
+		slog.Error("failed to check saved job", "error", err, "userID", userID, "jobID", jobID)
+		return false, response.ErrInternal("failed to check saved job")
 	}
 
 	if isSaved {
-		// unsave
 		if err := s.repo.UnsaveJob(userID, jobID); err != nil {
-			return false, errors.New("failed to unsave job")
+			slog.Error("failed to unsave job", "error", err, "userID", userID, "jobID", jobID)
+			return false, response.ErrInternal("failed to unsave job")
 		}
 		return false, nil
 	}
 
-	// save
 	if err := s.repo.SaveJob(userID, jobID); err != nil {
-		return false, errors.New("failed to save job")
+		slog.Error("failed to save job", "error", err, "userID", userID, "jobID", jobID)
+		return false, response.ErrInternal("failed to save job")
 	}
 	return true, nil
 }
 
-func (s *jobBoardService) GetSavedJobs(userID uuid.UUID) ([]dto.JobListingResponse, error) {
+func (s *jobBoardService) GetSavedJobs(userID uuid.UUID) ([]dto.JobListingResponse, *response.APIError) {
 	jobs, err := s.repo.FindSavedJobs(userID)
 	if err != nil {
-		return nil, errors.New("failed to get saved jobs")
+		slog.Error("failed to get saved jobs", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to get saved jobs")
 	}
 
 	var result []dto.JobListingResponse
