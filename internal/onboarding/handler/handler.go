@@ -30,13 +30,8 @@ func (h *onboardingHandler) submit(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.NewValidationError(err), err)
 	}
 
-	if err := h.service.Submit(userID, &req); err != nil {
-		switch err.Error() {
-		case "onboarding already completed":
-			return response.Error(ctx, response.ErrConflict(err.Error()), err)
-		default:
-			return response.Error(ctx, response.ErrInternal(err.Error()), err)
-		}
+	if apiErr := h.service.Submit(userID, &req); apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	return response.Success(ctx, fiber.StatusCreated, "Onboarding submitted successfully", nil)
@@ -50,14 +45,9 @@ func (h *onboardingHandler) getAnswers(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
 	}
 
-	profile, err := h.service.GetByUserID(userID)
-	if err != nil {
-		switch err.Error() {
-		case "profile not found":
-			return response.Error(ctx, response.ErrNotFound(err.Error()), err)
-		default:
-			return response.Error(ctx, response.ErrInternal(err.Error()), err)
-		}
+	profile, apiErr := h.service.GetByUserID(userID)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	return response.Success(ctx, fiber.StatusOK, "success", profile)
@@ -79,13 +69,8 @@ func (h *onboardingHandler) update(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.NewValidationError(err), err)
 	}
 
-	if err := h.service.Update(userID, &req); err != nil {
-		switch err.Error() {
-		case "profile not found":
-			return response.Error(ctx, response.ErrNotFound(err.Error()), err)
-		default:
-			return response.Error(ctx, response.ErrInternal(err.Error()), err)
-		}
+	if apiErr := h.service.Update(userID, &req); apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	return response.Success(ctx, fiber.StatusOK, "Onboarding updated successfully", nil)

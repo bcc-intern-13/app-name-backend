@@ -1,15 +1,18 @@
 package dto
 
-import "github.com/bcc-intern-13/app-name-backend/internal/user/entity"
+import (
+	"github.com/bcc-intern-13/app-name-backend/internal/user/entity"
+	"github.com/bcc-intern-13/app-name-backend/pkg/response"
+)
 
 type UserAuthService interface {
-	Register(req *RegisterRequest) (*entity.User, error)
-	Login(req *LoginRequest) (*LoginResponse, error)
+	Register(req *RegisterRequest) (*entity.User, *response.APIError)
+	Login(req *LoginRequest) (*LoginResponse, *response.APIError)
 	//using refresh token, to refresh
-	RefreshToken(token string) (*LoginResponse, error)
-	Logout(token string) error
+	RefreshToken(token string) (*LoginResponse, *response.APIError)
+	Logout(token string) *response.APIError
 
 	//verification gmial
-	VerifyEmail(token string) error
-	ResendVerificationEmail(email string) error
+	VerifyEmail(token string) *response.APIError
+	ResendVerificationEmail(email string) *response.APIError
 }

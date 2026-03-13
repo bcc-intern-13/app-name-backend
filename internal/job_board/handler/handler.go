@@ -23,9 +23,9 @@ func (h *jobBoardHandler) getAll(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.ErrBadRequest("invalid query params"), err)
 	}
 
-	result, err := h.service.GetAll(filter, userID)
-	if err != nil {
-		return response.Error(ctx, response.ErrInternal(err.Error()), err)
+	result, apiErr := h.service.GetAll(filter, userID)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	return response.Success(ctx, fiber.StatusOK, "success", result)
@@ -37,14 +37,9 @@ func (h *jobBoardHandler) getByID(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.ErrBadRequest("invalid job id"), err)
 	}
 
-	result, err := h.service.GetByID(jobID)
-	if err != nil {
-		switch err.Error() {
-		case "job not found":
-			return response.Error(ctx, response.ErrNotFound(err.Error()), err)
-		default:
-			return response.Error(ctx, response.ErrInternal(err.Error()), err)
-		}
+	result, apiErr := h.service.GetByID(jobID)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	return response.Success(ctx, fiber.StatusOK, "success", result)
@@ -62,14 +57,9 @@ func (h *jobBoardHandler) toggleSave(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.ErrBadRequest("invalid job id"), err)
 	}
 
-	isSaved, err := h.service.ToggleSave(userID, jobID)
-	if err != nil {
-		switch err.Error() {
-		case "job not found":
-			return response.Error(ctx, response.ErrNotFound(err.Error()), err)
-		default:
-			return response.Error(ctx, response.ErrInternal(err.Error()), err)
-		}
+	isSaved, apiErr := h.service.ToggleSave(userID, jobID)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	msg := "job saved"
@@ -87,9 +77,9 @@ func (h *jobBoardHandler) getSavedJobs(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
 	}
 
-	result, err := h.service.GetSavedJobs(userID)
-	if err != nil {
-		return response.Error(ctx, response.ErrInternal(err.Error()), err)
+	result, apiErr := h.service.GetSavedJobs(userID)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	return response.Success(ctx, fiber.StatusOK, "success", result)
