@@ -18,9 +18,9 @@ func (h *homeHandler) getSummary(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
 	}
 
-	result, err := h.service.GetSummary(userID)
-	if err != nil {
-		return response.Error(ctx, response.ErrInternal(err.Error()), err)
+	result, apiErr := h.service.GetSummary(userID)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
 	}
 
 	return response.Success(ctx, fiber.StatusOK, "success", result)
