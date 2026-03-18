@@ -4,28 +4,28 @@ import (
 	bootstrap "github.com/bcc-intern-13/app-name-backend/cmd/bootsrap"
 
 	// user domain packages
-	"github.com/bcc-intern-13/app-name-backend/internal/user/handler"
-	"github.com/bcc-intern-13/app-name-backend/internal/user/repository"
-	"github.com/bcc-intern-13/app-name-backend/internal/user/service"
+	"github.com/bcc-intern-13/app-name-backend/internal/app/user/handler"
+	"github.com/bcc-intern-13/app-name-backend/internal/app/user/repository"
+	"github.com/bcc-intern-13/app-name-backend/internal/app/user/service"
 
 	// onboarding domain packages
-	onboardingHandler "github.com/bcc-intern-13/app-name-backend/internal/onboarding/handler"
-	onboardingRepository "github.com/bcc-intern-13/app-name-backend/internal/onboarding/repository"
-	onboardingService "github.com/bcc-intern-13/app-name-backend/internal/onboarding/service"
+	onboardingHandler "github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/handler"
+	onboardingRepository "github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/repository"
+	onboardingService "github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/service"
 
 	// career mapping domain packages
-	careerMappingHandler "github.com/bcc-intern-13/app-name-backend/internal/career_mapping/handler"
-	careerMappingRepository "github.com/bcc-intern-13/app-name-backend/internal/career_mapping/repository"
-	careerMappingService "github.com/bcc-intern-13/app-name-backend/internal/career_mapping/service"
+	careerMappingHandler "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/handler"
+	careerMappingRepository "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/repository"
+	careerMappingService "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/service"
 
 	// job board domain packages
-	jobBoardHandler "github.com/bcc-intern-13/app-name-backend/internal/job_board/handler"
-	jobBoardRepository "github.com/bcc-intern-13/app-name-backend/internal/job_board/repository"
-	jobBoardService "github.com/bcc-intern-13/app-name-backend/internal/job_board/service"
+	jobBoardHandler "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/handler"
+	jobBoardRepository "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/repository"
+	jobBoardService "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/service"
 
 	// home domain packages
-	homeHandler "github.com/bcc-intern-13/app-name-backend/internal/home/handler"
-	homeService "github.com/bcc-intern-13/app-name-backend/internal/home/service"
+	homeHandler "github.com/bcc-intern-13/app-name-backend/internal/app/home/handler"
+	homeService "github.com/bcc-intern-13/app-name-backend/internal/app/home/service"
 )
 
 func main() {
