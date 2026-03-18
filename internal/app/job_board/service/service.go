@@ -30,7 +30,7 @@ func (s *jobBoardService) GetAll(filter dto.JobBoardFilter, userID uuid.UUID) (*
 		companyName := ""
 		companyLogo := ""
 		if company != nil {
-			companyName = company.Nama
+			companyName = company.Name
 			companyLogo = company.LogoURL
 		}
 
@@ -39,13 +39,13 @@ func (s *jobBoardService) GetAll(filter dto.JobBoardFilter, userID uuid.UUID) (*
 			CompanyID:          job.CompanyID,
 			CompanyName:        companyName,
 			CompanyLogo:        companyLogo,
-			Title:              job.Judul,
-			City:               job.Kota,
-			JobType:            job.TipePekerjaan,
-			JobField:           job.BidangKerja,
-			Salary:             job.Gaji,
-			AcceptedDisability: job.DisabilitasDiterima, //note ini masih ada yang kurang masuk akal namanya kok kanananya indo
-			AccessibilityLabel: job.LabelAksesibilitas,
+			Title:              job.Title,
+			City:               job.City,
+			JobType:            job.JobType,
+			JobField:           job.JobField,
+			Salary:             job.Salary,
+			AcceptedDisability: job.AcceptedDisability, //note ini masih ada yang kurang masuk akal namanya kok kanananya indo
+			AccessibilityLabel: job.AccessibilityLabel,
 			CreatedAt:          job.CreatedAt,
 		})
 	}
@@ -81,7 +81,7 @@ func (s *jobBoardService) GetByID(id uuid.UUID) (*dto.JobListingDetailResponse, 
 	companyName := ""
 	companyLogo := ""
 	if company != nil {
-		companyName = company.Nama
+		companyName = company.Name
 		companyLogo = company.LogoURL
 	}
 
@@ -91,17 +91,17 @@ func (s *jobBoardService) GetByID(id uuid.UUID) (*dto.JobListingDetailResponse, 
 			CompanyID:          job.CompanyID,
 			CompanyName:        companyName,
 			CompanyLogo:        companyLogo,
-			Title:              job.Judul,
-			City:               job.Kota,
-			JobType:            job.TipePekerjaan,
-			JobField:           job.BidangKerja,
-			Salary:             job.Gaji,
-			AcceptedDisability: job.DisabilitasDiterima,
-			AccessibilityLabel: job.LabelAksesibilitas,
+			Title:              job.Title,
+			City:               job.City,
+			JobType:            job.JobType,
+			JobField:           job.JobField,
+			Salary:             job.Salary,
+			AcceptedDisability: job.AcceptedDisability,
+			AccessibilityLabel: job.AccessibilityLabel,
 			CreatedAt:          job.CreatedAt,
 		},
-		Description:   job.Deskripsi,
-		Qualification: job.Kualifikasi,
+		Description:   job.Description,
+		Qualification: job.Qualification,
 	}, nil
 }
 
@@ -149,7 +149,7 @@ func (s *jobBoardService) GetSavedJobs(userID uuid.UUID) ([]dto.JobListingRespon
 		companyName := ""
 		companyLogo := ""
 		if company != nil {
-			companyName = company.Nama
+			companyName = company.Name
 			companyLogo = company.LogoURL
 		}
 
@@ -158,13 +158,13 @@ func (s *jobBoardService) GetSavedJobs(userID uuid.UUID) ([]dto.JobListingRespon
 			CompanyID:          job.CompanyID,
 			CompanyName:        companyName,
 			CompanyLogo:        companyLogo,
-			Title:              job.Judul,
-			City:               job.Kota,
-			JobType:            job.TipePekerjaan,
-			JobField:           job.BidangKerja,
-			Salary:             job.Gaji,
-			AcceptedDisability: job.DisabilitasDiterima,
-			AccessibilityLabel: job.LabelAksesibilitas,
+			Title:              job.Title,
+			City:               job.City,
+			JobType:            job.JobType,
+			JobField:           job.JobField,
+			Salary:             job.Salary,
+			AcceptedDisability: job.AcceptedDisability,
+			AccessibilityLabel: job.AccessibilityLabel,
 			CreatedAt:          job.CreatedAt,
 		})
 	}
