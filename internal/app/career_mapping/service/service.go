@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"sort"
 
+	"github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/dto"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/entity"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
@@ -13,10 +14,10 @@ import (
 )
 
 type careerMappingService struct {
-	repo dto.CareerMappingRepository
+	repo contract.CareerMappingRepository
 }
 
-func NewCareerMappingService(repo dto.CareerMappingRepository) dto.CareerMappingService {
+func NewCareerMappingService(repo contract.CareerMappingRepository) contract.CareerMappingService {
 	return &careerMappingService{repo: repo}
 }
 

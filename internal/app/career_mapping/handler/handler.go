@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/dto"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
 	"github.com/go-playground/validator/v10"
@@ -11,7 +12,7 @@ import (
 var validate = validator.New()
 
 type careerMappingHandler struct {
-	service dto.CareerMappingService
+	service contract.CareerMappingService
 }
 
 func (h *careerMappingHandler) getQuestions(ctx *fiber.Ctx) error {

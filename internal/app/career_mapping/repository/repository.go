@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/dto"
+	"github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/entity"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -13,7 +13,7 @@ type careerMappingRepository struct {
 	db *gorm.DB
 }
 
-func NewCareerMappingRepository(db *gorm.DB) dto.CareerMappingRepository {
+func NewCareerMappingRepository(db *gorm.DB) contract.CareerMappingRepository {
 	return &careerMappingRepository{db: db}
 }
 
