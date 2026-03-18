@@ -3,6 +3,7 @@ package handler
 import (
 	"strings"
 
+	"github.com/bcc-intern-13/app-name-backend/internal/app/user/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/user/dto"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
 	"github.com/go-playground/validator/v10"
@@ -12,7 +13,7 @@ import (
 var validate = validator.New()
 
 type authHandler struct {
-	service dto.UserAuthService
+	service contract.UserAuthService
 }
 
 func (h *authHandler) register(ctx *fiber.Ctx) error {

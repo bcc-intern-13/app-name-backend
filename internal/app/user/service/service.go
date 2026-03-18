@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/bcc-intern-13/app-name-backend/internal/app/user/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/user/dto"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/user/entity"
 	"github.com/bcc-intern-13/app-name-backend/pkg/email"
@@ -14,20 +15,20 @@ import (
 )
 
 type userAuthService struct {
-	repo                  dto.UserRepository
-	refreshTokenRepo      dto.RefreshTokenRepository
+	repo                  contract.UserRepository
+	refreshTokenRepo      contract.RefreshTokenRepository
 	jwtSecret             string
 	email                 *email.EmailService
-	verificationTokenRepo dto.VerificationTokenRepository
+	verificationTokenRepo contract.VerificationTokenRepository
 }
 
 func NewUserAuthService(
-	repo dto.UserRepository,
+	repo contract.UserRepository,
 	jwtSecret string,
-	refreshTokenRepo dto.RefreshTokenRepository,
-	verificationTokenRepo dto.VerificationTokenRepository,
+	refreshTokenRepo contract.RefreshTokenRepository,
+	verificationTokenRepo contract.VerificationTokenRepository,
 	email *email.EmailService,
-) dto.UserAuthService {
+) contract.UserAuthService {
 	return &userAuthService{
 		repo:                  repo,
 		refreshTokenRepo:      refreshTokenRepo,

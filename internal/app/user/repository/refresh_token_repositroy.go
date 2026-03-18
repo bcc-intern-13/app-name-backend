@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/user/dto"
+	"github.com/bcc-intern-13/app-name-backend/internal/app/user/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/user/entity"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -13,7 +13,7 @@ type refreshTokenRepository struct {
 	db *gorm.DB
 }
 
-func NewRefreshTokenRepository(db *gorm.DB) dto.RefreshTokenRepository {
+func NewRefreshTokenRepository(db *gorm.DB) contract.RefreshTokenRepository {
 	return &refreshTokenRepository{db: db}
 }
 
