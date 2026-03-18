@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/user/entity"
+	"github.com/bcc-intern-13/app-name-backend/internal/app/user/entity"
 	"github.com/golang-jwt/jwt/v5"
 )
 

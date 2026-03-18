@@ -3,7 +3,7 @@ package database
 import (
 	"log"
 
-	careermapping "github.com/bcc-intern-13/app-name-backend/internal/career_mapping/entity"
+	careermapping "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/entity"
 	"gorm.io/gorm"
 )
 
