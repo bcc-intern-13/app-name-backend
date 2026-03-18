@@ -3,6 +3,7 @@ package service
 import (
 	"log/slog"
 
+	"github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/dto"
 	userdto "github.com/bcc-intern-13/app-name-backend/internal/app/user/dto"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/user/entity"
@@ -12,11 +13,11 @@ import (
 )
 
 type onboardingService struct {
-	repo     dto.OnboardingRepository
+	repo     contract.OnboardingRepository
 	userRepo userdto.UserRepository
 }
 
-func NewOnboardingService(repo dto.OnboardingRepository, userRepo userdto.UserRepository) dto.OnboardingService {
+func NewOnboardingService(repo contract.OnboardingRepository, userRepo userdto.UserRepository) contract.OnboardingService {
 	return &onboardingService{
 		repo:     repo,
 		userRepo: userRepo,
