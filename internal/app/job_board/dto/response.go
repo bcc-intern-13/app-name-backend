@@ -8,24 +8,24 @@ import (
 )
 
 type JobListingResponse struct {
-	ID                  uuid.UUID      `json:"id"`
-	CompanyID           uuid.UUID      `json:"company_id"`
-	CompanyName         string         `json:"company_name"`
-	CompanyLogo         string         `json:"company_logo"`
-	Judul               string         `json:"judul"`
-	Kota                string         `json:"kota"`
-	TipePekerjaan       string         `json:"tipe_pekerjaan"`
-	BidangKerja         string         `json:"bidang_kerja"`
-	Gaji                string         `json:"gaji"`
-	DisabilitasDiterima datatypes.JSON `json:"disabilitas_diterima"`
-	LabelAksesibilitas  datatypes.JSON `json:"label_aksesibilitas"`
-	CreatedAt           time.Time      `json:"created_at"`
+	ID                 uuid.UUID      `json:"id"`
+	CompanyID          uuid.UUID      `json:"company_id"`
+	CompanyName        string         `json:"company_name"`
+	CompanyLogo        string         `json:"company_logo"`
+	Title              string         `json:"title"`
+	City               string         `json:"city"`
+	JobType            string         `json:"job_type"`
+	JobField           string         `json:"job_field"`
+	Salary             string         `json:"salary"`
+	AcceptedDisability datatypes.JSON `json:"accepted_disability"`
+	AccessibilityLabel datatypes.JSON `json:"accessibility_label"`
+	CreatedAt          time.Time      `json:"created_at"`
 }
 
 type JobListingDetailResponse struct {
 	JobListingResponse
-	Deskripsi   string `json:"deskripsi"`
-	Kualifikasi string `json:"kualifikasi"`
+	Description   string `json:"description"`
+	Qualification string `json:"qualification"`
 }
 
 type PaginatedJobResponse struct {

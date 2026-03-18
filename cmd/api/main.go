@@ -26,6 +26,11 @@ import (
 	// home domain packages
 	homeHandler "github.com/bcc-intern-13/app-name-backend/internal/app/home/handler"
 	homeService "github.com/bcc-intern-13/app-name-backend/internal/app/home/service"
+
+	//applications domain packages
+	applicationHandler "github.com/bcc-intern-13/app-name-backend/internal/app/applications/handler"
+	applicationRepository "github.com/bcc-intern-13/app-name-backend/internal/app/applications/repository"
+	applicationService "github.com/bcc-intern-13/app-name-backend/internal/app/applications/service"
 )
 
 func main() {
@@ -70,6 +75,13 @@ func main() {
 
 	// home routes
 	homeHandler.RegisterHomeRoutes(app.Fiber, homeSvc, app.Config.JWTSecret)
+
+	//applications domain
+	applicationRepo := applicationRepository.NewApplicationRepository(app.DB)
+	applicationSvc := applicationService.NewApplicationService(applicationRepo, jobBoardRepo)
+
+	//applications routes
+	applicationHandler.RegisterApplicationRoutes(app.Fiber, applicationSvc, app.Config.JWTSecret)
 
 	app.Run()
 }

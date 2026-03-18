@@ -43,7 +43,7 @@ func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *r
 	if err != nil {
 		slog.Error("failed to get user profile for home summary", "error", err, "userID", userID)
 	} else if profile != nil {
-		nama = profile.Nama
+		nama = profile.Name
 	}
 
 	greeting := dto.GreetingResponse{
@@ -67,14 +67,14 @@ func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *r
 	var jobRecommendations []jobDto.JobListingResponse
 	if profile != nil {
 		filter := jobDto.JobBoardFilter{
-			BidangKerja:   profile.BidangKerja,
-			TipePekerjaan: profile.TipePekerjaan,
-			Limit:         5,
-			Page:          1,
+			JobField: profile.JobField,
+			JobType:  profile.JobType,
+			Limit:    5,
+			Page:     1,
 		}
 
 		if careerMapping != nil && len(careerMapping.TopCategories) > 0 {
-			filter.BidangKerja = mapCategoryToField(careerMapping.TopCategories[0].Code)
+			filter.JobField = mapCategoryToField(careerMapping.TopCategories[0].Code)
 		}
 
 		result, apiErr := s.jobBoardService.GetAll(filter, userID)

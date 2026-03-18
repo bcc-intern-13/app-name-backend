@@ -36,18 +36,18 @@ func (s *onboardingService) Submit(userID uuid.UUID, req *dto.SubmitOnboardingRe
 
 	//make new profile
 	profile := &entity.UserProfile{
-		ID:                   uuid.New(),
-		UserID:               userID,
-		Nama:                 req.Nama,
-		Usia:                 req.Usia,
-		Kota:                 req.Kota,
-		Pendidikan:           req.Pendidikan,
-		BidangKerja:          req.BidangKerja,
-		TipePekerjaan:        req.TipePekerjaan,
-		Status:               req.Status,
-		PreferensiKomunikasi: req.PreferensiKomunikasi,
-		LingkunganKerja:      datatypes.JSON(req.LingkunganKerja),
-		KebutuhanKhusus:      datatypes.JSON(req.KebutuhanKhusus),
+		ID:                      uuid.New(),
+		UserID:                  userID,
+		Name:                    req.Name,
+		Age:                     req.Age,
+		City:                    req.City,
+		Education:               req.Education,
+		JobField:                req.JobField,
+		JobType:                 req.JobType,
+		Status:                  req.Status,
+		CommunicationPreference: req.CommunicationPreference,
+		WorkEnvironment:         datatypes.JSON(req.WorkEnvironment),
+		SpecialNeeds:            datatypes.JSON(req.SpecialNeeds),
 	}
 
 	if err := s.repo.Create(profile); err != nil {
@@ -85,16 +85,16 @@ func (s *onboardingService) Update(userID uuid.UUID, req *dto.SubmitOnboardingRe
 		return response.ErrNotFound("profile not found")
 	}
 
-	profile.Nama = req.Nama
-	profile.Usia = req.Usia
-	profile.Kota = req.Kota
-	profile.Pendidikan = req.Pendidikan
-	profile.BidangKerja = req.BidangKerja
-	profile.TipePekerjaan = req.TipePekerjaan
+	profile.Name = req.Name
+	profile.Age = req.Age
+	profile.City = req.City
+	profile.Education = req.Education
+	profile.JobField = req.JobField
+	profile.JobType = req.JobType
 	profile.Status = req.Status
-	profile.PreferensiKomunikasi = req.PreferensiKomunikasi
-	profile.LingkunganKerja = datatypes.JSON(req.LingkunganKerja)
-	profile.KebutuhanKhusus = datatypes.JSON(req.KebutuhanKhusus)
+	profile.CommunicationPreference = req.CommunicationPreference
+	profile.WorkEnvironment = datatypes.JSON(req.WorkEnvironment)
+	profile.SpecialNeeds = datatypes.JSON(req.SpecialNeeds)
 
 	if err := s.repo.Update(profile); err != nil {
 		slog.Error("failed to update profile", "error", err, "userID", userID)

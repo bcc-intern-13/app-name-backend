@@ -8,17 +8,17 @@ import (
 )
 
 type CareerMappingQuestion struct {
-	ID         uuid.UUID      `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
-	Nomor      int            `gorm:"not null;uniqueIndex" json:"nomor"`
-	Pertanyaan string         `gorm:"type:text;not null" json:"pertanyaan"`
-	PilihanA   string         `gorm:"type:text;not null" json:"pilihan_a"`
-	PilihanB   string         `gorm:"type:text;not null" json:"pilihan_b"`
-	PilihanC   string         `gorm:"type:text;not null" json:"pilihan_c"`
-	PilihanD   string         `gorm:"type:text;not null" json:"pilihan_d"`
-	SkorA      datatypes.JSON `gorm:"type:jsonb;not null" json:"skor_a"`
-	SkorB      datatypes.JSON `gorm:"type:jsonb;not null" json:"skor_b"`
-	SkorC      datatypes.JSON `gorm:"type:jsonb;not null" json:"skor_c"`
-	SkorD      datatypes.JSON `gorm:"type:jsonb;not null" json:"skor_d"`
+	ID       uuid.UUID      `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	Number   int            `gorm:"not null;uniqueIndex" json:"number"`
+	Question string         `gorm:"type:text;not null" json:"question"`
+	OptionA  string         `gorm:"type:text;not null" json:"option_a"`
+	OptionB  string         `gorm:"type:text;not null" json:"option_b"`
+	OptionC  string         `gorm:"type:text;not null" json:"option_c"`
+	OptionD  string         `gorm:"type:text;not null" json:"option_d"`
+	ScoreA   datatypes.JSON `gorm:"type:jsonb;not null" json:"score_a"`
+	ScoreB   datatypes.JSON `gorm:"type:jsonb;not null" json:"score_b"`
+	ScoreC   datatypes.JSON `gorm:"type:jsonb;not null" json:"score_c"`
+	ScoreD   datatypes.JSON `gorm:"type:jsonb;not null" json:"score_d"`
 }
 
 type CareerMappingResult struct {

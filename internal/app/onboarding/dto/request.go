@@ -3,14 +3,14 @@ package dto
 import "gorm.io/datatypes"
 
 type SubmitOnboardingRequest struct {
-	Nama                 string         `json:"nama" validate:"required,min=2,max=100"`
-	Usia                 string         `json:"usia" validate:"required"`
-	Kota                 string         `json:"kota" validate:"required"`
-	Pendidikan           string         `json:"pendidikan" validate:"required"`
-	BidangKerja          string         `json:"bidang_kerja" validate:"required"`
-	TipePekerjaan        string         `json:"tipe_pekerjaan" validate:"required"`
-	Status               string         `json:"status" validate:"required"`
-	PreferensiKomunikasi string         `json:"preferensi_komunikasi" validate:"required"`
-	LingkunganKerja      datatypes.JSON `json:"lingkungan_kerja" validate:"required"`
-	KebutuhanKhusus      datatypes.JSON `json:"kebutuhan_khusus" validate:"required"`
+	Name                    string         `json:"name" validate:"required,min=2,max=100"`
+	Age                     string         `json:"age" validate:"required"`
+	City                    string         `json:"city" validate:"required"`
+	Education               string         `json:"education" validate:"required"`
+	JobField                string         `json:"job_field" validate:"required"`
+	JobType                 string         `json:"job_type" validate:"required"`
+	Status                  string         `json:"status" validate:"required"`
+	CommunicationPreference string         `json:"communication_preference" validate:"required"`
+	WorkEnvironment         datatypes.JSON `json:"work_environment" validate:"required"`
+	SpecialNeeds            datatypes.JSON `json:"special_needs" validate:"required"`
 }

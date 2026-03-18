@@ -24,20 +24,18 @@ type User struct {
 }
 
 type UserProfile struct {
-	ID                   uuid.UUID      `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
-	UserID               uuid.UUID      `gorm:"type:uuid;not null" json:"user_id"`
-	Usia                 string         `gorm:"type:varchar(255);not null"         json:"usia"`
-	Kota                 string         `gorm:"type:varchar(255);not null"         json:"kota"`
-	Pendidikan           string         `gorm:"type:varchar(255);not null"         json:"pendidikan"`
-	BidangKerja          string         `gorm:"type:varchar(255);not null"         json:"bidang_kerja"`
-	TipePekerjaan        string         `gorm:"type:varchar(255);not null"         json:"tipe_pekerjaan"`
-	Status               string         `gorm:"type:varchar(255);not null"         json:"status"`
-	PreferensiKomunikasi string         `gorm:"type:varchar(255);not null"         json:"preferensi_komunikasi"`
-	LingkunganKerja      datatypes.JSON `gorm:"type:jsonb" json:"lingkungan_kerja"`
-	KebutuhanKhusus      datatypes.JSON `gorm:"type:jsonb" json:"kebutuhan_khusus"`
-	Nama                 string         `gorm:"type:varchar(100);not null" json:"nama"`
-
-	User User `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
-
-	UpdatedAt time.Time `gorm:"autoUpdateTime"                                 json:"updated_at"`
+	ID                      uuid.UUID      `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	UserID                  uuid.UUID      `gorm:"type:uuid;not null" json:"user_id"`
+	Name                    string         `gorm:"column:name;type:varchar(100);not null" json:"name"`
+	Age                     string         `gorm:"column:age;type:varchar(20);not null" json:"age"`
+	City                    string         `gorm:"column:city;type:varchar(100);not null" json:"city"`
+	Education               string         `gorm:"column:education;type:varchar(20);not null" json:"education"`
+	JobField                string         `gorm:"column:job_field;type:varchar(50);not null" json:"job_field"`
+	JobType                 string         `gorm:"column:job_type;type:varchar(20);not null" json:"job_type"`
+	Status                  string         `gorm:"column:status;type:varchar(30);not null" json:"status"`
+	CommunicationPreference string         `gorm:"column:communication_preference;type:varchar(30);not null" json:"communication_preference"`
+	WorkEnvironment         datatypes.JSON `gorm:"column:work_environment;type:jsonb" json:"work_environment"`
+	SpecialNeeds            datatypes.JSON `gorm:"column:special_needs;type:jsonb" json:"special_needs"`
+	UpdatedAt               time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
+	User                    User           `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
 }
