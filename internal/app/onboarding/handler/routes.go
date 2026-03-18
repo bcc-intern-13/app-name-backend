@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/dto"
+	"github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterOnboardingRoutes(app *fiber.App, service dto.OnboardingService, jwtSecret string) {
+func RegisterOnboardingRoutes(app *fiber.App, service contract.OnboardingService, jwtSecret string) {
 	onboarding := app.Group("/api/onboarding", middleware.JWTProtected(jwtSecret))
 	h := &onboardingHandler{service: service}
 

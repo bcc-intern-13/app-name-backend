@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/dto"
+	"github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterCareerMappingRoutes(app *fiber.App, service dto.CareerMappingService, jwtSecret string) {
+func RegisterCareerMappingRoutes(app *fiber.App, service contract.CareerMappingService, jwtSecret string) {
 	h := &careerMappingHandler{service: service}
 
 	app.Get("/api/career-mapping/questions", h.getQuestions)

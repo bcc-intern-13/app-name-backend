@@ -1,4 +1,4 @@
-package dto
+package contract
 
 import (
 	"github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/entity"

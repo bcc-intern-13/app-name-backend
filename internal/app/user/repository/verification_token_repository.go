@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/user/dto"
+	"github.com/bcc-intern-13/app-name-backend/internal/app/user/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/user/entity"
 	"gorm.io/gorm"
 )
@@ -12,7 +12,7 @@ type verificationTokenRepository struct {
 	db *gorm.DB
 }
 
-func NewVerificationTokenRepository(db *gorm.DB) dto.VerificationTokenRepository {
+func NewVerificationTokenRepository(db *gorm.DB) contract.VerificationTokenRepository {
 	return &verificationTokenRepository{db: db}
 }
 

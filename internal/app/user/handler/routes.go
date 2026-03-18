@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"github.com/bcc-intern-13/app-name-backend/internal/app/user/dto"
+	"github.com/bcc-intern-13/app-name-backend/internal/app/user/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterRoutes(app *fiber.App, userService dto.UserAuthService, jwtSecret string) {
+func RegisterRoutes(app *fiber.App, userService contract.UserAuthService, jwtSecret string) {
 	// Public
 	auth := app.Group("/auth")
 	authH := &authHandler{service: userService}

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/dto"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
 	"github.com/go-playground/validator/v10"
@@ -11,7 +12,7 @@ import (
 var validate = validator.New()
 
 type onboardingHandler struct {
-	service dto.OnboardingService
+	service contract.OnboardingService
 }
 
 func (h *onboardingHandler) submit(ctx *fiber.Ctx) error {

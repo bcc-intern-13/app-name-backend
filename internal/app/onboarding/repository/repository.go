@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/dto"
+	"github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/user/entity"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -13,7 +13,7 @@ type onboardingRepository struct {
 	db *gorm.DB
 }
 
-func NewOnboardingRepository(db *gorm.DB) dto.OnboardingRepository {
+func NewOnboardingRepository(db *gorm.DB) contract.OnboardingRepository {
 	return &onboardingRepository{db: db}
 }
 

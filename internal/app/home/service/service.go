@@ -4,10 +4,12 @@ import (
 	"log/slog"
 	"time"
 
+	careerMappingContract "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/contract"
 	careerMappingDto "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/dto"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/home/dto"
+	jobBoardContract "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/contract"
 	jobDto "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/dto"
-	onboardingDto "github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/dto"
+	onboardingContract "github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/contract"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
 	"github.com/google/uuid"
 )
@@ -17,15 +19,15 @@ type HomeService interface {
 }
 
 type homeService struct {
-	onboardingRepo   onboardingDto.OnboardingRepository
-	jobBoardService  jobDto.JobBoardService
-	careerMappingSvc careerMappingDto.CareerMappingService
+	onboardingRepo   onboardingContract.OnboardingRepository
+	jobBoardService  jobBoardContract.JobBoardService
+	careerMappingSvc careerMappingContract.CareerMappingService
 }
 
 func NewHomeService(
-	onboardingRepo onboardingDto.OnboardingRepository,
-	jobBoardService jobDto.JobBoardService,
-	careerMappingSvc careerMappingDto.CareerMappingService,
+	onboardingRepo onboardingContract.OnboardingRepository,
+	jobBoardService jobBoardContract.JobBoardService,
+	careerMappingSvc careerMappingContract.CareerMappingService,
 ) HomeService {
 	return &homeService{
 		onboardingRepo:   onboardingRepo,
@@ -35,7 +37,7 @@ func NewHomeService(
 }
 
 func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *response.APIError) {
-	//get profile, not fatal if error name just will be empyy
+	// get profile, not fatal if error, name just will be empty
 	profile, err := s.onboardingRepo.FindByUserID(userID)
 	nama := ""
 	if err != nil {
@@ -48,11 +50,12 @@ func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *r
 		Name:      nama,
 		Timestamp: time.Now().UTC(),
 	}
-	//get career mapping
+
+	// get career mapping
 	var careerMapping *careerMappingDto.CareerMappingResponse
 	cmResult, apiErr := s.careerMappingSvc.GetLatestResult(userID)
 	if apiErr != nil {
-		//user havent done career mapping test
+		// user havent done career mapping test
 		if apiErr.Status != 404 {
 			slog.Error("failed to get career mapping result", "error", apiErr.Message, "userID", userID)
 		}

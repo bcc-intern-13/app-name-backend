@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/bcc-intern-13/app-name-backend/internal/app/job_board/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/job_board/dto"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
 	"github.com/gofiber/fiber/v2"
@@ -8,7 +9,7 @@ import (
 )
 
 type jobBoardHandler struct {
-	service dto.JobBoardService
+	service contract.JobBoardService
 }
 
 func (h *jobBoardHandler) getAll(ctx *fiber.Ctx) error {

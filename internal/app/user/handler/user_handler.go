@@ -2,13 +2,13 @@ package handler
 
 //note temporal hanlder for user_handler.
 import (
-	"github.com/bcc-intern-13/app-name-backend/internal/app/user/dto"
+	"github.com/bcc-intern-13/app-name-backend/internal/app/user/contract"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
 	"github.com/gofiber/fiber/v2"
 )
 
 type userHandler struct {
-	service dto.UserAuthService
+	service contract.UserAuthService
 }
 
 func (h *userHandler) getMe(ctx *fiber.Ctx) error {
