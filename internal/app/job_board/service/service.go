@@ -3,16 +3,17 @@ package service
 import (
 	"log/slog"
 
+	"github.com/bcc-intern-13/app-name-backend/internal/app/job_board/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/job_board/dto"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
 	"github.com/google/uuid"
 )
 
 type jobBoardService struct {
-	repo dto.JobBoardRepository
+	repo contract.JobBoardRepository
 }
 
-func NewJobBoardService(repo dto.JobBoardRepository) dto.JobBoardService {
+func NewJobBoardService(repo contract.JobBoardRepository) contract.JobBoardService {
 	return &jobBoardService{repo: repo}
 }
 
