@@ -24,20 +24,20 @@ func (r *jobBoardRepository) FindAll(filter dto.JobBoardFilter) ([]entity.JobLis
 
 	query := r.db.Model(&entity.JobListing{}).Where("is_active = ?", true)
 
-	if filter.Kota != "" {
-		query = query.Where("kota ILIKE ?", "%"+filter.Kota+"%")
+	if filter.City != "" {
+		query = query.Where("kota ILIKE ?", "%"+filter.City+"%")
 	}
-	if filter.BidangKerja != "" {
-		query = query.Where("bidang_kerja = ?", filter.BidangKerja)
+	if filter.JobField != "" {
+		query = query.Where("bidang_kerja = ?", filter.JobField)
 	}
-	if filter.TipePekerjaan != "" {
-		query = query.Where("tipe_pekerjaan = ?", filter.TipePekerjaan)
+	if filter.JobType != "" {
+		query = query.Where("tipe_pekerjaan = ?", filter.JobType)
 	}
-	if filter.Disabilitas != "" {
-		query = query.Where("disabilitas_diterima @> ?", `["`+filter.Disabilitas+`"]`)
+	if filter.Disability != "" {
+		query = query.Where("disabilitas_diterima @> ?", `["`+filter.Disability+`"]`)
 	}
-	if filter.LabelAksesibilitas != "" {
-		query = query.Where("label_aksesibilitas @> ?", `["`+filter.LabelAksesibilitas+`"]`)
+	if filter.AccessibilityLabel != "" {
+		query = query.Where("label_aksesibilitas @> ?", `["`+filter.AccessibilityLabel+`"]`)
 	}
 	if filter.Search != "" {
 		query = query.Where("judul ILIKE ?", "%"+filter.Search+"%")

@@ -47,13 +47,13 @@ func (s *careerMappingService) Submit(userID uuid.UUID, req *dto.SubmitCareerMap
 		var skorJSON []byte
 		switch answer {
 		case "A":
-			skorJSON = q.SkorA
+			skorJSON = q.ScoreA
 		case "B":
-			skorJSON = q.SkorB
+			skorJSON = q.ScoreB
 		case "C":
-			skorJSON = q.SkorC
+			skorJSON = q.ScoreC
 		case "D":
-			skorJSON = q.SkorD
+			skorJSON = q.ScoreD
 		}
 
 		var skor map[string]int
