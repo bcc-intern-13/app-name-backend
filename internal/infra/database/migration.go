@@ -5,6 +5,7 @@ import (
 
 	applicationsentity "github.com/bcc-intern-13/app-name-backend/internal/app/applications/entity"
 	careermappingentity "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/entity"
+	companyentity "github.com/bcc-intern-13/app-name-backend/internal/app/company/entity"
 	jobboardidentity "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/entity"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/user/entity"
 
@@ -20,7 +21,7 @@ func Migrate(db *gorm.DB) {
 		&careermappingentity.CareerMappingQuestion{},
 		&careermappingentity.CareerMappingResult{},
 		&careermappingentity.CareerCategory{},
-		&jobboardidentity.Company{},
+		&companyentity.Company{},
 		&jobboardidentity.JobListing{},
 		&jobboardidentity.SavedJob{},
 		&applicationsentity.Application{},
