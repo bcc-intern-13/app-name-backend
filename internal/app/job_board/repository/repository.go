@@ -18,34 +18,40 @@ func NewJobBoardRepository(db *gorm.DB) contract.JobBoardRepository {
 	return &jobBoardRepository{db: db}
 }
 
-func (r *jobBoardRepository) FindAll(filter dto.JobBoardFilter) ([]entity.JobListing, int64, error) {
-	var jobs []entity.JobListing
+func (r *jobBoardRepository) FindAll(filter dto.JobBoardFilter) ([]dto.JobListingWithCompany, int64, error) {
+	var results []dto.JobListingWithCompany
 	var total int64
 
-	query := r.db.Model(&entity.JobListing{}).Where("is_active = ?", true)
+	query := r.db.Table("job_listings jl").
+		Select(`
+			jl.*,
+			c.name as company_name,
+			c.logo_url as company_logo
+		`).
+		Joins("LEFT JOIN companies c ON c.id = jl.company_id").
+		Where("jl.is_active = ?", true)
 
 	if filter.City != "" {
-		query = query.Where("kota ILIKE ?", "%"+filter.City+"%")
+		query = query.Where("jl.city ILIKE ?", "%"+filter.City+"%")
 	}
 	if filter.JobField != "" {
-		query = query.Where("bidang_kerja = ?", filter.JobField)
+		query = query.Where("jl.job_field = ?", filter.JobField)
 	}
 	if filter.JobType != "" {
-		query = query.Where("tipe_pekerjaan = ?", filter.JobType)
+		query = query.Where("jl.job_type = ?", filter.JobType)
 	}
 	if filter.Disability != "" {
-		query = query.Where("disabilitas_diterima @> ?", `["`+filter.Disability+`"]`)
+		query = query.Where("jl.accepted_disability @> ?", `["`+filter.Disability+`"]`)
 	}
 	if filter.AccessibilityLabel != "" {
-		query = query.Where("label_aksesibilitas @> ?", `["`+filter.AccessibilityLabel+`"]`)
+		query = query.Where("jl.accessibility_label @> ?", `["`+filter.AccessibilityLabel+`"]`)
 	}
 	if filter.Search != "" {
-		query = query.Where("judul ILIKE ?", "%"+filter.Search+"%")
+		query = query.Where("jl.title ILIKE ?", "%"+filter.Search+"%")
 	}
 
 	query.Count(&total)
 
-	// pagination
 	page := filter.Page
 	limit := filter.Limit
 	if page <= 0 {
@@ -56,14 +62,13 @@ func (r *jobBoardRepository) FindAll(filter dto.JobBoardFilter) ([]entity.JobLis
 	}
 	offset := (page - 1) * limit
 
-	err := query.Order("created_at desc").
+	err := query.Order("jl.created_at desc").
 		Limit(limit).
 		Offset(offset).
-		Find(&jobs).Error
+		Scan(&results).Error
 
-	return jobs, total, err
+	return results, total, err
 }
-
 func (r *jobBoardRepository) FindByID(id uuid.UUID) (*entity.JobListing, error) {
 	var job entity.JobListing
 	err := r.db.Where("id = ?", id).First(&job).Error
@@ -71,15 +76,6 @@ func (r *jobBoardRepository) FindByID(id uuid.UUID) (*entity.JobListing, error) 
 		return nil, nil
 	}
 	return &job, err
-}
-
-func (r *jobBoardRepository) FindCompanyByID(id uuid.UUID) (*entity.Company, error) {
-	var company entity.Company
-	err := r.db.Where("id = ?", id).First(&company).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil
-	}
-	return &company, err
 }
 
 func (r *jobBoardRepository) SaveJob(userID, jobID uuid.UUID) error {
@@ -105,13 +101,18 @@ func (r *jobBoardRepository) IsJobSaved(userID, jobID uuid.UUID) (bool, error) {
 	return count > 0, err
 }
 
-func (r *jobBoardRepository) FindSavedJobs(userID uuid.UUID) ([]entity.JobListing, error) {
-	var jobs []entity.JobListing
-	err := r.db.Raw(`
-		SELECT jl.* FROM job_listings jl
-		INNER JOIN saved_jobs sj ON sj.job_id = jl.id
-		WHERE sj.user_id = ? AND jl.is_active = true
-		ORDER BY sj.created_at DESC
-	`, userID).Scan(&jobs).Error
-	return jobs, err
+func (r *jobBoardRepository) FindSavedJobs(userID uuid.UUID) ([]dto.JobListingWithCompany, error) {
+	var results []dto.JobListingWithCompany
+	err := r.db.Table("job_listings jl").
+		Select(`
+			jl.*,
+			c.name as company_name,
+			c.logo_url as company_logo
+		`).
+		Joins("LEFT JOIN companies c ON c.id = jl.company_id").
+		Joins("INNER JOIN saved_jobs sj ON sj.job_id = jl.id").
+		Where("sj.user_id = ? AND jl.is_active = true", userID).
+		Order("sj.created_at DESC").
+		Scan(&results).Error
+	return results, err
 }

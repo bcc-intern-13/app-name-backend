@@ -3,6 +3,7 @@ package service
 import (
 	"log/slog"
 
+	companyContract "github.com/bcc-intern-13/app-name-backend/internal/app/company/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/job_board/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/job_board/dto"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
@@ -10,7 +11,9 @@ import (
 )
 
 type jobBoardService struct {
-	repo contract.JobBoardRepository
+	repo        contract.JobBoardRepository
+	companyRepo companyContract.CompanyRepository // ← tambah
+
 }
 
 func NewJobBoardService(repo contract.JobBoardRepository) contract.JobBoardService {
@@ -26,25 +29,17 @@ func (s *jobBoardService) GetAll(filter dto.JobBoardFilter, userID uuid.UUID) (*
 
 	var result []dto.JobListingResponse
 	for _, job := range jobs {
-		company, _ := s.repo.FindCompanyByID(job.CompanyID)
-		companyName := ""
-		companyLogo := ""
-		if company != nil {
-			companyName = company.Name
-			companyLogo = company.LogoURL
-		}
-
 		result = append(result, dto.JobListingResponse{
 			ID:                 job.ID,
 			CompanyID:          job.CompanyID,
-			CompanyName:        companyName,
-			CompanyLogo:        companyLogo,
+			CompanyName:        job.CompanyName, // ← langsung dari JOIN
+			CompanyLogo:        job.CompanyLogo, // ← langsung dari JOIN
 			Title:              job.Title,
 			City:               job.City,
 			JobType:            job.JobType,
 			JobField:           job.JobField,
 			Salary:             job.Salary,
-			AcceptedDisability: job.AcceptedDisability, //note ini masih ada yang kurang masuk akal namanya kok kanananya indo
+			AcceptedDisability: job.AcceptedDisability,
 			AccessibilityLabel: job.AccessibilityLabel,
 			CreatedAt:          job.CreatedAt,
 		})
@@ -77,7 +72,7 @@ func (s *jobBoardService) GetByID(id uuid.UUID) (*dto.JobListingDetailResponse, 
 		return nil, response.ErrNotFound("job not found")
 	}
 
-	company, _ := s.repo.FindCompanyByID(job.CompanyID)
+	company, _ := s.companyRepo.FindCompanyByID(job.CompanyID)
 	companyName := ""
 	companyLogo := ""
 	if company != nil {
@@ -145,7 +140,7 @@ func (s *jobBoardService) GetSavedJobs(userID uuid.UUID) ([]dto.JobListingRespon
 
 	var result []dto.JobListingResponse
 	for _, job := range jobs {
-		company, _ := s.repo.FindCompanyByID(job.CompanyID)
+		company, _ := s.companyRepo.FindCompanyByID(job.CompanyID)
 		companyName := ""
 		companyLogo := ""
 		if company != nil {
