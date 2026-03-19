@@ -33,9 +33,9 @@ func (h *applicationHandler) submit(ctx *fiber.Ctx) error {
 
 	// ambil file CV
 	cv, err := ctx.FormFile("cv")
-	if err != nil {
-		return response.Error(ctx, response.ErrBadRequest("cv file is required"), err)
-	}
+	// if err != nil {
+	// 	return response.Error(ctx, response.ErrBadRequest("cv file is required"), err)
+	// }
 
 	if apiErr := h.service.Submit(userID, &req, cv); apiErr != nil {
 		return response.Error(ctx, apiErr, nil)

@@ -81,31 +81,14 @@ func (s *applicationService) GetAll(userID uuid.UUID, status string) ([]dto.Appl
 
 	var result []dto.ApplicationResponse
 	for _, app := range applications {
-		// ambil data job
-		jobTitle := ""
-		companyName := ""
-		companyLogo := ""
-
-		job, err := s.jobBoardRepo.FindByID(app.JobID)
-		if err != nil {
-			slog.Error("failed to get job for application", "error", err, "jobID", app.JobID)
-		} else if job != nil {
-			jobTitle = job.Title
-			company, err := s.jobBoardRepo.FindCompanyByID(job.CompanyID)
-			if err != nil {
-				slog.Error("failed to get company", "error", err, "companyID", job.CompanyID)
-			} else if company != nil {
-				companyName = company.Name
-				companyLogo = company.LogoURL
-			}
-		}
-
 		result = append(result, dto.ApplicationResponse{
 			ID:            app.ID,
 			JobID:         app.JobID,
-			JobTitle:      jobTitle,
-			CompanyName:   companyName,
-			CompanyLogo:   companyLogo,
+			JobTitle:      app.JobTitle,
+			JobCity:       app.JobCity,
+			JobType:       app.JobType,
+			CompanyName:   app.CompanyName,
+			CompanyLogo:   app.CompanyLogo,
 			Status:        app.Status,
 			PortfolioLink: app.PortfolioLink,
 			CvURL:         app.CvURL,
@@ -127,37 +110,19 @@ func (s *applicationService) GetByID(userID, id uuid.UUID) (*dto.ApplicationDeta
 		return nil, response.ErrNotFound("application not found")
 	}
 
-	// pastikan application milik user ini
 	if application.UserID != userID {
 		return nil, response.ErrUnAuthorized("you are not authorized to view this application")
-	}
-
-	// ambil data job
-	jobTitle := ""
-	companyName := ""
-	companyLogo := ""
-
-	job, err := s.jobBoardRepo.FindByID(application.JobID)
-	if err != nil {
-		slog.Error("failed to get job", "error", err, "jobID", application.JobID)
-	} else if job != nil {
-		jobTitle = job.Title
-		company, err := s.jobBoardRepo.FindCompanyByID(job.CompanyID)
-		if err != nil {
-			slog.Error("failed to get company", "error", err, "companyID", job.CompanyID)
-		} else if company != nil {
-			companyName = company.Name
-			companyLogo = company.LogoURL
-		}
 	}
 
 	return &dto.ApplicationDetailResponse{
 		ApplicationResponse: dto.ApplicationResponse{
 			ID:            application.ID,
 			JobID:         application.JobID,
-			JobTitle:      jobTitle,
-			CompanyName:   companyName,
-			CompanyLogo:   companyLogo,
+			JobTitle:      application.JobTitle,
+			JobCity:       application.JobCity,
+			JobType:       application.JobType,
+			CompanyName:   application.CompanyName,
+			CompanyLogo:   application.CompanyLogo,
 			Status:        application.Status,
 			PortfolioLink: application.PortfolioLink,
 			CvURL:         application.CvURL,

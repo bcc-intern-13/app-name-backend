@@ -31,6 +31,11 @@ import (
 	applicationHandler "github.com/bcc-intern-13/app-name-backend/internal/app/applications/handler"
 	applicationRepository "github.com/bcc-intern-13/app-name-backend/internal/app/applications/repository"
 	applicationService "github.com/bcc-intern-13/app-name-backend/internal/app/applications/service"
+
+	//company domain packages
+	companyHandler "github.com/bcc-intern-13/app-name-backend/internal/app/company/handler"
+	companyRepository "github.com/bcc-intern-13/app-name-backend/internal/app/company/repository"
+	companyService "github.com/bcc-intern-13/app-name-backend/internal/app/company/service"
 )
 
 func main() {
@@ -82,6 +87,13 @@ func main() {
 
 	//applications routes
 	applicationHandler.RegisterApplicationRoutes(app.Fiber, applicationSvc, app.Config.JWTSecret)
+
+	//company doomain
+	companyRepo := companyRepository.NewCompanyRepository(app.DB)
+	companySvc := companyService.NewCompanyService(companyRepo)
+
+	// company routes
+	companyHandler.RegisterCompanyRoutes(app.Fiber, companySvc, app.Config.JWTSecret)
 
 	app.Run()
 }
