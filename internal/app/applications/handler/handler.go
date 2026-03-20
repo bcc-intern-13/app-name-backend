@@ -31,11 +31,11 @@ func (h *applicationHandler) submit(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.NewValidationError(err), err)
 	}
 
-	// ambil file CV
+	// get from cv file
 	cv, err := ctx.FormFile("cv")
-	// if err != nil {
-	// 	return response.Error(ctx, response.ErrBadRequest("cv file is required"), err)
-	// }
+	if err != nil {
+		return response.Error(ctx, response.ErrBadRequest("cv file is required"), err)
+	}
 
 	//note : cv file is optional, so we won't return error if cv is not provided (temporary)
 

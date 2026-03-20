@@ -15,6 +15,7 @@ type Config struct {
 	SupabaseServiceRoleKey string
 	StorageBucketCV        string
 	StorageBucketAvatar    string
+	SupabaseURL            string
 
 	JWTSecret    string
 	SMTPHost     string
@@ -34,6 +35,7 @@ func Load() *Config {
 		Port:        mustGetEnv("PORT"),
 
 		//supabase object storage
+		SupabaseURL:            mustGetEnv("SUPABASE_URL"),
 		SupabaseServiceRoleKey: mustGetEnv("SUPABASE_SERVICE_ROLE_KEY"),
 		StorageBucketCV:        mustGetEnv("STORAGE_BUCKET_CV"),
 		StorageBucketAvatar:    mustGetEnv("STORAGE_BUCKET_AVATAR"),

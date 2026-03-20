@@ -41,7 +41,7 @@ func NewApp() *App {
 	)
 
 	storageService := storage.NewStorageService(
-		cfg.DatabaseURL,
+		cfg.SupabaseURL,
 		cfg.SupabaseServiceRoleKey,
 		cfg.StorageBucketCV,
 		cfg.StorageBucketAvatar,

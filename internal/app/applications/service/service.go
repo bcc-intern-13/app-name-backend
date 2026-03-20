@@ -18,13 +18,13 @@ import (
 type applicationService struct {
 	repo           contract.ApplicationRepository
 	jobBoardRepo   jobBoardContract.JobBoardRepository
-	storageService *storage.StorageService // ← tambah
+	storageService *storage.StorageService
 }
 
 func NewApplicationService(
 	repo contract.ApplicationRepository,
 	jobBoardRepo jobBoardContract.JobBoardRepository,
-	storageService *storage.StorageService, // ← tambah
+	storageService *storage.StorageService,
 ) contract.ApplicationService {
 	return &applicationService{
 		repo:           repo,
@@ -90,8 +90,9 @@ func (s *applicationService) Submit(userID uuid.UUID, req *dto.SubmitApplication
 			fileBytes,
 			"application/pdf",
 		)
+
 		if err != nil {
-			slog.Error("failed to upload cv", "error", err, "userID", userID)
+			slog.Error("failed to upload cv", "error", err.Error(), "userID", userID) // ← tambah .Error()
 			return response.ErrInternal("failed to upload cv")
 		}
 	}
