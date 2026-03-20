@@ -5,6 +5,7 @@ import (
 
 	"github.com/bcc-intern-13/app-name-backend/config"
 	"github.com/bcc-intern-13/app-name-backend/pkg/email"
+	"github.com/bcc-intern-13/app-name-backend/pkg/storage"
 
 	"github.com/bcc-intern-13/app-name-backend/internal/infra/database"
 	"github.com/gofiber/fiber/v2"
@@ -12,10 +13,11 @@ import (
 )
 
 type App struct {
-	Fiber        *fiber.App
-	DB           *gorm.DB
-	Config       *config.Config
-	EmailService *email.EmailService
+	Fiber          *fiber.App
+	DB             *gorm.DB
+	Config         *config.Config
+	EmailService   *email.EmailService
+	StorageService *storage.StorageService
 }
 
 func NewApp() *App {
@@ -25,9 +27,11 @@ func NewApp() *App {
 		panic(err)
 	}
 
+	//migrate and seed
 	database.Migrate(db)
 	database.Seed(db)
 
+	//email package
 	EmailSvc := email.NewEmailService(
 		cfg.SMTPHost,
 		cfg.SMTPPort,
@@ -36,11 +40,19 @@ func NewApp() *App {
 		cfg.AppURL,
 	)
 
+	storageService := storage.NewStorageService(
+		cfg.DatabaseURL,
+		cfg.SupabaseServiceRoleKey,
+		cfg.StorageBucketCV,
+		cfg.StorageBucketAvatar,
+	)
+
 	return &App{
-		Fiber:        fiber.New(),
-		DB:           db,
-		Config:       cfg,
-		EmailService: EmailSvc,
+		Fiber:          fiber.New(),
+		DB:             db,
+		Config:         cfg,
+		EmailService:   EmailSvc,
+		StorageService: storageService,
 	}
 }
 
