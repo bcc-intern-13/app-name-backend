@@ -87,7 +87,7 @@ func main() {
 
 	//applications domain
 	applicationRepo := applicationRepository.NewApplicationRepository(app.DB)
-	applicationSvc := applicationService.NewApplicationService(applicationRepo, jobBoardRepo)
+	applicationSvc := applicationService.NewApplicationService(applicationRepo, jobBoardRepo, app.StorageService)
 
 	//applications routes
 	applicationHandler.RegisterApplicationRoutes(app.Fiber, applicationSvc, app.Config.JWTSecret)
