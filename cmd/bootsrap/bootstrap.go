@@ -5,6 +5,7 @@ import (
 
 	"github.com/bcc-intern-13/app-name-backend/config"
 	"github.com/bcc-intern-13/app-name-backend/pkg/email"
+	"github.com/bcc-intern-13/app-name-backend/pkg/gemini"
 	"github.com/bcc-intern-13/app-name-backend/pkg/storage"
 
 	"github.com/bcc-intern-13/app-name-backend/internal/infra/database"
@@ -18,6 +19,7 @@ type App struct {
 	Config         *config.Config
 	EmailService   *email.EmailService
 	StorageService *storage.StorageService
+	geminiService  *gemini.GeminiService
 }
 
 func NewApp() *App {
@@ -32,7 +34,7 @@ func NewApp() *App {
 	database.Seed(db)
 
 	//email package
-	EmailSvc := email.NewEmailService(
+	EmailService := email.NewEmailService(
 		cfg.SMTPHost,
 		cfg.SMTPPort,
 		cfg.SMTPEmail,
@@ -40,6 +42,7 @@ func NewApp() *App {
 		cfg.AppURL,
 	)
 
+	//storage services package
 	storageService := storage.NewStorageService(
 		cfg.SupabaseURL,
 		cfg.SupabaseServiceRoleKey,
@@ -47,12 +50,19 @@ func NewApp() *App {
 		cfg.StorageBucketAvatar,
 	)
 
+	//gemini service package
+	geminiService, err := gemini.NewGeminiService(cfg.GeminiAPIKey)
+	if err != nil {
+		log.Fatal("Failed to initialize Gemini:", err)
+	}
+
 	return &App{
 		Fiber:          fiber.New(),
 		DB:             db,
 		Config:         cfg,
-		EmailService:   EmailSvc,
+		EmailService:   EmailService,
 		StorageService: storageService,
+		geminiService:  geminiService,
 	}
 }
 
