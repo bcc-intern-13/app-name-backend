@@ -23,6 +23,9 @@ type Config struct {
 	SMTPEmail    string
 	SMTPPassword string
 	AppURL       string
+
+	//gemini api key
+	GeminiAPIKey string
 }
 
 func Load() *Config {
@@ -49,6 +52,9 @@ func Load() *Config {
 		SMTPEmail:    mustGetEnv("SMTP_EMAIL"),
 		SMTPPassword: mustGetEnv("SMTP_PASSWORD"),
 		AppURL:       mustGetEnv("APP_URL"),
+
+		//gemini api key
+		GeminiAPIKey: mustGetEnv("GEMINI_API_KEY"),
 	}
 }
 
