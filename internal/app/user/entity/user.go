@@ -13,7 +13,7 @@ type User struct {
 	Nama                string    `gorm:"type:varchar(100)" json:"nama"`
 	Email               string    `gorm:"type:varchar(255);uniqueIndex;not null"         json:"email"`
 	Password            string    `gorm:"type:text;not null"                             json:"-"`
-	AvatarURL           string    `json:"avatar_url" gorm:"type:varchar(255);not null"`
+	AvatarURL           string    `json:"avatar_url" gorm:"type:varchar(255)"`
 	IsVerified          bool      `json:"is_verified" gorm:"type:boolean;default:false;not null"`
 	IsPremium           bool      `gorm:"default:false" json:"is_premium"`
 	OnboardingCompleted bool      `gorm:"default:false" json:"onboarding_completed"`

@@ -36,6 +36,10 @@ import (
 	companyHandler "github.com/bcc-intern-13/app-name-backend/internal/app/company/handler"
 	companyRepository "github.com/bcc-intern-13/app-name-backend/internal/app/company/repository"
 	companyService "github.com/bcc-intern-13/app-name-backend/internal/app/company/service"
+
+	//smartprofile domain packages
+	smartProfileHandler "github.com/bcc-intern-13/app-name-backend/internal/app/smart_profile/handler"
+	smartProfileService "github.com/bcc-intern-13/app-name-backend/internal/app/smart_profile/service"
 )
 
 func main() {
@@ -94,6 +98,12 @@ func main() {
 
 	// company routes
 	companyHandler.RegisterCompanyRoutes(app.Fiber, companySvc, app.Config.JWTSecret)
+
+	// smart profile domain
+	smartProfileSvc := smartProfileService.NewSmartProfileService(onboardingRepo, careerMappingSvc)
+
+	// routes
+	smartProfileHandler.RegisterSmartProfileRoutes(app.Fiber, smartProfileSvc, app.Config.JWTSecret)
 
 	app.Run()
 }
