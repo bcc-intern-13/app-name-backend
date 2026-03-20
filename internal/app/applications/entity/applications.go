@@ -10,7 +10,7 @@ type Application struct {
 	ID              uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
 	UserID          uuid.UUID `gorm:"type:uuid;not null;index" json:"user_id"`
 	JobID           uuid.UUID `gorm:"type:uuid;not null;index" json:"job_id"`
-	CvURL           string    `gorm:"column:cv_url;type:text;not null" json:"cv_url"`
+	CvURL           string    `gorm:"column:cv_url;type:text" json:"cv_url"`
 	PortfolioLink   string    `gorm:"column:portfolio_link;type:text" json:"portfolio_link"`
 	Status          string    `gorm:"column:status;type:varchar(20);not null;default:'Terkirim'" json:"status"`
 	InterviewLink   string    `gorm:"column:interview_link;type:text" json:"interview_link"`
