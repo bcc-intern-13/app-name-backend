@@ -37,6 +37,8 @@ func (h *applicationHandler) submit(ctx *fiber.Ctx) error {
 	// 	return response.Error(ctx, response.ErrBadRequest("cv file is required"), err)
 	// }
 
+	//note : cv file is optional, so we won't return error if cv is not provided (temporary)
+
 	if apiErr := h.service.Submit(userID, &req, cv); apiErr != nil {
 		return response.Error(ctx, apiErr, nil)
 	}
@@ -51,7 +53,7 @@ func (h *applicationHandler) getAll(ctx *fiber.Ctx) error {
 		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
 	}
 
-	// optional filter by status
+	// (optional) filter by status
 	status := ctx.Query("status")
 
 	result, apiErr := h.service.GetAll(userID, status)

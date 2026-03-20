@@ -34,7 +34,7 @@ func (s *applicationService) Submit(userID uuid.UUID, req *dto.SubmitApplication
 		return response.ErrBadRequest("invalid job id")
 	}
 
-	// cek job exists
+	// cek if job exists
 	job, err := s.jobBoardRepo.FindByID(jobID)
 	if err != nil {
 		slog.Error("failed to get job", "error", err, "jobID", jobID)
@@ -44,7 +44,7 @@ func (s *applicationService) Submit(userID uuid.UUID, req *dto.SubmitApplication
 		return response.ErrNotFound("job not found")
 	}
 
-	// cek sudah pernah lamar
+	// check if job already have been aplied by this user
 	existing, err := s.repo.FindByUserIDAndJobID(userID, jobID)
 	if err != nil {
 		slog.Error("failed to check existing application", "error", err)
@@ -54,7 +54,7 @@ func (s *applicationService) Submit(userID uuid.UUID, req *dto.SubmitApplication
 		return response.ErrConflict("you have already applied to this job")
 	}
 
-	// untuk sekarang cv_url dikosongkan dulu, nanti diisi setelah storage siap
+	//note : for now we won't handle cv upload, so cv url will be empty string. We will handle cv upload in the future
 	application := &entity.Application{
 		ID:            uuid.New(),
 		UserID:        userID,
@@ -145,12 +145,12 @@ func (s *applicationService) Delete(userID, id uuid.UUID) *response.APIError {
 		return response.ErrNotFound("application not found")
 	}
 
-	// pastikan application milik user ini
+	// making sure user can only delete their own application
 	if application.UserID != userID {
 		return response.ErrUnAuthorized("you are not authorized to delete this application")
 	}
 
-	// hanya bisa tarik kalau status masih Terkirim
+	//cancel only allowed for applications with status "Terkirim"
 	if application.Status != "Terkirim" {
 		return response.ErrBadRequest("can only withdraw application with status Terkirim")
 	}
