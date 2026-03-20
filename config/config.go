@@ -8,8 +8,14 @@ import (
 )
 
 type Config struct {
-	DatabaseURL  string `env:"DATABASE_URL"`
-	Port         string `port:"PORT"`
+	DatabaseURL string `env:"DATABASE_URL"`
+	Port        string `port:"PORT"`
+
+	//supabase object storage
+	SupabaseServiceRoleKey string
+	StorageBucketCV        string
+	StorageBucketAvatar    string
+
 	JWTSecret    string
 	SMTPHost     string
 	SMTPPort     string
@@ -24,9 +30,18 @@ func Load() *Config {
 	}
 
 	return &Config{
-		DatabaseURL:  mustGetEnv("DATABASE_URL"),
-		Port:         mustGetEnv("PORT"),
-		JWTSecret:    mustGetEnv("JWT_SECRET"),
+		DatabaseURL: mustGetEnv("DATABASE_URL"),
+		Port:        mustGetEnv("PORT"),
+
+		//supabase object storage
+		SupabaseServiceRoleKey: mustGetEnv("SUPABASE_SERVICE_ROLE_KEY"),
+		StorageBucketCV:        mustGetEnv("STORAGE_BUCKET_CV"),
+		StorageBucketAvatar:    mustGetEnv("STORAGE_BUCKET_AVATAR"),
+
+		//jwt
+		JWTSecret: mustGetEnv("JWT_SECRET"),
+
+		//email host
 		SMTPHost:     mustGetEnv("SMTP_HOST"),
 		SMTPPort:     mustGetEnv("SMTP_PORT"),
 		SMTPEmail:    mustGetEnv("SMTP_EMAIL"),
