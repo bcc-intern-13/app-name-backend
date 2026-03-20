@@ -195,3 +195,48 @@ func (s *careerMappingService) GetLatestResult(userID uuid.UUID) (*dto.CareerMap
 		AttemptNumber: result.AttemptNumber,
 	}, nil
 }
+func (s *careerMappingService) GetHistory(userID uuid.UUID) ([]dto.CareerMappingResponse, *response.APIError) {
+	results, err := s.repo.FindAllResultsByUserID(userID)
+	if err != nil {
+		slog.Error("failed to get career mapping history", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to get history")
+	}
+	if len(results) == 0 {
+		return []dto.CareerMappingResponse{}, nil
+	}
+
+	var responses []dto.CareerMappingResponse
+	for _, result := range results {
+		var topCatCodes []string
+		if err := json.Unmarshal(result.TopCategories, &topCatCodes); err != nil {
+			slog.Error("failed to parse top categories", "error", err)
+			continue
+		}
+
+		var topCategories []dto.CategoryScore
+		for rank, code := range topCatCodes {
+			category, _ := s.repo.GetCategoryByID(code)
+			var scores map[string]int
+			json.Unmarshal(result.Scores, &scores)
+			if category != nil {
+				topCategories = append(topCategories, dto.CategoryScore{
+					Rank:        rank + 1,
+					Code:        code,
+					Name:        category.Name,
+					Score:       scores[code],
+					Description: category.Description,
+					FormalJobs:  category.FormalJobs,
+					SideJobs:    category.SideJobs,
+				})
+			}
+		}
+
+		responses = append(responses, dto.CareerMappingResponse{
+			TopCategories: topCategories,
+			AttemptNumber: result.AttemptNumber,
+			CreatedAt:     result.CreatedAt,
+		})
+	}
+
+	return responses, nil
+}

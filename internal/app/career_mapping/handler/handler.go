@@ -61,3 +61,18 @@ func (h *careerMappingHandler) getLatestResult(ctx *fiber.Ctx) error {
 
 	return response.Success(ctx, fiber.StatusOK, "success", result)
 }
+
+func (h *careerMappingHandler) getHistory(ctx *fiber.Ctx) error {
+	userIDStr := ctx.Locals("userID").(string)
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
+	}
+
+	result, apiErr := h.service.GetHistory(userID)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
+	}
+
+	return response.Success(ctx, fiber.StatusOK, "success", result)
+}

@@ -11,4 +11,5 @@ type CareerMappingService interface {
 	GetQuestions() ([]entity.CareerMappingQuestion, *response.APIError)
 	Submit(userID uuid.UUID, req *dto.SubmitCareerMappingRequest) (*dto.CareerMappingResponse, *response.APIError)
 	GetLatestResult(userID uuid.UUID) (*dto.CareerMappingResponse, *response.APIError)
+	GetHistory(userID uuid.UUID) ([]dto.CareerMappingResponse, *response.APIError)
 }

@@ -54,3 +54,11 @@ func (r *careerMappingRepository) GetCategoryByID(id string) (*entity.CareerCate
 	}
 	return &category, err
 }
+
+func (r *careerMappingRepository) FindAllResultsByUserID(userID uuid.UUID) ([]entity.CareerMappingResult, error) {
+	var results []entity.CareerMappingResult
+	err := r.db.Where("user_id = ?", userID).
+		Order("attempt_number desc").
+		Find(&results).Error
+	return results, err
+}

@@ -1,6 +1,10 @@
 package dto
 
-import "gorm.io/datatypes"
+import (
+	"time"
+
+	"gorm.io/datatypes"
+)
 
 type CategoryScore struct {
 	Rank        int            `json:"rank,omitempty"`
@@ -17,4 +21,6 @@ type CareerMappingResponse struct {
 	TopCategories []CategoryScore `json:"top_categories"`
 	AllScores     []CategoryScore `json:"all_scores"`
 	AttemptNumber int             `json:"attempt_number"`
+
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 }
