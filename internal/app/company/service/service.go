@@ -28,14 +28,14 @@ func (s *companyService) GetByID(id uuid.UUID) (*dto.CompanyResponse, *response.
 		return nil, response.ErrNotFound("company not found")
 	}
 
-	// ambil semua job aktif perusahaan ini
+	// get jobs by company id
 	jobs, err := s.repo.FindActiveJobsByCompanyID(id)
 	if err != nil {
 		slog.Error("failed to get company jobs", "error", err, "id", id)
 		return nil, response.ErrInternal("failed to get company jobs")
 	}
 
-	// convert ke JobListingResponse
+	// convert job to JobListingResponse
 	var jobListings []jobDto.JobListingResponse
 	for _, job := range jobs {
 		jobListings = append(jobListings, jobDto.JobListingResponse{

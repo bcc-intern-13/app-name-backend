@@ -79,3 +79,14 @@ func (r *applicationRepository) FindByUserIDAndJobID(userID, jobID uuid.UUID) (*
 func (r *applicationRepository) Delete(id uuid.UUID) error {
 	return r.db.Where("id = ?", id).Delete(&entity.Application{}).Error
 }
+
+func (r *applicationRepository) FindLatestWithCVByUserID(userID uuid.UUID) (*entity.Application, error) {
+	var application entity.Application
+	err := r.db.Where("user_id = ? AND cv_url != ''", userID).
+		Order("created_at DESC").
+		First(&application).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &application, err
+}

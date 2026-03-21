@@ -11,4 +11,5 @@ type CareerMappingRepository interface {
 	FindLatestResultByUserID(userID uuid.UUID) (*entity.CareerMappingResult, error)
 	CountByUserID(userID uuid.UUID) (int64, error)
 	GetCategoryByID(id string) (*entity.CareerCategory, error)
+	FindAllResultsByUserID(userID uuid.UUID) ([]entity.CareerMappingResult, error)
 }

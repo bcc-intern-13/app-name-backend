@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+	"io"
 	"log/slog"
 	"mime/multipart"
 
@@ -9,32 +11,34 @@ import (
 	"github.com/bcc-intern-13/app-name-backend/internal/app/applications/entity"
 	jobBoardContract "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/contract"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
+	"github.com/bcc-intern-13/app-name-backend/pkg/storage"
 	"github.com/google/uuid"
 )
 
 type applicationService struct {
-	repo         contract.ApplicationRepository
-	jobBoardRepo jobBoardContract.JobBoardRepository
+	repo           contract.ApplicationRepository
+	jobBoardRepo   jobBoardContract.JobBoardRepository
+	storageService *storage.StorageService
 }
 
 func NewApplicationService(
 	repo contract.ApplicationRepository,
 	jobBoardRepo jobBoardContract.JobBoardRepository,
+	storageService *storage.StorageService,
 ) contract.ApplicationService {
 	return &applicationService{
-		repo:         repo,
-		jobBoardRepo: jobBoardRepo,
+		repo:           repo,
+		jobBoardRepo:   jobBoardRepo,
+		storageService: storageService,
 	}
 }
 
 func (s *applicationService) Submit(userID uuid.UUID, req *dto.SubmitApplicationRequest, cv *multipart.FileHeader) *response.APIError {
-	// parse job id
 	jobID, err := uuid.Parse(req.JobID)
 	if err != nil {
 		return response.ErrBadRequest("invalid job id")
 	}
 
-	// cek job exists
 	job, err := s.jobBoardRepo.FindByID(jobID)
 	if err != nil {
 		slog.Error("failed to get job", "error", err, "jobID", jobID)
@@ -44,7 +48,6 @@ func (s *applicationService) Submit(userID uuid.UUID, req *dto.SubmitApplication
 		return response.ErrNotFound("job not found")
 	}
 
-	// cek sudah pernah lamar
 	existing, err := s.repo.FindByUserIDAndJobID(userID, jobID)
 	if err != nil {
 		slog.Error("failed to check existing application", "error", err)
@@ -54,12 +57,51 @@ func (s *applicationService) Submit(userID uuid.UUID, req *dto.SubmitApplication
 		return response.ErrConflict("you have already applied to this job")
 	}
 
-	// untuk sekarang cv_url dikosongkan dulu, nanti diisi setelah storage siap
+	// upload cv if provided
+	cvURL := ""
+	if cv != nil {
+		// validate file type (must be pdf files)
+		if cv.Header.Get("Content-Type") != "application/pdf" {
+			return response.ErrBadRequest("cv must be a PDF file")
+		}
+
+		// validate file size (max 5MB)
+		if cv.Size > 5*1024*1024 {
+			return response.ErrBadRequest("cv file size must be less than 5MB")
+		}
+
+		// read file content
+		file, err := cv.Open()
+		if err != nil {
+			slog.Error("failed to open cv file", "error", err)
+			return response.ErrInternal("failed to process cv file")
+		}
+		defer file.Close()
+
+		fileBytes, err := io.ReadAll(file)
+		if err != nil {
+			slog.Error("failed to read cv file", "error", err)
+			return response.ErrInternal("failed to read cv file")
+		}
+
+		// upload to the supabase storage
+		cvURL, err = s.storageService.UploadCV(
+			fmt.Sprintf("%s_%s", userID.String(), jobID.String()),
+			fileBytes,
+			"application/pdf",
+		)
+
+		if err != nil {
+			slog.Error("failed to upload cv", "error", err.Error(), "userID", userID) // ← tambah .Error()
+			return response.ErrInternal("failed to upload cv")
+		}
+	}
+
 	application := &entity.Application{
 		ID:            uuid.New(),
 		UserID:        userID,
 		JobID:         jobID,
-		CvURL:         "",
+		CvURL:         cvURL,
 		PortfolioLink: req.PortfolioLink,
 		Status:        "Terkirim",
 	}
@@ -145,12 +187,12 @@ func (s *applicationService) Delete(userID, id uuid.UUID) *response.APIError {
 		return response.ErrNotFound("application not found")
 	}
 
-	// pastikan application milik user ini
+	// making sure user can only delete their own application
 	if application.UserID != userID {
 		return response.ErrUnAuthorized("you are not authorized to delete this application")
 	}
 
-	// hanya bisa tarik kalau status masih Terkirim
+	//cancel only allowed for applications with status "Terkirim"
 	if application.Status != "Terkirim" {
 		return response.ErrBadRequest("can only withdraw application with status Terkirim")
 	}

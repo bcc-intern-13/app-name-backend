@@ -40,6 +40,11 @@ import (
 	//smartprofile domain packages
 	smartProfileHandler "github.com/bcc-intern-13/app-name-backend/internal/app/smart_profile/handler"
 	smartProfileService "github.com/bcc-intern-13/app-name-backend/internal/app/smart_profile/service"
+
+	//company domain packages
+	geminiHandler "github.com/bcc-intern-13/app-name-backend/internal/app/gemini/handler"
+	geminiRepository "github.com/bcc-intern-13/app-name-backend/internal/app/gemini/repository"
+	geminiService "github.com/bcc-intern-13/app-name-backend/internal/app/gemini/service"
 )
 
 func main() {
@@ -87,7 +92,7 @@ func main() {
 
 	//applications domain
 	applicationRepo := applicationRepository.NewApplicationRepository(app.DB)
-	applicationSvc := applicationService.NewApplicationService(applicationRepo, jobBoardRepo)
+	applicationSvc := applicationService.NewApplicationService(applicationRepo, jobBoardRepo, app.StorageService)
 
 	//applications routes
 	applicationHandler.RegisterApplicationRoutes(app.Fiber, applicationSvc, app.Config.JWTSecret)
@@ -102,8 +107,15 @@ func main() {
 	// smart profile domain
 	smartProfileSvc := smartProfileService.NewSmartProfileService(onboardingRepo, careerMappingSvc)
 
-	// routes
+	// smart-profile routes
 	smartProfileHandler.RegisterSmartProfileRoutes(app.Fiber, smartProfileSvc, app.Config.JWTSecret)
+
+	//gemini domain
+	geminiRepo := geminiRepository.NewCVRepository(app.DB)
+	geminiService := geminiService.NewCVService(geminiRepo, app.GeminiService, app.StorageService)
+
+	// gemini routes
+	geminiHandler.RegisterRoutes(app.Fiber, geminiService, app.Config.JWTSecret)
 
 	app.Run()
 }

@@ -11,5 +11,6 @@ type ApplicationRepository interface {
 	FindAllByUserID(userID uuid.UUID, status string) ([]dto.ApplicationWithJob, error)
 	FindByID(id uuid.UUID) (*dto.ApplicationWithJob, error)
 	FindByUserIDAndJobID(userID, jobID uuid.UUID) (*entity.Application, error)
+	FindLatestWithCVByUserID(userID uuid.UUID) (*entity.Application, error)
 	Delete(id uuid.UUID) error
 }

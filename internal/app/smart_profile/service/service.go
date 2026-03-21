@@ -29,7 +29,8 @@ func NewSmartProfileService(
 }
 
 func (s *smartProfileService) GetByUserID(userID uuid.UUID) (*dto.SmartProfileResponse, *response.APIError) {
-	// ambil onboarding data
+
+	//get onboarding data by user id
 	profile, err := s.onboardingRepo.FindByUserID(userID)
 	if err != nil {
 		slog.Error("failed to get user profile", "error", err, "userID", userID)
@@ -39,7 +40,7 @@ func (s *smartProfileService) GetByUserID(userID uuid.UUID) (*dto.SmartProfileRe
 		return nil, response.ErrNotFound("profile not found, please complete onboarding first")
 	}
 
-	// ambil career mapping terbaru — tidak fatal kalau belum ada
+	// get newest career mapping result by user id
 	var careerMapping *careerMappingDto.CareerMappingResponse
 	cmResult, apiErr := s.careerMappingSvc.GetLatestResult(userID)
 	if apiErr != nil {
