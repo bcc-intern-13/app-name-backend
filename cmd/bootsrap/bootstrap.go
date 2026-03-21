@@ -19,7 +19,7 @@ type App struct {
 	Config         *config.Config
 	EmailService   *email.EmailService
 	StorageService *storage.StorageService
-	geminiService  *gemini.GeminiService
+	GeminiService  *gemini.GeminiService
 }
 
 func NewApp() *App {
@@ -52,6 +52,7 @@ func NewApp() *App {
 
 	//gemini service package
 	geminiService, err := gemini.NewGeminiService(cfg.GeminiAPIKey)
+	log.Printf("Gemini API Key loaded: %s...", cfg.GeminiAPIKey[:10])
 	if err != nil {
 		log.Fatal("Failed to initialize Gemini:", err)
 	}
@@ -62,7 +63,7 @@ func NewApp() *App {
 		Config:         cfg,
 		EmailService:   EmailService,
 		StorageService: storageService,
-		geminiService:  geminiService,
+		GeminiService:  geminiService,
 	}
 }
 

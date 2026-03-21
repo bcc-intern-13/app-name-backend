@@ -11,6 +11,8 @@ import (
 type GeminiService struct {
 	client *genai.Client
 	model  string
+	apiKey string // tambah ini
+
 }
 
 func NewGeminiService(apiKey string) (*GeminiService, error) {
@@ -21,7 +23,9 @@ func NewGeminiService(apiKey string) (*GeminiService, error) {
 	}
 	return &GeminiService{
 		client: client,
-		model:  "gemini-2.0-flash",
+		model:  "gemini-2.5-flash", // free tier
+		apiKey: apiKey,             // tambah ini
+
 	}, nil
 }
 
@@ -33,7 +37,7 @@ func (g *GeminiService) Close() {
 func (g *GeminiService) GenerateText(ctx context.Context, prompt string) (string, error) {
 	model := g.client.GenerativeModel(g.model)
 	model.SetTemperature(0.7)
-	model.SetMaxOutputTokens(2048)
+	model.SetMaxOutputTokens(8192)
 
 	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
 	if err != nil {
@@ -50,31 +54,13 @@ func (g *GeminiService) ExtractCVFromPDF(ctx context.Context, fileBytes []byte) 
 	model.SetTemperature(0.1) // low temperature → lebih akurat untuk extraction
 	model.SetMaxOutputTokens(4096)
 
-	prompt := `Kamu adalah sistem ekstraksi CV profesional.
-
-Ekstrak semua informasi dari CV PDF ini dan return HANYA dalam format JSON berikut tanpa markdown atau teks lain apapun:
+	prompt := `Ekstrak informasi CV ini ke JSON. Return HANYA JSON tanpa markdown:
 {
-  "summary": "ringkasan profil kandidat dalam 2-3 kalimat",
-  "education": [
-    {
-      "institution": "nama institusi",
-      "major": "jurusan",
-      "year_start": "tahun masuk",
-      "year_end": "tahun keluar"
-    }
-  ],
-  "experience": [
-    {
-      "company": "nama perusahaan",
-      "position": "posisi jabatan",
-      "description": "deskripsi pekerjaan",
-      "year_start": "tahun mulai",
-      "year_end": "tahun selesai"
-    }
-  ],
-  "skills": ["skill 1", "skill 2"],
-  "adaptive_skills": ["skill adaptif 1", "skill adaptif 2"],
-  "extracted_text": "semua teks mentah dari CV digabung jadi 1 string"
+  "summary": "ringkasan 2-3 kalimat",
+  "education": [{"institution": "", "major": "", "year_start": "", "year_end": ""}],
+  "experience": [{"company": "", "position": "", "description": "", "year_start": "", "year_end": ""}],
+  "skills": ["skill1", "skill2"],
+  "adaptive_skills": ["skill1"]
 }`
 
 	resp, err := model.GenerateContent(ctx,
@@ -104,4 +90,8 @@ func (g *GeminiService) extractText(resp *genai.GenerateContentResponse) string 
 		}
 	}
 	return result
+}
+
+func (g *GeminiService) GetKeyPrefix() string {
+	return g.apiKey[:10]
 }

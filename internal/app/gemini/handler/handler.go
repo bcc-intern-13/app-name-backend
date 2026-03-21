@@ -15,19 +15,39 @@ type cvHandler struct {
 	service contract.CVService
 }
 
-// POST /api/cv — ambil cv_url dari lamaran terbaru, extract pake Gemini, upsert CV
-func (h *cvHandler) createCV(ctx *fiber.Ctx) error {
+// POST /api/cv/upload — upload PDF ke storage, TANPA Gemini
+func (h *cvHandler) uploadCV(ctx *fiber.Ctx) error {
 	userID, err := getUserID(ctx)
 	if err != nil {
 		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
 	}
 
-	result, apiErr := h.service.CreateCV(ctx.Context(), userID)
+	file, err := ctx.FormFile("cv")
+	if err != nil {
+		return response.Error(ctx, response.ErrBadRequest("cv file is required"), err)
+	}
+
+	result, apiErr := h.service.UploadCV(ctx.Context(), userID, file)
 	if apiErr != nil {
 		return response.Error(ctx, apiErr, nil)
 	}
 
-	return response.Success(ctx, fiber.StatusCreated, "CV analyzed successfully", result)
+	return response.Success(ctx, fiber.StatusCreated, "CV uploaded successfully", result)
+}
+
+// POST /api/cv/analyze — panggil Gemini extract dari PDF yang udah diupload
+func (h *cvHandler) analyzeCV(ctx *fiber.Ctx) error {
+	userID, err := getUserID(ctx)
+	if err != nil {
+		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
+	}
+
+	result, apiErr := h.service.AnalyzeCV(ctx.Context(), userID)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
+	}
+
+	return response.Success(ctx, fiber.StatusOK, "CV analyzed successfully", result)
 }
 
 // GET /api/cv

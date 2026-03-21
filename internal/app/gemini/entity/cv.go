@@ -20,4 +20,6 @@ type CV struct {
 	IsAiVerified   bool           `gorm:"column:is_ai_verified;default:false" json:"is_ai_verified"`
 	AiCallsToday   int            `gorm:"column:ai_calls_today;default:0" json:"ai_calls_today"`
 	UpdatedAt      time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
+
+	CvURL string `gorm:"column:cv_url;type:text" json:"cv_url"`
 }

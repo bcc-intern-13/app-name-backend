@@ -6,15 +6,16 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"mime/multipart"
 	"net/http"
 	"strings"
 
-	applicationContract "github.com/bcc-intern-13/app-name-backend/internal/app/applications/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/gemini/contract"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/gemini/dto"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/gemini/entity"
 	"github.com/bcc-intern-13/app-name-backend/pkg/gemini"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
+	"github.com/bcc-intern-13/app-name-backend/pkg/storage"
 	"github.com/google/uuid"
 	"gorm.io/datatypes"
 )
@@ -22,43 +23,101 @@ import (
 const maxAICallsPerDay = 10
 
 type cvService struct {
-	repo            contract.CVRepository
-	applicationRepo applicationContract.ApplicationRepository
-	gemini          *gemini.GeminiService
+	repo    contract.CVRepository
+	gemini  *gemini.GeminiService
+	storage *storage.StorageService
 }
 
 func NewCVService(
 	repo contract.CVRepository,
-	applicationRepo applicationContract.ApplicationRepository,
 	geminiSvc *gemini.GeminiService,
+	storageSvc *storage.StorageService,
 ) contract.CVService {
 	return &cvService{
-		repo:            repo,
-		applicationRepo: applicationRepo,
-		gemini:          geminiSvc,
+		repo:    repo,
+		gemini:  geminiSvc,
+		storage: storageSvc,
 	}
 }
 
-// CreateCV → ambil cv_url dari lamaran terbaru → fetch PDF dari Supabase Storage → Gemini extract → upsert cvs
-func (s *cvService) CreateCV(ctx context.Context, userID uuid.UUID) (*dto.CVResponse, *response.APIError) {
-	// ambil lamaran terbaru yang punya cv_url
-	latestApp, err := s.applicationRepo.FindLatestWithCVByUserID(userID)
-	if err != nil {
-		slog.Error("failed to get latest application", "error", err, "userID", userID)
-		return nil, response.ErrInternal("failed to get latest application")
+// UploadCV → terima PDF → upload ke Supabase Storage → simpan cv_url ke cvs (TANPA Gemini)
+func (s *cvService) UploadCV(ctx context.Context, userID uuid.UUID, file *multipart.FileHeader) (*dto.CVUploadResponse, *response.APIError) {
+	if file.Header.Get("Content-Type") != "application/pdf" {
+		return nil, response.ErrBadRequest("cv must be a PDF file")
 	}
-	if latestApp == nil || latestApp.CvURL == "" {
-		return nil, response.ErrNotFound("no cv found, please submit an application with a cv first")
+	if file.Size > 5*1024*1024 {
+		return nil, response.ErrBadRequest("cv file size must be less than 5MB")
 	}
 
-	// fetch PDF bytes dari Supabase Storage URL
-	pdfBytes, err := fetchFromURL(latestApp.CvURL)
+	f, err := file.Open()
 	if err != nil {
-		slog.Error("failed to fetch pdf from storage", "error", err, "url", latestApp.CvURL)
+		slog.Error("failed to open cv file", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to process cv file")
+	}
+	defer f.Close()
+
+	fileBytes, err := io.ReadAll(f)
+	if err != nil {
+		slog.Error("failed to read cv file", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to read cv file")
+	}
+
+	// upload ke Supabase Storage
+	cvURL, err := s.storage.UploadCV(userID.String(), fileBytes, "application/pdf")
+	if err != nil {
+		slog.Error("failed to upload cv to storage", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to upload cv")
+	}
+
+	// upsert cv_url ke tabel cvs (belum ada extracted data)
+	existing, err := s.repo.FindByUserID(ctx, userID)
+	if err != nil {
+		slog.Error("failed to find existing cv", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to check existing cv")
+	}
+
+	if existing == nil {
+		cv := &entity.CV{
+			ID:     uuid.New(),
+			UserID: userID,
+			CvURL:  cvURL,
+		}
+		if err := s.repo.Create(ctx, cv); err != nil {
+			slog.Error("failed to create cv record", "error", err, "userID", userID)
+			return nil, response.ErrInternal("failed to save cv")
+		}
+	} else {
+		existing.CvURL = cvURL
+		if err := s.repo.Update(ctx, existing); err != nil {
+			slog.Error("failed to update cv url", "error", err, "userID", userID)
+			return nil, response.ErrInternal("failed to update cv")
+		}
+	}
+
+	return &dto.CVUploadResponse{CvURL: cvURL}, nil
+}
+
+// AnalyzeCV → ambil cv_url dari cvs → fetch PDF → Gemini extract → update cvs
+func (s *cvService) AnalyzeCV(ctx context.Context, userID uuid.UUID) (*dto.CVResponse, *response.APIError) {
+	cv, err := s.repo.FindByUserID(ctx, userID)
+	if err != nil {
+		slog.Error("failed to get cv", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to get cv")
+	}
+	if cv == nil || cv.CvURL == "" {
+		return nil, response.ErrNotFound("cv not found, please upload your cv first")
+	}
+
+	// fetch PDF dari Supabase Storage
+	pdfBytes, err := fetchFromURL(cv.CvURL)
+	if err != nil {
+		slog.Error("failed to fetch pdf from storage", "error", err, "url", cv.CvURL)
 		return nil, response.ErrInternal("failed to fetch cv from storage")
 	}
 
-	// Gemini extract isi PDF
+	slog.Info("analyzing cv", "size_bytes", len(pdfBytes), "userID", userID)
+
+	// Gemini extract
 	jsonStr, err := s.gemini.ExtractCVFromPDF(ctx, pdfBytes)
 	if err != nil {
 		slog.Error("failed to extract cv from pdf", "error", err, "userID", userID)
@@ -66,43 +125,24 @@ func (s *cvService) CreateCV(ctx context.Context, userID uuid.UUID) (*dto.CVResp
 	}
 
 	extracted, err := parseExtractedCV(jsonStr)
+	slog.Info("gemini raw response", "response", jsonStr)
 	if err != nil {
 		slog.Error("failed to parse gemini response", "error", err, "userID", userID)
 		return nil, response.ErrInternal("failed to parse cv extraction result")
 	}
 
-	// cek apakah CV sudah ada (upsert)
-	existing, err := s.repo.FindByUserID(ctx, userID)
-	if err != nil {
-		slog.Error("failed to find existing cv", "error", err, "userID", userID)
-		return nil, response.ErrInternal("failed to check existing cv")
-	}
-
-	cv := &entity.CV{
-		UserID:         userID,
-		Summary:        extracted.Summary,
-		Education:      datatypes.JSON(mustMarshal(extracted.Education)),
-		Experience:     datatypes.JSON(mustMarshal(extracted.Experience)),
-		Skills:         datatypes.JSON(mustMarshal(extracted.Skills)),
-		AdaptiveSkills: datatypes.JSON(mustMarshal(extracted.AdaptiveSkills)),
-	}
+	// update cv dengan hasil extract
+	cv.Summary = extracted.Summary
+	cv.Education = datatypes.JSON(mustMarshal(extracted.Education))
+	cv.Experience = datatypes.JSON(mustMarshal(extracted.Experience))
+	cv.Skills = datatypes.JSON(mustMarshal(extracted.Skills))
+	cv.AdaptiveSkills = datatypes.JSON(mustMarshal(extracted.AdaptiveSkills))
 	cv.CvScore = calculateScore(cv)
 	cv.IsAiVerified = cv.CvScore >= 80
 
-	if existing == nil {
-		cv.ID = uuid.New()
-		if err := s.repo.Create(ctx, cv); err != nil {
-			slog.Error("failed to create cv", "error", err, "userID", userID)
-			return nil, response.ErrInternal("failed to save cv")
-		}
-	} else {
-		cv.ID = existing.ID
-		cv.AiCallsToday = existing.AiCallsToday // preserve rate limit counter
-		cv.LastJobMatch = existing.LastJobMatch // preserve last job match
-		if err := s.repo.Update(ctx, cv); err != nil {
-			slog.Error("failed to update cv", "error", err, "userID", userID)
-			return nil, response.ErrInternal("failed to update cv")
-		}
+	if err := s.repo.Update(ctx, cv); err != nil {
+		slog.Error("failed to update cv", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to save cv analysis")
 	}
 
 	return toCVResponse(cv), nil
@@ -115,7 +155,7 @@ func (s *cvService) GetCV(ctx context.Context, userID uuid.UUID) (*dto.CVRespons
 		return nil, response.ErrInternal("failed to get cv")
 	}
 	if cv == nil {
-		return nil, response.ErrNotFound("cv not found, please submit an application with a cv first")
+		return nil, response.ErrNotFound("cv not found, please upload your cv first")
 	}
 	return toCVResponse(cv), nil
 }
@@ -127,7 +167,7 @@ func (s *cvService) UpdateCV(ctx context.Context, userID uuid.UUID, req *dto.Upd
 		return nil, response.ErrInternal("failed to get cv")
 	}
 	if cv == nil {
-		return nil, response.ErrNotFound("cv not found, please submit an application with a cv first")
+		return nil, response.ErrNotFound("cv not found, please upload your cv first")
 	}
 
 	if req.Summary != nil {
@@ -146,7 +186,6 @@ func (s *cvService) UpdateCV(ctx context.Context, userID uuid.UUID, req *dto.Upd
 		cv.AdaptiveSkills = datatypes.JSON(mustMarshal(req.AdaptiveSkills))
 	}
 
-	// recalculate score setiap kali CV diupdate (sesuai PRD)
 	cv.CvScore = calculateScore(cv)
 	cv.IsAiVerified = cv.CvScore >= 80
 
@@ -356,7 +395,7 @@ func (s *cvService) checkAndIncrementAICall(ctx context.Context, userID uuid.UUI
 		return nil, response.ErrInternal("failed to get cv")
 	}
 	if cv == nil {
-		return nil, response.ErrNotFound("cv not found, please submit an application with a cv first")
+		return nil, response.ErrNotFound("cv not found, please upload your cv first")
 	}
 	if cv.AiCallsToday >= maxAICallsPerDay {
 		return nil, response.ErrTooManyRequests("you have reached the maximum ai calls for today (10/day), try again tomorrow")
@@ -369,11 +408,8 @@ func (s *cvService) checkAndIncrementAICall(ctx context.Context, userID uuid.UUI
 	return cv, nil
 }
 
-// calculateScore → rule-based, 4 dimensi @ 25 poin (sesuai PRD)
 func calculateScore(cv *entity.CV) int {
 	score := 0
-
-	// Kelengkapan (25 poin)
 	if cv.Summary != "" {
 		score += 5
 	}
@@ -386,28 +422,21 @@ func calculateScore(cv *entity.CV) int {
 	if len(cv.Skills) > 2 {
 		score += 5
 	}
-
-	// Kekuatan Kalimat (25 poin)
 	if len(cv.Summary) > 100 {
 		score += 10
 	}
 	if containsNumber(cv.Summary) {
 		score += 15
 	}
-
-	// Skills (25 poin)
 	if len(cv.Skills) > 10 {
 		score += 15
 	}
 	if len(cv.AdaptiveSkills) > 2 {
 		score += 10
 	}
-
-	// Experience (25 poin)
 	if len(cv.Experience) > 50 {
 		score += 25
 	}
-
 	if score > 100 {
 		score = 100
 	}
@@ -434,7 +463,6 @@ func containsNumber(s string) bool {
 	return false
 }
 
-// fetchFromURL → download bytes dari Supabase Storage public URL
 func fetchFromURL(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
@@ -485,6 +513,7 @@ func toCVResponse(cv *entity.CV) *dto.CVResponse {
 		CvScore:        cv.CvScore,
 		IsAiVerified:   cv.IsAiVerified,
 		AiCallsToday:   cv.AiCallsToday,
+		CvURL:          cv.CvURL,
 		UpdatedAt:      cv.UpdatedAt,
 	}
 }

@@ -7,7 +7,12 @@ import (
 	"github.com/google/uuid"
 )
 
-// CVResponse → GET /api/cv, POST /api/cv, PATCH /api/cv
+// CVUploadResponse → POST /api/cv/upload
+type CVUploadResponse struct {
+	CvURL string `json:"cv_url"`
+}
+
+// CVResponse → GET /api/cv, POST /api/cv/analyze, PATCH /api/cv
 type CVResponse struct {
 	ID             uuid.UUID       `json:"id"`
 	UserID         uuid.UUID       `json:"user_id"`
@@ -19,6 +24,7 @@ type CVResponse struct {
 	CvScore        int             `json:"cv_score"`
 	IsAiVerified   bool            `json:"is_ai_verified"`
 	AiCallsToday   int             `json:"ai_calls_today"`
+	CvURL          string          `json:"cv_url"`
 	UpdatedAt      time.Time       `json:"updated_at"`
 }
 

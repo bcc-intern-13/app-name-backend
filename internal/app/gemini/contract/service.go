@@ -2,6 +2,7 @@ package contract
 
 import (
 	"context"
+	"mime/multipart"
 
 	"github.com/bcc-intern-13/app-name-backend/internal/app/gemini/dto"
 	"github.com/bcc-intern-13/app-name-backend/pkg/response"
@@ -9,8 +10,11 @@ import (
 )
 
 type CVService interface {
-	// CreateCV → ambil cv_url dari lamaran terbaru user → fetch PDF → Gemini extract → upsert cvs
-	CreateCV(ctx context.Context, userID uuid.UUID) (*dto.CVResponse, *response.APIError)
+	// UploadCV → terima PDF → simpan ke Supabase Storage → simpan cv_url ke cvs (TANPA Gemini)
+	UploadCV(ctx context.Context, userID uuid.UUID, file *multipart.FileHeader) (*dto.CVUploadResponse, *response.APIError)
+
+	// AnalyzeCV → ambil PDF dari cv_url → Gemini extract → update cvs
+	AnalyzeCV(ctx context.Context, userID uuid.UUID) (*dto.CVResponse, *response.APIError)
 
 	// GetCV → ambil data CV user
 	GetCV(ctx context.Context, userID uuid.UUID) (*dto.CVResponse, *response.APIError)
