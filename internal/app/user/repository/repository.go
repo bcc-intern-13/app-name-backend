@@ -52,3 +52,10 @@ func (r *userRepository) UpdateOnboardingCompleted(userID uuid.UUID) error {
 		Where("id = ?", userID).
 		Update("onboarding_completed", true).Error
 }
+
+// repository for update is user premium
+func (r *userRepository) UpdateIsPremium(userID uuid.UUID) error {
+	return r.db.Model(&entity.User{}).
+		Where("id = ?", userID).
+		Update("is_premium", true).Error
+}
