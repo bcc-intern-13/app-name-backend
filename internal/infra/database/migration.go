@@ -8,6 +8,7 @@ import (
 	companyentity "github.com/bcc-intern-13/app-name-backend/internal/app/company/entity"
 	cvEntity "github.com/bcc-intern-13/app-name-backend/internal/app/gemini/entity"
 	jobboardidentity "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/entity"
+	orderentity "github.com/bcc-intern-13/app-name-backend/internal/app/payment/entity"
 	"github.com/bcc-intern-13/app-name-backend/internal/app/user/entity"
 
 	"gorm.io/gorm"
@@ -27,6 +28,7 @@ func Migrate(db *gorm.DB) {
 		&jobboardidentity.SavedJob{},
 		&applicationsentity.Application{},
 		&cvEntity.CV{},
+		&orderentity.Order{},
 	)
 	if err != nil {
 		log.Println("Failed to Auto Migrate to database.")
