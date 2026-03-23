@@ -8,8 +8,10 @@ import (
 )
 
 type Config struct {
+	//databae url
 	DatabaseURL string `env:"DATABASE_URL"`
-	Port        string `port:"PORT"`
+	//app port
+	Port string `port:"PORT"`
 
 	//supabase object storage
 	SupabaseServiceRoleKey string
@@ -17,7 +19,10 @@ type Config struct {
 	StorageBucketAvatar    string
 	SupabaseURL            string
 
-	JWTSecret    string
+	//jwt secret string
+	JWTSecret string
+
+	//gmail configs
 	SMTPHost     string
 	SMTPPort     string
 	SMTPEmail    string
@@ -59,9 +64,10 @@ func Load() *Config {
 }
 
 func mustGetEnv(key string) string {
-	v := os.Getenv(key)
-	if v == "" {
+	value := os.Getenv(key)
+	if value == "" {
+		log.Fatal("env value is missing")
 		log.Fatalf(" ENV '%s' need to be filled", key)
 	}
-	return v
+	return value
 }
