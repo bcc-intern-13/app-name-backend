@@ -7,6 +7,7 @@ import (
 	"github.com/bcc-intern-13/app-name-backend/pkg/email"
 	"github.com/bcc-intern-13/app-name-backend/pkg/gemini"
 	"github.com/bcc-intern-13/app-name-backend/pkg/storage"
+	"github.com/bcc-intern-13/app-name-backend/pkg/xendit"
 
 	"github.com/bcc-intern-13/app-name-backend/internal/infra/database"
 	"github.com/gofiber/fiber/v2"
@@ -20,6 +21,7 @@ type App struct {
 	EmailService   *email.EmailService
 	StorageService *storage.StorageService
 	GeminiService  *gemini.GeminiService
+	XenditService  *xendit.XenditService
 }
 
 func NewApp() *App {
@@ -52,10 +54,13 @@ func NewApp() *App {
 
 	//gemini service package
 	geminiService, err := gemini.NewGeminiService(cfg.GeminiAPIKey)
-	log.Printf("Gemini API Key loaded: %s...", cfg.GeminiAPIKey[:10])
-	if err != nil {
-		log.Fatal("Failed to initialize Gemini:", err)
-	}
+	// log.Printf("Gemini API Key loaded: %s...", cfg.GeminiAPIKey[:10])
+	// if err != nil {
+	// 	log.Fatal("Failed to initialize Gemini:", err)
+	// }
+
+	// xendit service package
+	xenditService := xendit.NewXenditService(cfg.XenditSecretKey)
 
 	return &App{
 		Fiber:          fiber.New(),
@@ -64,6 +69,7 @@ func NewApp() *App {
 		EmailService:   EmailService,
 		StorageService: storageService,
 		GeminiService:  geminiService,
+		XenditService:  xenditService,
 	}
 }
 

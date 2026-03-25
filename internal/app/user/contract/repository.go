@@ -18,6 +18,7 @@ type UserRepository interface {
 	FindByID(id string) (*entity.User, error)
 	UpdateVerified(userID uuid.UUID) error
 	UpdateOnboardingCompleted(userID uuid.UUID) error
+	UpdateIsPremium(userID uuid.UUID) error
 }
 
 type VerificationTokenRepository interface {

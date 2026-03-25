@@ -10,6 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/supabase-community/storage-go v0.8.1
+	github.com/xendit/xendit-go/v6 v6.4.0
 	golang.org/x/crypto v0.49.0
 	google.golang.org/api v0.272.0
 	gorm.io/datatypes v1.2.7

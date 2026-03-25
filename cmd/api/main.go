@@ -45,6 +45,11 @@ import (
 	geminiHandler "github.com/bcc-intern-13/app-name-backend/internal/app/gemini/handler"
 	geminiRepository "github.com/bcc-intern-13/app-name-backend/internal/app/gemini/repository"
 	geminiService "github.com/bcc-intern-13/app-name-backend/internal/app/gemini/service"
+
+	//payment domain packages
+	paymentHandler "github.com/bcc-intern-13/app-name-backend/internal/app/payment/handler"
+	paymentRepository "github.com/bcc-intern-13/app-name-backend/internal/app/payment/repository"
+	paymentService "github.com/bcc-intern-13/app-name-backend/internal/app/payment/service"
 )
 
 func main() {
@@ -116,6 +121,13 @@ func main() {
 
 	// gemini routes
 	geminiHandler.RegisterRoutes(app.Fiber, geminiService, app.Config.JWTSecret)
+
+	//payment domain
+	orderRepo := paymentRepository.NewOrderRepository(app.DB)
+	paymentService := paymentService.NewPaymentService(orderRepo, userRepo, app.XenditService, app.Config.XenditWebhookToken)
+
+	//payment routes
+	paymentHandler.RegisterPaymentRoutes(app.Fiber, paymentService, app.Config.JWTSecret)
 
 	app.Run()
 }
