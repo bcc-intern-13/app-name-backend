@@ -1,0 +1,16 @@
+package handler
+
+import (
+	"github.com/bcc-intern-13/app-name-backend/internal/app/payment/contract"
+	"github.com/bcc-intern-13/app-name-backend/internal/middleware"
+	"github.com/gofiber/fiber/v2"
+)
+
+func RegisterPaymentRoutes(router fiber.Router, service contract.PaymentService, jwtSecret string) {
+	h := &paymentHandler{service: service}
+
+	payment := router.Group("api/payment")
+	payment.Post("/webhook", h.handleWebhook) //xendit will hit this endpoint to update oder table
+	payment.Post("/create-order", middleware.JWTProtected(jwtSecret), h.createOrder)
+	payment.Get("/history", middleware.JWTProtected(jwtSecret), h.getOrderHistory)
+}

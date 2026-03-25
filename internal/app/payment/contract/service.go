@@ -9,12 +9,12 @@ import (
 )
 
 type PaymentService interface {
-	// CreateOrder → buat order baru, kirim ke Midtrans, return payment_url
+	// CreateOrder make an order to send it to Xendit,from ther a url will be sent from xendit
 	CreateOrder(ctx context.Context, userID uuid.UUID) (*dto.CreateOrderResponse, *response.APIError)
 
-	// HandleWebhook → terima notifikasi dari Midtrans, update status order + is_premium user
+	// HandleWebhook recive notification from xendit and update status order also update to is premium if payment success
 	HandleWebhook(ctx context.Context, req *dto.WebhookRequest) *response.APIError
 
-	// GetOrderHistory → riwayat order user
+	// GetOrderHistory get order history for user, ordered by created_at desc
 	GetOrderHistory(ctx context.Context, userID uuid.UUID) ([]dto.OrderResponse, *response.APIError)
 }

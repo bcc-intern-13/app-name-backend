@@ -1,12 +1,10 @@
 package dto
 
-// WebhookRequest → payload dari Midtrans notification
 type WebhookRequest struct {
-	OrderID           string `json:"order_id"`
-	StatusCode        string `json:"status_code"`
-	GrossAmount       string `json:"gross_amount"`
-	SignatureKey      string `json:"signature_key"`
-	TransactionStatus string `json:"transaction_status"`
-	FraudStatus       string `json:"fraud_status"`
-	PaymentType       string `json:"payment_type"`
+	ID            string  `json:"id"`
+	ExternalID    string  `json:"external_id"`
+	Status        string  `json:"status"` // PAID or EXPIRED
+	PaymentMethod string  `json:"payment_method"`
+	Amount        float64 `json:"amount"`
+	CallbackToken string  `json:"-"` // take from hader x-callback-token
 }
