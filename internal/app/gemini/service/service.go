@@ -135,13 +135,27 @@ func (s *cvService) AnalyzeCV(ctx context.Context, userID uuid.UUID) (*dto.CVRes
 		return nil, response.ErrInternal("failed to parse cv extraction result")
 	}
 
+	scoreStr, err := s.gemini.ScoreCV(ctx, pdfBytes)
+	if err != nil {
+		slog.Error("failed to score cv during analyze", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to score cv")
+	}
+
+	var scoreParsed struct {
+		Score int `json:"score"`
+	}
+	if err := json.Unmarshal([]byte(cleanJSON(scoreStr)), &scoreParsed); err != nil {
+		slog.Error("failed to parse score response during analyze", "error", err)
+		return nil, response.ErrInternal("failed to parse cv score")
+	}
+
 	// update cv table with the extract result
 	cv.Summary = extracted.Summary
 	cv.Education = datatypes.JSON(mustMarshal(extracted.Education))
 	cv.Experience = datatypes.JSON(mustMarshal(extracted.Experience))
 	cv.Skills = datatypes.JSON(mustMarshal(extracted.Skills))
 	cv.AdaptiveSkills = datatypes.JSON(mustMarshal(extracted.AdaptiveSkills))
-	cv.CvScore = calculateScore(cv)
+	cv.CvScore = scoreParsed.Score
 	cv.IsAiVerified = cv.CvScore >= 80
 
 	if err := s.repo.Update(ctx, cv); err != nil {
@@ -162,28 +176,6 @@ func (s *cvService) GetCV(ctx context.Context, userID uuid.UUID) (*dto.CVRespons
 		return nil, response.ErrNotFound("cv not found, please upload your cv first")
 	}
 	return toCVResponse(cv), nil
-}
-
-func (s *cvService) GetScore(ctx context.Context, userID uuid.UUID) (*dto.CVScoreResponse, *response.APIError) {
-	cv, err := s.repo.FindByUserID(ctx, userID)
-	if err != nil {
-		slog.Error("failed to get cv", "error", err, "userID", userID)
-		return nil, response.ErrInternal("failed to get cv")
-	}
-	if cv == nil {
-		return nil, response.ErrNotFound("cv not found")
-	}
-
-	score := calculateScore(cv)
-	cv.CvScore = score
-	cv.IsAiVerified = score >= 80
-	_ = s.repo.Update(ctx, cv)
-
-	return &dto.CVScoreResponse{
-		Score:        score,
-		IsAiVerified: cv.IsAiVerified,
-		Label:        scoreLabel(score),
-	}, nil
 }
 
 func (s *cvService) GetAICallsRemaining(ctx context.Context, userID uuid.UUID) (*dto.AICallsRemainingResponse, *response.APIError) {
@@ -230,41 +222,6 @@ func (s *cvService) checkAndIncrementAICall(ctx context.Context, userID uuid.UUI
 	return cv, nil
 }
 
-func calculateScore(cv *entity.CV) int {
-	score := 0
-	if cv.Summary != "" {
-		score += 5
-	}
-	if len(cv.Education) > 2 {
-		score += 5
-	}
-	if len(cv.Experience) > 2 {
-		score += 10
-	}
-	if len(cv.Skills) > 2 {
-		score += 5
-	}
-	if len(cv.Summary) > 100 {
-		score += 10
-	}
-	if containsNumber(cv.Summary) {
-		score += 15
-	}
-	if len(cv.Skills) > 10 {
-		score += 15
-	}
-	if len(cv.AdaptiveSkills) > 2 {
-		score += 10
-	}
-	if len(cv.Experience) > 50 {
-		score += 25
-	}
-	if score > 100 {
-		score = 100
-	}
-	return score
-}
-
 func scoreLabel(score int) string {
 	switch {
 	case score >= 80:
@@ -274,15 +231,6 @@ func scoreLabel(score int) string {
 	default:
 		return "Rendah"
 	}
-}
-
-func containsNumber(s string) bool {
-	for _, c := range s {
-		if c >= '0' && c <= '9' {
-			return true
-		}
-	}
-	return false
 }
 
 func fetchFromURL(url string) ([]byte, error) {
@@ -343,7 +291,7 @@ func toCVResponse(cv *entity.CV) *dto.CVResponse {
 //AI featurs ----
 
 // Imporve sentence give suggestions to make cv sentences more impactful, based on the extracted data and Gemini's analysis
-func (s *cvService) ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto.PerkuatKalimatResponse, *response.APIError) {
+func (s *cvService) ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto.ImproveSentenceResponse, *response.APIError) {
 	cv, apiErr := s.checkAndIncrementAICall(ctx, userID)
 	if apiErr != nil {
 		return nil, apiErr
@@ -372,7 +320,7 @@ func (s *cvService) ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto
 		return nil, response.ErrInternal("failed to parse ai response")
 	}
 
-	return &dto.PerkuatKalimatResponse{
+	return &dto.ImproveSentenceResponse{
 		Suggestions: parsed.Suggestions,
 		Remaining:   maxAICallsPerDay - cv.AiCallsToday,
 	}, nil
@@ -380,7 +328,7 @@ func (s *cvService) ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto
 
 // SuggestKeywords → identifikasi keyword penting yang belum ada di CV
 
-func (s *cvService) SuggestKeywords(ctx context.Context, userID uuid.UUID) (*dto.SaranKeywordResponse, *response.APIError) {
+func (s *cvService) SuggestKeywords(ctx context.Context, userID uuid.UUID) (*dto.SuggestKeywordResponse, *response.APIError) {
 	cv, apiErr := s.checkAndIncrementAICall(ctx, userID)
 	if apiErr != nil {
 		return nil, apiErr
@@ -409,14 +357,14 @@ func (s *cvService) SuggestKeywords(ctx context.Context, userID uuid.UUID) (*dto
 		return nil, response.ErrInternal("failed to parse ai response")
 	}
 
-	return &dto.SaranKeywordResponse{
+	return &dto.SuggestKeywordResponse{
 		Keywords:  parsed.Keywords,
 		Remaining: maxAICallsPerDay - cv.AiCallsToday,
 	}, nil
 }
 
 // Summarize Profile  to create a concise summary of the user's profile based on the CV content and Gemini's analysis, which can be used for quick sharing or as an introduction in job applications. This will also be a premium feature with limited daily calls. The response will include both a detailed summary and a shorter version suitable for LinkedIn or resume introductions.
-func (s *cvService) SummarizeProfile(ctx context.Context, userID uuid.UUID) (*dto.RingkasanProfilResponse, *response.APIError) {
+func (s *cvService) SummarizeProfile(ctx context.Context, userID uuid.UUID) (*dto.SummarizeProfileResponse, *response.APIError) {
 	cv, apiErr := s.checkAndIncrementAICall(ctx, userID)
 	if apiErr != nil {
 		return nil, apiErr
@@ -446,9 +394,62 @@ func (s *cvService) SummarizeProfile(ctx context.Context, userID uuid.UUID) (*dt
 		return nil, response.ErrInternal("failed to parse ai response")
 	}
 
-	return &dto.RingkasanProfilResponse{
+	return &dto.SummarizeProfileResponse{
 		Ringkasan:    parsed.Ringkasan,
 		VersiSingkat: parsed.VersiSingkat,
 		Remaining:    maxAICallsPerDay - cv.AiCallsToday,
+	}, nil
+}
+
+func (s *cvService) GetScore(ctx context.Context, userID uuid.UUID) (*dto.CVScoreResponse, *response.APIError) {
+	// pakai checkAndIncrementAICall karena ini AI call
+	cv, apiErr := s.checkAndIncrementAICall(ctx, userID)
+	if apiErr != nil {
+		return nil, apiErr
+	}
+	if cv.CvURL == "" {
+		return nil, response.ErrNotFound("cv not found, please upload your cv first")
+	}
+
+	pdfBytes, err := fetchFromURL(cv.CvURL)
+	if err != nil {
+		slog.Error("failed to fetch pdf for scoring", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to fetch cv from storage")
+	}
+
+	jsonStr, err := s.gemini.ScoreCV(ctx, pdfBytes)
+	if err != nil {
+		slog.Error("failed to score cv", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to score cv")
+	}
+
+	var parsed struct {
+		Score    int `json:"score"`
+		Feedback struct {
+			Kelengkapan     string `json:"kelengkapan"`
+			KekuatanKalimat string `json:"kekuatan_kalimat"`
+			RelevansKarir   string `json:"relevansi_karir"`
+		} `json:"feedback"`
+	}
+	if err := json.Unmarshal([]byte(cleanJSON(jsonStr)), &parsed); err != nil {
+		slog.Error("failed to parse score cv response", "error", err)
+		return nil, response.ErrInternal("failed to parse ai response")
+	}
+
+	// update cv score di DB
+	cv.CvScore = parsed.Score
+	cv.IsAiVerified = parsed.Score >= 80
+	_ = s.repo.Update(ctx, cv)
+
+	return &dto.CVScoreResponse{
+		Score:        parsed.Score,
+		IsAiVerified: cv.IsAiVerified,
+		Label:        scoreLabel(parsed.Score),
+		Feedback: dto.CVScoreFeedback{
+			Kelengkapan:     parsed.Feedback.Kelengkapan,
+			KekuatanKalimat: parsed.Feedback.KekuatanKalimat,
+			RelevansKarir:   parsed.Feedback.RelevansKarir,
+		},
+		Remaining: maxAICallsPerDay - cv.AiCallsToday,
 	}, nil
 }

@@ -198,3 +198,38 @@ Gunakan bahasa Indonesia yang profesional dan percaya diri. Hindari kalimat pasi
 
 	return g.extractText(resp), nil
 }
+
+func (g *GeminiService) ScoreCV(ctx context.Context, fileBytes []byte) (string, error) {
+	model := g.client.GenerativeModel(g.model)
+	model.SetTemperature(0.1)
+	model.SetMaxOutputTokens(1024)
+
+	prompt := `Kamu adalah AI career advisor yang membantu penyandang disabilitas
+di Indonesia meningkatkan kualitas CV mereka.
+
+Analisis CV berikut berdasarkan 3 dimensi:
+1. Kelengkapan — apakah CV memiliki section penting: nama, kontak, pendidikan, pengalaman, dan skill
+2. Kekuatan Kalimat — apakah kalimat yang digunakan kuat, action-oriented, dan tidak pasif
+3. Relevansi Karir — apakah isi CV relevan dan konsisten dengan bidang karir yang dituju
+
+Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan:
+{
+  "score": <angka 0-100>,
+  "feedback": {
+    "kelengkapan": "<feedback singkat 1-2 kalimat>",
+    "kekuatan_kalimat": "<feedback singkat 1-2 kalimat>",
+    "relevansi_karir": "<feedback singkat 1-2 kalimat>"
+  }
+}`
+
+	resp, err := model.GenerateContent(ctx,
+		genai.Text(prompt),
+		genai.Blob{MIMEType: "application/pdf", Data: fileBytes},
+	)
+	if err != nil {
+		slog.Error("failed to score cv", "error", err)
+		return "", err
+	}
+
+	return g.extractText(resp), nil
+}

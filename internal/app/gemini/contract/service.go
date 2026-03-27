@@ -16,10 +16,6 @@ type CVService interface {
 	// AnalyzeCV get  PDF from cv_url and Gemini extract to update cvs part of the data.
 	AnalyzeCV(ctx context.Context, userID uuid.UUID) (*dto.CVResponse, *response.APIError)
 
-	// GetScore get cv score based on Gemini response
-	// Using default prompt
-	GetScore(ctx context.Context, userID uuid.UUID) (*dto.CVScoreResponse, *response.APIError)
-
 	// GetAICallsRemaining
 	// 10 calls per day
 	// Reset every day.
@@ -28,7 +24,8 @@ type CVService interface {
 	// AI Features
 	// Premium only
 	// 1 Api Call per usage
-	ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto.PerkuatKalimatResponse, *response.APIError)
-	SuggestKeywords(ctx context.Context, userID uuid.UUID) (*dto.SaranKeywordResponse, *response.APIError)
-	SummarizeProfile(ctx context.Context, userID uuid.UUID) (*dto.RingkasanProfilResponse, *response.APIError)
+	ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto.ImproveSentenceResponse, *response.APIError)
+	SuggestKeywords(ctx context.Context, userID uuid.UUID) (*dto.SuggestKeywordResponse, *response.APIError)
+	SummarizeProfile(ctx context.Context, userID uuid.UUID) (*dto.SummarizeProfileResponse, *response.APIError)
+	GetScore(ctx context.Context, userID uuid.UUID) (*dto.CVScoreResponse, *response.APIError)
 }
