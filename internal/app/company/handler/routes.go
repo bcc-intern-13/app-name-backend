@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"github.com/bcc-intern-13/app-name-backend/internal/app/company/contract"
-	"github.com/bcc-intern-13/app-name-backend/internal/middleware"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/company/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 

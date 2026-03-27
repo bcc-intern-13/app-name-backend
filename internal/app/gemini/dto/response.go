@@ -7,12 +7,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// CVUploadResponse → POST /api/cv/upload
+// CVUploadResponse
 type CVUploadResponse struct {
 	CvURL string `json:"cv_url"`
 }
-
-// CVResponse → GET /api/cv, POST /api/cv/analyze, PATCH /api/cv
 type CVResponse struct {
 	ID             uuid.UUID       `json:"id"`
 	UserID         uuid.UUID       `json:"user_id"`
@@ -28,46 +26,47 @@ type CVResponse struct {
 	UpdatedAt      time.Time       `json:"updated_at"`
 }
 
-// CVScoreResponse → GET /api/cv/score
 type CVScoreResponse struct {
-	Score        int    `json:"score"`
-	IsAiVerified bool   `json:"is_ai_verified"`
-	Label        string `json:"label"` // "Rendah" | "Sedang" | "Tinggi"
+	Score        int             `json:"score"`
+	IsAiVerified bool            `json:"is_ai_verified"`
+	Label        string          `json:"label"`
+	Feedback     CVScoreFeedback `json:"feedback"`
+	Remaining    int             `json:"remaining_calls"`
 }
-
-// AICallsRemainingResponse → GET /api/cv/ai-calls-remaining
 type AICallsRemainingResponse struct {
 	Remaining int `json:"remaining"`
 	Used      int `json:"used"`
 	Max       int `json:"max"`
 }
+type SentenceSuggestion struct {
+	Original     string `json:"original"`
+	Alternative1 string `json:"alternative_1"`
+	Alternative2 string `json:"alternative_2"`
+}
 
-// ImproveSentenceResponse → POST /api/cv-ai/improve-sentence
 type ImproveSentenceResponse struct {
-	Original     string   `json:"original"`
-	Alternatives []string `json:"alternatives"`
-	Remaining    int      `json:"remaining_calls"`
+	Suggestions []SentenceSuggestion `json:"suggestions"`
+	Remaining   int                  `json:"remaining"`
 }
 
-// JobMatchSection → bagian dari JobMatchResponse
-type JobMatchSection struct {
-	Section    string `json:"section"`
-	Status     string `json:"status"` // "relevan" | "bisa_ditambah" | "kurang_relevan"
-	Reasoning  string `json:"reasoning"`
-	Suggestion string `json:"suggestion,omitempty"`
+type KeywordSuggestion struct {
+	Keyword string `json:"keyword"`
+	Alasan  string `json:"alasan"`
 }
 
-// JobMatchResponse → POST /api/cv-ai/job-match
-type JobMatchResponse struct {
-	MatchScore int               `json:"match_score"`
-	Sections   []JobMatchSection `json:"sections"`
-	Remaining  int               `json:"remaining_calls"`
+type SuggestKeywordResponse struct {
+	Keywords  []KeywordSuggestion `json:"keywords"`
+	Remaining int                 `json:"remaining"`
 }
 
-// ReviewCVResponse → POST /api/cv-ai/review
-type ReviewCVResponse struct {
-	Strengths      []string `json:"strengths"`
-	Improvements   []string `json:"improvements"`
-	MainSuggestion string   `json:"main_suggestion"`
-	Remaining      int      `json:"remaining_calls"`
+type SummarizeProfileResponse struct {
+	Ringkasan    string `json:"ringkasan"`
+	VersiSingkat string `json:"versi_singkat"`
+	Remaining    int    `json:"remaining"`
+}
+
+type CVScoreFeedback struct {
+	Kelengkapan     string `json:"kelengkapan"`
+	KekuatanKalimat string `json:"kekuatan_kalimat"`
+	RelevansKarir   string `json:"relevansi_karir"`
 }

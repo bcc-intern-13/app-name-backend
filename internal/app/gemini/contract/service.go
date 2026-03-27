@@ -4,32 +4,28 @@ import (
 	"context"
 	"mime/multipart"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/gemini/dto"
-	"github.com/bcc-intern-13/app-name-backend/pkg/response"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/dto"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
 	"github.com/google/uuid"
 )
 
 type CVService interface {
-	// UploadCV → terima PDF → simpan ke Supabase Storage → simpan cv_url ke cvs (TANPA Gemini)
+	// UploadCV to receive PDF and save to Supabase Storage and save cv_url to cvs (WITHOUT Gemini to upload the cv )
 	UploadCV(ctx context.Context, userID uuid.UUID, file *multipart.FileHeader) (*dto.CVUploadResponse, *response.APIError)
 
-	// AnalyzeCV → ambil PDF dari cv_url → Gemini extract → update cvs
+	// AnalyzeCV get  PDF from cv_url and Gemini extract to update cvs part of the data.
 	AnalyzeCV(ctx context.Context, userID uuid.UUID) (*dto.CVResponse, *response.APIError)
 
-	// GetCV → ambil data CV user
-	GetCV(ctx context.Context, userID uuid.UUID) (*dto.CVResponse, *response.APIError)
-
-	// UpdateCV → update manual bagian CV (inline editing di FE)
-	UpdateCV(ctx context.Context, userID uuid.UUID, req *dto.UpdateCVRequest) (*dto.CVResponse, *response.APIError)
-
-	// GetScore → hitung ulang CV score rule-based
-	GetScore(ctx context.Context, userID uuid.UUID) (*dto.CVScoreResponse, *response.APIError)
-
-	// GetAICallsRemaining → sisa panggilan AI hari ini
+	// GetAICallsRemaining
+	// 10 calls per day
+	// Reset every day.
 	GetAICallsRemaining(ctx context.Context, userID uuid.UUID) (*dto.AICallsRemainingResponse, *response.APIError)
 
-	// AI features — premium only, masing-masing 1 call
-	ImproveSentence(ctx context.Context, userID uuid.UUID, req *dto.ImproveSentenceRequest) (*dto.ImproveSentenceResponse, *response.APIError)
-	JobMatch(ctx context.Context, userID uuid.UUID, req *dto.JobMatchRequest) (*dto.JobMatchResponse, *response.APIError)
-	ReviewCV(ctx context.Context, userID uuid.UUID) (*dto.ReviewCVResponse, *response.APIError)
+	// AI Features
+	// Premium only
+	// 1 Api Call per usage
+	ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto.ImproveSentenceResponse, *response.APIError)
+	SuggestKeywords(ctx context.Context, userID uuid.UUID) (*dto.SuggestKeywordResponse, *response.APIError)
+	SummarizeProfile(ctx context.Context, userID uuid.UUID) (*dto.SummarizeProfileResponse, *response.APIError)
+	GetScore(ctx context.Context, userID uuid.UUID) (*dto.CVScoreResponse, *response.APIError)
 }

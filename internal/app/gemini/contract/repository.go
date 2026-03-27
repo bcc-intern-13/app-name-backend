@@ -3,7 +3,7 @@ package contract
 import (
 	"context"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/gemini/entity"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/entity"
 	"github.com/google/uuid"
 )
 

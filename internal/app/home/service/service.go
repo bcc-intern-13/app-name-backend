@@ -4,13 +4,13 @@ import (
 	"log/slog"
 	"time"
 
-	careerMappingContract "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/contract"
-	careerMappingDto "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/dto"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/home/dto"
-	jobBoardContract "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/contract"
-	jobDto "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/dto"
-	onboardingContract "github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/contract"
-	"github.com/bcc-intern-13/app-name-backend/pkg/response"
+	careerMappingContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/contract"
+	careerMappingDto "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/dto"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/home/dto"
+	jobBoardContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/contract"
+	jobDto "github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/dto"
+	onboardingContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/onboarding/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
 	"github.com/google/uuid"
 )
 

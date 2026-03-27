@@ -3,13 +3,13 @@ package bootstrap
 import (
 	"log"
 
-	"github.com/bcc-intern-13/app-name-backend/config"
-	"github.com/bcc-intern-13/app-name-backend/pkg/email"
-	"github.com/bcc-intern-13/app-name-backend/pkg/gemini"
-	"github.com/bcc-intern-13/app-name-backend/pkg/storage"
-	"github.com/bcc-intern-13/app-name-backend/pkg/xendit"
+	"github.com/bcc-intern-13/WorkAble-backend/config"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/email"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/gemini"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/storage"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/xendit"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/infra/database"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/infra/database"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )

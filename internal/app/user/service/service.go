@@ -4,12 +4,12 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/user/contract"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/user/dto"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/user/entity"
-	"github.com/bcc-intern-13/app-name-backend/pkg/email"
-	jwt "github.com/bcc-intern-13/app-name-backend/pkg/jwt"
-	"github.com/bcc-intern-13/app-name-backend/pkg/response"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/dto"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/entity"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/email"
+	jwt "github.com/bcc-intern-13/WorkAble-backend/pkg/jwt"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -110,6 +110,12 @@ func (s *userAuthService) Login(req *dto.LoginRequest) (*dto.LoginResponse, *res
 		return nil, response.ErrInternal("failed to generate token")
 	}
 
+	if err := s.refreshTokenRepo.DeleteByUserID(user.ID); err != nil {
+		slog.Error("failed to delete old refresh tokens", "error", err)
+		return nil, response.ErrInternal("failed to delete old refresh tokens")
+	}
+
+	//Generate refresh token expiry 7 days.
 	refreshTokenStr := jwt.GenerateRefreshToken()
 	refreshToken := &entity.RefreshToken{
 		ID:        uuid.New(),
@@ -134,7 +140,7 @@ func (s *userAuthService) Login(req *dto.LoginRequest) (*dto.LoginResponse, *res
 }
 
 func (s *userAuthService) RefreshToken(token string) (*dto.LoginResponse, *response.APIError) {
-	//find refresh token
+	//Find refresh token
 	refreshToken, err := s.refreshTokenRepo.FindByToken(token)
 	if err != nil {
 		slog.Error("failed to find refresh token", "error", err)
@@ -143,13 +149,12 @@ func (s *userAuthService) RefreshToken(token string) (*dto.LoginResponse, *respo
 	if refreshToken == nil {
 		return nil, response.ErrUnAuthorized("session expired, please login again")
 	}
-	//check if refresh token is expired
+	//Check if refresh token is expired
 	if time.Now().After(refreshToken.ExpiredAt) {
 		return nil, response.ErrUnAuthorized("session expired, please login again")
 	}
 
-	//find token by user id
-
+	//Find token by user id
 	user, err := s.repo.FindByID(refreshToken.UserID.String())
 	if err != nil {
 		slog.Error("failed to find user by id", "error", err, "userID", refreshToken.UserID)
@@ -159,7 +164,7 @@ func (s *userAuthService) RefreshToken(token string) (*dto.LoginResponse, *respo
 		return nil, response.ErrUnAuthorized("session expired, please login again")
 	}
 
-	//generate new access token
+	//Generate new access token
 	accessToken, err := jwt.GenerateToken(user, s.jwtSecret)
 	if err != nil {
 		slog.Error("failed to generate access token", "error", err, "userID", user.ID)
@@ -184,7 +189,7 @@ func (s *userAuthService) Logout(token string) *response.APIError {
 	return nil
 }
 
-// vertification email
+// VerifyEmail verifies the user's email address
 func (s *userAuthService) VerifyEmail(token string) *response.APIError {
 	verificationToken, err := s.verificationTokenRepo.FindByToken(token)
 	if err != nil {
@@ -197,6 +202,7 @@ func (s *userAuthService) VerifyEmail(token string) *response.APIError {
 	if time.Now().After(verificationToken.ExpiredAt) {
 		return response.ErrBadRequest("invalid or expired verification link")
 	}
+
 	//note updatge boolean user verified is using the dto interface of user repository not userautheservice.
 	if err := s.repo.UpdateVerified(verificationToken.UserID); err != nil {
 		slog.Error("failed to update verification status", "error", err, "userID", verificationToken.UserID)

@@ -3,13 +3,13 @@ package database
 import (
 	"log"
 
-	applicationsentity "github.com/bcc-intern-13/app-name-backend/internal/app/applications/entity"
-	careermappingentity "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/entity"
-	companyentity "github.com/bcc-intern-13/app-name-backend/internal/app/company/entity"
-	cvEntity "github.com/bcc-intern-13/app-name-backend/internal/app/gemini/entity"
-	jobboardidentity "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/entity"
-	orderentity "github.com/bcc-intern-13/app-name-backend/internal/app/payment/entity"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/user/entity"
+	applicationsentity "github.com/bcc-intern-13/WorkAble-backend/internal/app/applications/entity"
+	careermappingentity "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/entity"
+	companyentity "github.com/bcc-intern-13/WorkAble-backend/internal/app/company/entity"
+	cvEntity "github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/entity"
+	jobboardidentity "github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/entity"
+	orderentity "github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/entity"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/entity"
 
 	"gorm.io/gorm"
 )

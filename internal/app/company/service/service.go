@@ -3,10 +3,10 @@ package service
 import (
 	"log/slog"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/company/contract"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/company/dto"
-	jobDto "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/dto"
-	"github.com/bcc-intern-13/app-name-backend/pkg/response"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/company/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/company/dto"
+	jobDto "github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/dto"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
 	"github.com/google/uuid"
 )
 

@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/payment/contract"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/payment/dto"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/payment/entity"
-	userContract "github.com/bcc-intern-13/app-name-backend/internal/app/user/contract"
-	"github.com/bcc-intern-13/app-name-backend/pkg/response"
-	"github.com/bcc-intern-13/app-name-backend/pkg/xendit"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/dto"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/entity"
+	userContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/user/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/xendit"
 	"github.com/google/uuid"
 )
 
