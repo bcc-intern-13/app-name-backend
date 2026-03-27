@@ -17,8 +17,7 @@ func RegisterRoutes(router fiber.Router, service contract.CVService, jwtSecret s
 	cv.Get("/score", h.getScore)                         // GET   /api/cv/score
 	cv.Get("/ai-calls-remaining", h.getAICallsRemaining) // GET   /api/cv/ai-calls-remaining
 
-	cvAI := router.Group("api/cv-ai", middleware.JWTProtected(jwtSecret)) // POST /api/cv-ai/review
-	// // di dalam RegisterCVRoutes, tambah 3 route baru (semua premium + JWT protected):
+	cvAI := router.Group("api/cv-ai", middleware.JWTProtected(jwtSecret))
 	cvAI.Post("/improve-sentence", middleware.JWTProtected(jwtSecret), h.ImproveSentence)
 	cvAI.Post("/suggest-keywords", middleware.JWTProtected(jwtSecret), h.SuggestKeywords)
 	cvAI.Post("/summarize-profile", middleware.JWTProtected(jwtSecret), h.SummarizeProfile)
