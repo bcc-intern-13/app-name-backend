@@ -50,10 +50,20 @@ import (
 	paymentHandler "github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/handler"
 	paymentRepository "github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/repository"
 	paymentService "github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/service"
+
+	//allow cors for fe implementaion
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
 	app := bootstrap.NewApp()
+
+	// CORS configuration
+	app.Fiber.Use(cors.New(cors.Config{
+		AllowOrigins: "*", // Bintang artinya "Siapa aja boleh masuk". Aman buat fase development pakai ngrok.
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowMethods: "GET, POST, HEAD, PUT, DELETE, PATCH",
+	}))
 
 	//user domain
 	userRepo := repository.NewUserRepository(app.DB)
