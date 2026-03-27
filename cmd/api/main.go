@@ -136,9 +136,9 @@ func main() {
 	c := cron.New()
 
 	_, cronErr := c.AddFunc("0 0 * * *", func() {
-		slog.Info("⏳ [CRON] Tengah malam tiba! Memulai reset kuota AI Calls...")
+		slog.Info("00.00 Time to reset the AI call QUota..")
 
-		// Panggil method sakti yang udah lu bikin di repo
+		// use the method from repository
 		errReset := geminiRepo.ResetAICalls(context.Background())
 
 		if errReset != nil {
