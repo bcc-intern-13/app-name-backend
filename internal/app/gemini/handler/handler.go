@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"github.com/bcc-intern-13/app-name-backend/internal/app/gemini/contract"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/gemini/dto"
-	"github.com/bcc-intern-13/app-name-backend/pkg/response"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/dto"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"

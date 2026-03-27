@@ -11,8 +11,7 @@ import (
 type GeminiService struct {
 	client *genai.Client
 	model  string
-	apiKey string // tambah ini
-
+	apiKey string
 }
 
 func NewGeminiService(apiKey string) (*GeminiService, error) {
@@ -23,9 +22,8 @@ func NewGeminiService(apiKey string) (*GeminiService, error) {
 	}
 	return &GeminiService{
 		client: client,
-		model:  "gemini-2.5-flash", // free tier
-		apiKey: apiKey,             // tambah ini
-
+		model:  "gemini-2.5-flash",
+		apiKey: apiKey,
 	}, nil
 }
 
@@ -33,7 +31,6 @@ func (g *GeminiService) Close() {
 	g.client.Close()
 }
 
-// GenerateText → prompt teks biasa, untuk improve sentence, review, dll
 func (g *GeminiService) GenerateText(ctx context.Context, prompt string) (string, error) {
 	model := g.client.GenerativeModel(g.model)
 	model.SetTemperature(0.7)

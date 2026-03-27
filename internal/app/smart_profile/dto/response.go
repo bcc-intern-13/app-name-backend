@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	careerMappingContract "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/dto"
+	careerMappingContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/dto"
 	"gorm.io/datatypes"
 )
 

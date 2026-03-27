@@ -1,4 +1,4 @@
-wapp-name
+app-name
 ├─ Dockerfile
 ├─ README.md
 ├─ cmd

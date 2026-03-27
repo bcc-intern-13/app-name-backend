@@ -2,8 +2,8 @@ package handler
 
 //note temporal hanlder for user_handler.
 import (
-	"github.com/bcc-intern-13/app-name-backend/internal/app/user/contract"
-	"github.com/bcc-intern-13/app-name-backend/pkg/response"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
 	"github.com/gofiber/fiber/v2"
 )
 

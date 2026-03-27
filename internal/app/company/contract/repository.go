@@ -1,8 +1,8 @@
 package contract
 
 import (
-	"github.com/bcc-intern-13/app-name-backend/internal/app/company/entity"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/job_board/dto"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/company/entity"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/dto"
 	"github.com/google/uuid"
 )
 

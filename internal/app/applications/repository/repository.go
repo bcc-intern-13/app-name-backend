@@ -3,9 +3,9 @@ package repository
 import (
 	"errors"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/applications/contract"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/applications/dto"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/applications/entity"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/applications/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/applications/dto"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/applications/entity"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

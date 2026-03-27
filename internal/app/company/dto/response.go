@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	jobDto "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/dto"
+	jobDto "github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/dto"
 	"github.com/google/uuid"
 	"gorm.io/datatypes"
 )

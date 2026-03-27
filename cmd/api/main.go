@@ -1,55 +1,55 @@
 package main
 
 import (
-	bootstrap "github.com/bcc-intern-13/app-name-backend/cmd/bootsrap"
+	bootstrap "github.com/bcc-intern-13/WorkAble-backend/cmd/bootsrap"
 
 	// user domain packages
-	"github.com/bcc-intern-13/app-name-backend/internal/app/user/handler"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/user/repository"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/user/service"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/handler"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/repository"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/service"
 
 	// onboarding domain packages
-	onboardingHandler "github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/handler"
-	onboardingRepository "github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/repository"
-	onboardingService "github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/service"
+	onboardingHandler "github.com/bcc-intern-13/WorkAble-backend/internal/app/onboarding/handler"
+	onboardingRepository "github.com/bcc-intern-13/WorkAble-backend/internal/app/onboarding/repository"
+	onboardingService "github.com/bcc-intern-13/WorkAble-backend/internal/app/onboarding/service"
 
 	// career mapping domain packages
-	careerMappingHandler "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/handler"
-	careerMappingRepository "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/repository"
-	careerMappingService "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/service"
+	careerMappingHandler "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/handler"
+	careerMappingRepository "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/repository"
+	careerMappingService "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/service"
 
 	// job board domain packages
-	jobBoardHandler "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/handler"
-	jobBoardRepository "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/repository"
-	jobBoardService "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/service"
+	jobBoardHandler "github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/handler"
+	jobBoardRepository "github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/repository"
+	jobBoardService "github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/service"
 
 	// home domain packages
-	homeHandler "github.com/bcc-intern-13/app-name-backend/internal/app/home/handler"
-	homeService "github.com/bcc-intern-13/app-name-backend/internal/app/home/service"
+	homeHandler "github.com/bcc-intern-13/WorkAble-backend/internal/app/home/handler"
+	homeService "github.com/bcc-intern-13/WorkAble-backend/internal/app/home/service"
 
 	//applications domain packages
-	applicationHandler "github.com/bcc-intern-13/app-name-backend/internal/app/applications/handler"
-	applicationRepository "github.com/bcc-intern-13/app-name-backend/internal/app/applications/repository"
-	applicationService "github.com/bcc-intern-13/app-name-backend/internal/app/applications/service"
+	applicationHandler "github.com/bcc-intern-13/WorkAble-backend/internal/app/applications/handler"
+	applicationRepository "github.com/bcc-intern-13/WorkAble-backend/internal/app/applications/repository"
+	applicationService "github.com/bcc-intern-13/WorkAble-backend/internal/app/applications/service"
 
 	//company domain packages
-	companyHandler "github.com/bcc-intern-13/app-name-backend/internal/app/company/handler"
-	companyRepository "github.com/bcc-intern-13/app-name-backend/internal/app/company/repository"
-	companyService "github.com/bcc-intern-13/app-name-backend/internal/app/company/service"
+	companyHandler "github.com/bcc-intern-13/WorkAble-backend/internal/app/company/handler"
+	companyRepository "github.com/bcc-intern-13/WorkAble-backend/internal/app/company/repository"
+	companyService "github.com/bcc-intern-13/WorkAble-backend/internal/app/company/service"
 
 	//smartprofile domain packages
-	smartProfileHandler "github.com/bcc-intern-13/app-name-backend/internal/app/smart_profile/handler"
-	smartProfileService "github.com/bcc-intern-13/app-name-backend/internal/app/smart_profile/service"
+	smartProfileHandler "github.com/bcc-intern-13/WorkAble-backend/internal/app/smart_profile/handler"
+	smartProfileService "github.com/bcc-intern-13/WorkAble-backend/internal/app/smart_profile/service"
 
 	//company domain packages
-	geminiHandler "github.com/bcc-intern-13/app-name-backend/internal/app/gemini/handler"
-	geminiRepository "github.com/bcc-intern-13/app-name-backend/internal/app/gemini/repository"
-	geminiService "github.com/bcc-intern-13/app-name-backend/internal/app/gemini/service"
+	geminiHandler "github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/handler"
+	geminiRepository "github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/repository"
+	geminiService "github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/service"
 
 	//payment domain packages
-	paymentHandler "github.com/bcc-intern-13/app-name-backend/internal/app/payment/handler"
-	paymentRepository "github.com/bcc-intern-13/app-name-backend/internal/app/payment/repository"
-	paymentService "github.com/bcc-intern-13/app-name-backend/internal/app/payment/service"
+	paymentHandler "github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/handler"
+	paymentRepository "github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/repository"
+	paymentService "github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/service"
 )
 
 func main() {

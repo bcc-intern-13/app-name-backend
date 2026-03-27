@@ -10,12 +10,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/gemini/contract"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/gemini/dto"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/gemini/entity"
-	"github.com/bcc-intern-13/app-name-backend/pkg/gemini"
-	"github.com/bcc-intern-13/app-name-backend/pkg/response"
-	"github.com/bcc-intern-13/app-name-backend/pkg/storage"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/dto"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/entity"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/gemini"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/storage"
 	"github.com/google/uuid"
 	"gorm.io/datatypes"
 )

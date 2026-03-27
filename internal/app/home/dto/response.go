@@ -3,8 +3,8 @@ package dto
 import (
 	"time"
 
-	careerMappingDto "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/dto"
-	jobdto "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/dto"
+	careerMappingDto "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/dto"
+	jobdto "github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/dto"
 )
 
 type GreetingResponse struct {

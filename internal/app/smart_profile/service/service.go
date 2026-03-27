@@ -3,13 +3,13 @@ package service
 import (
 	"log/slog"
 
-	careerMappingContract "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/contract"
-	careerMappingDto "github.com/bcc-intern-13/app-name-backend/internal/app/career_mapping/dto"
-	onboardingContract "github.com/bcc-intern-13/app-name-backend/internal/app/onboarding/contract"
+	careerMappingContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/contract"
+	careerMappingDto "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/dto"
+	onboardingContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/onboarding/contract"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/smart_profile/contract"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/smart_profile/dto"
-	"github.com/bcc-intern-13/app-name-backend/pkg/response"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/smart_profile/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/smart_profile/dto"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
 	"github.com/google/uuid"
 )
 

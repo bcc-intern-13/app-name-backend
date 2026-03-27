@@ -6,12 +6,12 @@ import (
 	"log/slog"
 	"mime/multipart"
 
-	"github.com/bcc-intern-13/app-name-backend/internal/app/applications/contract"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/applications/dto"
-	"github.com/bcc-intern-13/app-name-backend/internal/app/applications/entity"
-	jobBoardContract "github.com/bcc-intern-13/app-name-backend/internal/app/job_board/contract"
-	"github.com/bcc-intern-13/app-name-backend/pkg/response"
-	"github.com/bcc-intern-13/app-name-backend/pkg/storage"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/applications/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/applications/dto"
+	"github.com/bcc-intern-13/WorkAble-backend/internal/app/applications/entity"
+	jobBoardContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/contract"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/storage"
 	"github.com/google/uuid"
 )
 
