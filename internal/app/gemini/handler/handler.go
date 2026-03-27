@@ -3,12 +3,9 @@ package handler
 import (
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/contract"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
-
-var validate = validator.New()
 
 type cvHandler struct {
 	service contract.CVService
