@@ -1,7 +1,11 @@
 package main
 
 import (
+	"context"
+	"log/slog"
+
 	bootstrap "github.com/bcc-intern-13/WorkAble-backend/cmd/bootsrap"
+	"github.com/robfig/cron/v3"
 
 	// user domain packages
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/handler"
@@ -128,6 +132,28 @@ func main() {
 	//gemini domain
 	geminiRepo := geminiRepository.NewCVRepository(app.DB)
 	geminiService := geminiService.NewCVService(geminiRepo, app.GeminiService, app.StorageService, userRepo)
+
+	c := cron.New()
+
+	_, cronErr := c.AddFunc("0 0 * * *", func() {
+		slog.Info("⏳ [CRON] Tengah malam tiba! Memulai reset kuota AI Calls...")
+
+		// Panggil method sakti yang udah lu bikin di repo
+		errReset := geminiRepo.ResetAICalls(context.Background())
+
+		if errReset != nil {
+			slog.Error("failed to reset AI calls", "error", errReset)
+		} else {
+			slog.Info("AI Call Quota have been reset to 0 Succes")
+		}
+	})
+
+	if cronErr != nil {
+		slog.Error("failed to setup waker time", "error", cronErr)
+	} else {
+		c.Start()
+		slog.Info("Time waker have been succesfully initialized")
+	}
 
 	// gemini routes
 	geminiHandler.RegisterRoutes(app.Fiber, geminiService, app.Config.JWTSecret)
