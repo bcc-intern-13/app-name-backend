@@ -7,12 +7,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// CVUploadResponse → POST /api/cv/upload
+// CVUploadResponse
 type CVUploadResponse struct {
 	CvURL string `json:"cv_url"`
 }
-
-// CVResponse → GET /api/cv, POST /api/cv/analyze, PATCH /api/cv
 type CVResponse struct {
 	ID             uuid.UUID       `json:"id"`
 	UserID         uuid.UUID       `json:"user_id"`
@@ -31,19 +29,15 @@ type CVResponse struct {
 type CVScoreResponse struct {
 	Score        int             `json:"score"`
 	IsAiVerified bool            `json:"is_ai_verified"`
-	Label        string          `json:"label"` // "Rendah" | "Sedang" | "Tinggi"
+	Label        string          `json:"label"`
 	Feedback     CVScoreFeedback `json:"feedback"`
 	Remaining    int             `json:"remaining_calls"`
 }
-
-// AICallsRemainingResponse → GET /api/cv/ai-calls-remaining
 type AICallsRemainingResponse struct {
 	Remaining int `json:"remaining"`
 	Used      int `json:"used"`
 	Max       int `json:"max"`
 }
-
-// sentence suggestion
 type SentenceSuggestion struct {
 	Original     string `json:"original"`
 	Alternative1 string `json:"alternative_1"`
@@ -55,7 +49,6 @@ type ImproveSentenceResponse struct {
 	Remaining   int                  `json:"remaining"`
 }
 
-// keyword suggestion
 type KeywordSuggestion struct {
 	Keyword string `json:"keyword"`
 	Alasan  string `json:"alasan"`
@@ -66,7 +59,6 @@ type SuggestKeywordResponse struct {
 	Remaining int                 `json:"remaining"`
 }
 
-// summarize profile
 type SummarizeProfileResponse struct {
 	Ringkasan    string `json:"ringkasan"`
 	VersiSingkat string `json:"versi_singkat"`

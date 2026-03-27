@@ -22,7 +22,7 @@ func NewXenditService(secretKey string) *XenditService {
 	}
 }
 
-// CreateInvoice  buat invoice di Xendit, return invoice_url
+// CreateInvoice for making invoice in Xendit, return invoice_url
 func (x *XenditService) CreateInvoice(ctx context.Context, orderID string, amount float64, userEmail, userName string) (string, error) {
 	log.Printf("Xendit request - orderID: %s, amount: %f, email: %s, name: %s", orderID, amount, userEmail, userName)
 

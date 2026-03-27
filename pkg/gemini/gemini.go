@@ -45,10 +45,10 @@ func (g *GeminiService) GenerateText(ctx context.Context, prompt string) (string
 	return g.extractText(resp), nil
 }
 
-// ExtractCVFromPDF → kirim PDF langsung ke Gemini, return JSON string
+// ExtractCVFromPDF send pdf to gemini and extract it
 func (g *GeminiService) ExtractCVFromPDF(ctx context.Context, fileBytes []byte) (string, error) {
 	model := g.client.GenerativeModel(g.model)
-	model.SetTemperature(0.1) // low temperature → lebih akurat untuk extraction
+	model.SetTemperature(0.1) // low temperature for more accurate response
 	model.SetMaxOutputTokens(4096)
 
 	prompt := `Ekstrak informasi CV ini ke JSON. Return HANYA JSON tanpa markdown:
@@ -75,7 +75,7 @@ func (g *GeminiService) ExtractCVFromPDF(ctx context.Context, fileBytes []byte) 
 	return g.extractText(resp), nil
 }
 
-// extractText → helper ambil teks dari response Gemini
+// extractText get text from gemini response
 func (g *GeminiService) extractText(resp *genai.GenerateContentResponse) string {
 	if len(resp.Candidates) == 0 {
 		return ""
@@ -93,8 +93,8 @@ func (g *GeminiService) GetKeyPrefix() string {
 	return g.apiKey[:10]
 }
 
-// PerkuatKalimat → identifikasi kalimat lemah + kasih 2 alternatif
-func (g *GeminiService) PerkuatKalimat(ctx context.Context, fileBytes []byte) (string, error) {
+// improve sentence
+func (g *GeminiService) ImproveSentence(ctx context.Context, fileBytes []byte) (string, error) {
 	model := g.client.GenerativeModel(g.model)
 	model.SetTemperature(0.7)
 	model.SetMaxOutputTokens(4096)
@@ -132,8 +132,8 @@ Maksimal 5 kalimat. Prioritaskan kalimat yang paling perlu diperbaiki.`
 	return g.extractText(resp), nil
 }
 
-// SaranKeyword → identifikasi keyword yang belum ada di CV
-func (g *GeminiService) SaranKeyword(ctx context.Context, fileBytes []byte) (string, error) {
+// Suggest keyword
+func (g *GeminiService) SuggestKeyword(ctx context.Context, fileBytes []byte) (string, error) {
 	model := g.client.GenerativeModel(g.model)
 	model.SetTemperature(0.7)
 	model.SetMaxOutputTokens(2048)
@@ -168,8 +168,7 @@ Berikan maksimal 8 keyword. Prioritaskan keyword paling relevan dengan bidang ka
 	return g.extractText(resp), nil
 }
 
-// RingkasanProfil → buat ringkasan profil profesional dari CV
-func (g *GeminiService) RingkasanProfil(ctx context.Context, fileBytes []byte) (string, error) {
+func (g *GeminiService) SummarizeProfiel(ctx context.Context, fileBytes []byte) (string, error) {
 	model := g.client.GenerativeModel(g.model)
 	model.SetTemperature(0.7)
 	model.SetMaxOutputTokens(2048)

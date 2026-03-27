@@ -10,7 +10,9 @@ func RegisterPaymentRoutes(router fiber.Router, service contract.PaymentService,
 	h := &paymentHandler{service: service}
 
 	payment := router.Group("api/payment")
-	payment.Post("/webhook", h.handleWebhook) //xendit will hit this endpoint to update oder table
+	//xendit will hit this endpoint to update oder table
+	payment.Post("/webhook", h.handleWebhook)
+
 	payment.Post("/create-order", middleware.JWTProtected(jwtSecret), h.createOrder)
 	payment.Get("/history", middleware.JWTProtected(jwtSecret), h.getOrderHistory)
 }

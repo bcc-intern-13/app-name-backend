@@ -11,7 +11,12 @@ type cvHandler struct {
 	service contract.CVService
 }
 
-// POST /api/cv/upload — upload PDF ke storage, TANPA Gemini
+// helper to get UUID
+func getUserID(ctx *fiber.Ctx) (uuid.UUID, error) {
+	return uuid.Parse(ctx.Locals("userID").(string))
+}
+
+// Uploading cv to gemini without gemini
 func (h *cvHandler) uploadCV(ctx *fiber.Ctx) error {
 	userID, err := getUserID(ctx)
 	if err != nil {
@@ -31,7 +36,7 @@ func (h *cvHandler) uploadCV(ctx *fiber.Ctx) error {
 	return response.Success(ctx, fiber.StatusCreated, "CV uploaded successfully", result)
 }
 
-// POST /api/cv/analyze — panggil Gemini extract dari PDF yang udah diupload
+// Analyze cv to extract pdf
 func (h *cvHandler) analyzeCV(ctx *fiber.Ctx) error {
 	userID, err := getUserID(ctx)
 	if err != nil {
@@ -46,7 +51,7 @@ func (h *cvHandler) analyzeCV(ctx *fiber.Ctx) error {
 	return response.Success(ctx, fiber.StatusOK, "CV analyzed successfully", result)
 }
 
-// GET /api/cv/score
+// Get Score
 func (h *cvHandler) getScore(ctx *fiber.Ctx) error {
 	userID, err := getUserID(ctx)
 	if err != nil {
@@ -61,7 +66,6 @@ func (h *cvHandler) getScore(ctx *fiber.Ctx) error {
 	return response.Success(ctx, fiber.StatusOK, "success", result)
 }
 
-// GET /api/cv/ai-calls-remaining
 func (h *cvHandler) getAICallsRemaining(ctx *fiber.Ctx) error {
 	userID, err := getUserID(ctx)
 	if err != nil {
@@ -74,10 +78,6 @@ func (h *cvHandler) getAICallsRemaining(ctx *fiber.Ctx) error {
 	}
 
 	return response.Success(ctx, fiber.StatusOK, "success", result)
-}
-
-func getUserID(ctx *fiber.Ctx) (uuid.UUID, error) {
-	return uuid.Parse(ctx.Locals("userID").(string))
 }
 
 func (h *cvHandler) ImproveSentence(ctx *fiber.Ctx) error {

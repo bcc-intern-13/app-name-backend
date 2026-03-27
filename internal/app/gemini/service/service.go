@@ -44,7 +44,7 @@ func NewCVService(
 	}
 }
 
-// UploadCV → terima PDF → upload ke Supabase Storage → simpan cv_url ke cvs (TANPA Gemini)
+// UploadCV to supabase and save the url to the database local.
 func (s *cvService) UploadCV(ctx context.Context, userID uuid.UUID, file *multipart.FileHeader) (*dto.CVUploadResponse, *response.APIError) {
 	if file.Header.Get("Content-Type") != "application/pdf" {
 		return nil, response.ErrBadRequest("cv must be a PDF file")
@@ -66,14 +66,14 @@ func (s *cvService) UploadCV(ctx context.Context, userID uuid.UUID, file *multip
 		return nil, response.ErrInternal("failed to read cv file")
 	}
 
-	// upload ke Supabase Storage
+	// upload to Supabase Storage
 	cvURL, err := s.storage.UploadCV(userID.String(), fileBytes, "application/pdf")
 	if err != nil {
 		slog.Error("failed to upload cv to storage", "error", err, "userID", userID)
 		return nil, response.ErrInternal("failed to upload cv")
 	}
 
-	// upsert cv_url ke tabel cvs (belum ada extracted data)
+	// upsert cv_url to tabel cvs
 	existing, err := s.repo.FindByUserID(ctx, userID)
 	if err != nil {
 		slog.Error("failed to find existing cv", "error", err, "userID", userID)
@@ -306,7 +306,7 @@ func (s *cvService) ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto
 		return nil, response.ErrInternal("failed to fetch cv from storage")
 	}
 
-	jsonStr, err := s.gemini.PerkuatKalimat(ctx, pdfBytes)
+	jsonStr, err := s.gemini.ImproveSentence(ctx, pdfBytes)
 	if err != nil {
 		slog.Error("failed to perkuat kalimat", "error", err, "userID", userID)
 		return nil, response.ErrInternal("failed to analyze cv sentences")
@@ -326,7 +326,7 @@ func (s *cvService) ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto
 	}, nil
 }
 
-// SuggestKeywords → identifikasi keyword penting yang belum ada di CV
+// SuggestKeywords identificate important keyword that is missing
 
 func (s *cvService) SuggestKeywords(ctx context.Context, userID uuid.UUID) (*dto.SuggestKeywordResponse, *response.APIError) {
 	cv, apiErr := s.checkAndIncrementAICall(ctx, userID)
@@ -343,7 +343,7 @@ func (s *cvService) SuggestKeywords(ctx context.Context, userID uuid.UUID) (*dto
 		return nil, response.ErrInternal("failed to fetch cv from storage")
 	}
 
-	jsonStr, err := s.gemini.SaranKeyword(ctx, pdfBytes)
+	jsonStr, err := s.gemini.SuggestKeyword(ctx, pdfBytes)
 	if err != nil {
 		slog.Error("failed to saran keyword", "error", err, "userID", userID)
 		return nil, response.ErrInternal("failed to analyze cv keywords")
@@ -379,7 +379,7 @@ func (s *cvService) SummarizeProfile(ctx context.Context, userID uuid.UUID) (*dt
 		return nil, response.ErrInternal("failed to fetch cv from storage")
 	}
 
-	jsonStr, err := s.gemini.RingkasanProfil(ctx, pdfBytes)
+	jsonStr, err := s.gemini.SummarizeProfiel(ctx, pdfBytes)
 	if err != nil {
 		slog.Error("failed to ringkasan profil", "error", err, "userID", userID)
 		return nil, response.ErrInternal("failed to generate profile summary")
@@ -402,7 +402,6 @@ func (s *cvService) SummarizeProfile(ctx context.Context, userID uuid.UUID) (*dt
 }
 
 func (s *cvService) GetScore(ctx context.Context, userID uuid.UUID) (*dto.CVScoreResponse, *response.APIError) {
-	// pakai checkAndIncrementAICall karena ini AI call
 	cv, apiErr := s.checkAndIncrementAICall(ctx, userID)
 	if apiErr != nil {
 		return nil, apiErr
@@ -437,7 +436,7 @@ func (s *cvService) GetScore(ctx context.Context, userID uuid.UUID) (*dto.CVScor
 		return nil, response.ErrInternal("failed to parse ai response")
 	}
 
-	// update cv score di DB
+	// update cv score in DB
 	cv.CvScore = parsed.Score
 	cv.IsAiVerified = parsed.Score >= 80
 	_ = s.repo.Update(ctx, cv)
