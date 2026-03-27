@@ -60,9 +60,9 @@ func main() {
 
 	// CORS configuration
 	app.Fiber.Use(cors.New(cors.Config{
-		AllowOrigins: "*", // Bintang artinya "Siapa aja boleh masuk". Aman buat fase development pakai ngrok.
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
-		AllowMethods: "GET, POST, HEAD, PUT, DELETE, PATCH",
+		AllowOrigins: "*",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization, ngrok-skip-browser-warning",
+		AllowMethods: "GET, POST, HEAD, PUT, DELETE, PATCH, OPTIONS",
 	}))
 
 	//user domain
