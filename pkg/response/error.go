@@ -86,3 +86,6 @@ func ErrTooManyRequests(detail string) *APIError {
 func ErrNotFound(detail string) *APIError {
 	return newAPIError(404, "not_found", "data not found", detail)
 }
+func ErrForbidden(detail string) *APIError {
+	return newAPIError(403, "forbidden", "you are not allowed to access this resource", detail)
+}

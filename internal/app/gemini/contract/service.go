@@ -28,8 +28,9 @@ type CVService interface {
 	// GetAICallsRemaining → sisa panggilan AI hari ini
 	GetAICallsRemaining(ctx context.Context, userID uuid.UUID) (*dto.AICallsRemainingResponse, *response.APIError)
 
-	// AI features — premium only, masing-masing 1 call
-	ImproveSentence(ctx context.Context, userID uuid.UUID, req *dto.ImproveSentenceRequest) (*dto.ImproveSentenceResponse, *response.APIError)
-	JobMatch(ctx context.Context, userID uuid.UUID, req *dto.JobMatchRequest) (*dto.JobMatchResponse, *response.APIError)
-	ReviewCV(ctx context.Context, userID uuid.UUID) (*dto.ReviewCVResponse, *response.APIError)
+	// AI )features — premium only, masing-masing 1 call
+
+	ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto.PerkuatKalimatResponse, *response.APIError)
+	SuggestKeywords(ctx context.Context, userID uuid.UUID) (*dto.SaranKeywordResponse, *response.APIError)
+	SummarizeProfile(ctx context.Context, userID uuid.UUID) (*dto.RingkasanProfilResponse, *response.APIError)
 }

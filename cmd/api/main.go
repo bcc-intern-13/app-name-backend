@@ -117,7 +117,7 @@ func main() {
 
 	//gemini domain
 	geminiRepo := geminiRepository.NewCVRepository(app.DB)
-	geminiService := geminiService.NewCVService(geminiRepo, app.GeminiService, app.StorageService)
+	geminiService := geminiService.NewCVService(geminiRepo, app.GeminiService, app.StorageService, userRepo)
 
 	// gemini routes
 	geminiHandler.RegisterRoutes(app.Fiber, geminiService, app.Config.JWTSecret)

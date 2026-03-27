@@ -71,3 +71,33 @@ type ReviewCVResponse struct {
 	MainSuggestion string   `json:"main_suggestion"`
 	Remaining      int      `json:"remaining_calls"`
 }
+
+// PerkuatKalimat
+type SentenceSuggestion struct {
+	Original     string `json:"original"`
+	Alternative1 string `json:"alternative_1"`
+	Alternative2 string `json:"alternative_2"`
+}
+
+type PerkuatKalimatResponse struct {
+	Suggestions []SentenceSuggestion `json:"suggestions"`
+	Remaining   int                  `json:"remaining"`
+}
+
+// SaranKeyword
+type KeywordSuggestion struct {
+	Keyword string `json:"keyword"`
+	Alasan  string `json:"alasan"`
+}
+
+type SaranKeywordResponse struct {
+	Keywords  []KeywordSuggestion `json:"keywords"`
+	Remaining int                 `json:"remaining"`
+}
+
+// RingkasanProfil
+type RingkasanProfilResponse struct {
+	Ringkasan    string `json:"ringkasan"`
+	VersiSingkat string `json:"versi_singkat"`
+	Remaining    int    `json:"remaining"`
+}

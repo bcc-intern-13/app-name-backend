@@ -115,67 +115,42 @@ func (h *cvHandler) getAICallsRemaining(ctx *fiber.Ctx) error {
 	return response.Success(ctx, fiber.StatusOK, "success", result)
 }
 
-// POST /api/cv-ai/improve-sentence
-func (h *cvHandler) improveSentence(ctx *fiber.Ctx) error {
-	userID, err := getUserID(ctx)
-	if err != nil {
-		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
-	}
-
-	var req dto.ImproveSentenceRequest
-	if err := ctx.BodyParser(&req); err != nil {
-		return response.Error(ctx, response.ErrBadRequest("body format is invalid"), err)
-	}
-	if err := validate.Struct(req); err != nil {
-		return response.Error(ctx, response.NewValidationError(err), err)
-	}
-
-	result, apiErr := h.service.ImproveSentence(ctx.Context(), userID, &req)
-	if apiErr != nil {
-		return response.Error(ctx, apiErr, nil)
-	}
-
-	return response.Success(ctx, fiber.StatusOK, "success", result)
-}
-
-// POST /api/cv-ai/job-match
-func (h *cvHandler) jobMatch(ctx *fiber.Ctx) error {
-	userID, err := getUserID(ctx)
-	if err != nil {
-		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
-	}
-
-	var req dto.JobMatchRequest
-	if err := ctx.BodyParser(&req); err != nil {
-		return response.Error(ctx, response.ErrBadRequest("body format is invalid"), err)
-	}
-	if err := validate.Struct(req); err != nil {
-		return response.Error(ctx, response.NewValidationError(err), err)
-	}
-
-	result, apiErr := h.service.JobMatch(ctx.Context(), userID, &req)
-	if apiErr != nil {
-		return response.Error(ctx, apiErr, nil)
-	}
-
-	return response.Success(ctx, fiber.StatusOK, "success", result)
-}
-
-// POST /api/cv-ai/review
-func (h *cvHandler) reviewCV(ctx *fiber.Ctx) error {
-	userID, err := getUserID(ctx)
-	if err != nil {
-		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
-	}
-
-	result, apiErr := h.service.ReviewCV(ctx.Context(), userID)
-	if apiErr != nil {
-		return response.Error(ctx, apiErr, nil)
-	}
-
-	return response.Success(ctx, fiber.StatusOK, "success", result)
-}
-
 func getUserID(ctx *fiber.Ctx) (uuid.UUID, error) {
 	return uuid.Parse(ctx.Locals("userID").(string))
+}
+
+func (h *cvHandler) ImproveSentence(ctx *fiber.Ctx) error {
+	userID, err := getUserID(ctx)
+	if err != nil {
+		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
+	}
+	result, apiErr := h.service.ImproveSentence(ctx.Context(), userID)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
+	}
+	return response.Success(ctx, fiber.StatusOK, "success", result)
+}
+
+func (h *cvHandler) SuggestKeywords(ctx *fiber.Ctx) error {
+	userID, err := getUserID(ctx)
+	if err != nil {
+		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
+	}
+	result, apiErr := h.service.SuggestKeywords(ctx.Context(), userID)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
+	}
+	return response.Success(ctx, fiber.StatusOK, "success", result)
+}
+
+func (h *cvHandler) SummarizeProfile(ctx *fiber.Ctx) error {
+	userID, err := getUserID(ctx)
+	if err != nil {
+		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
+	}
+	result, apiErr := h.service.SummarizeProfile(ctx.Context(), userID)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
+	}
+	return response.Success(ctx, fiber.StatusOK, "success", result)
 }
