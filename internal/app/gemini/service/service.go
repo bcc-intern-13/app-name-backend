@@ -422,6 +422,7 @@ func (s *cvService) GetScore(ctx context.Context, userID uuid.UUID) (*dto.CVScor
 		slog.Error("failed to score cv", "error", err, "userID", userID)
 		return nil, response.ErrInternal("failed to score cv")
 	}
+	slog.Info("score raw response", "response", jsonStr)
 
 	var parsed struct {
 		Score    int `json:"score"`
