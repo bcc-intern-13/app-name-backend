@@ -16,7 +16,7 @@ func RegisterRoutes(router fiber.Router, service contract.CVService, jwtSecret s
 
 	cvAI := router.Group("api/cv-ai", middleware.JWTProtected(jwtSecret))
 	cvAI.Get("/score", h.getScore)
-	cvAI.Post("/improve-sentence", middleware.JWTProtected(jwtSecret), h.ImproveSentence)
-	cvAI.Post("/suggest-keywords", middleware.JWTProtected(jwtSecret), h.SuggestKeywords)
-	cvAI.Post("/summarize-profile", middleware.JWTProtected(jwtSecret), h.SummarizeProfile)
+	cvAI.Post("/improve-sentence", h.ImproveSentence)
+	cvAI.Post("/suggest-keywords", h.SuggestKeywords)
+	cvAI.Post("/summarize-profile", h.SummarizeProfile)
 }
