@@ -115,13 +115,22 @@ func (s *userAuthService) Login(req *dto.LoginRequest) (*dto.LoginResponse, *res
 		return nil, response.ErrInternal("failed to delete old refresh tokens")
 	}
 
-	//Generate refresh token expiry 7 days.
+	//Generate refresh token
+	//if rememmber me is on one week refresh time.
+	//if off 24 hours refresh token only
+
+	refreshTokenDuration := 24 * time.Hour
+
+	if req.RememberMe {
+		refreshTokenDuration = 7 * 24 * time.Hour
+	}
+
 	refreshTokenStr := jwt.GenerateRefreshToken()
 	refreshToken := &entity.RefreshToken{
 		ID:        uuid.New(),
 		UserID:    user.ID,
 		Token:     refreshTokenStr,
-		ExpiredAt: time.Now().Add(7 * 24 * time.Hour), //one week
+		ExpiredAt: time.Now().Add(refreshTokenDuration), //one week
 	}
 
 	if err := s.refreshTokenRepo.Create(refreshToken); err != nil {
