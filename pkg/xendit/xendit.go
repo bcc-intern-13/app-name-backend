@@ -22,7 +22,7 @@ func NewXenditService(secretKey string) *XenditService {
 	}
 }
 
-// CreateInvoice → buat invoice di Xendit, return invoice_url
+// CreateInvoice  buat invoice di Xendit, return invoice_url
 func (x *XenditService) CreateInvoice(ctx context.Context, orderID string, amount float64, userEmail, userName string) (string, error) {
 	log.Printf("Xendit request - orderID: %s, amount: %f, email: %s, name: %s", orderID, amount, userEmail, userName)
 
@@ -40,7 +40,7 @@ func (x *XenditService) CreateInvoice(ctx context.Context, orderID string, amoun
 	}
 	req.Customer = customer
 
-	//test
+	// log request body (without secret key)
 	fmt.Printf("Xendit request - orderID: %s, amount: %f, email: %s, name: %s\n", orderID, amount, userEmail, userName)
 
 	resp, _, sdkErr := x.client.InvoiceApi.CreateInvoiceExecute(
@@ -53,7 +53,7 @@ func (x *XenditService) CreateInvoice(ctx context.Context, orderID string, amoun
 	return resp.InvoiceUrl, nil
 }
 
-// VerifyWebhook → verify callback token dari header x-callback-token
+// VerifyWebhook verify callback token from header x-callback-token
 func (x *XenditService) VerifyWebhook(callbackToken, expectedToken string) bool {
 	return callbackToken == expectedToken
 }
