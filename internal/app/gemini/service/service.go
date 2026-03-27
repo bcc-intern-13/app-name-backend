@@ -37,9 +37,10 @@ func NewCVService(
 
 ) contract.CVService {
 	return &cvService{
-		repo:    repo,
-		gemini:  geminiSvc,
-		storage: storageSvc,
+		repo:     repo,
+		gemini:   geminiSvc,
+		storage:  storageSvc,
+		userRepo: userRepoSvc,
 	}
 }
 
@@ -100,7 +101,7 @@ func (s *cvService) UploadCV(ctx context.Context, userID uuid.UUID, file *multip
 	return &dto.CVUploadResponse{CvURL: cvURL}, nil
 }
 
-// AnalyzeCV → ambil cv_url dari cvs → fetch PDF → Gemini extract → update cvs
+// AnalyzeCV get cv urls from cv table and fetch pdf byte and extract it
 func (s *cvService) AnalyzeCV(ctx context.Context, userID uuid.UUID) (*dto.CVResponse, *response.APIError) {
 	cv, err := s.repo.FindByUserID(ctx, userID)
 	if err != nil {
@@ -111,7 +112,7 @@ func (s *cvService) AnalyzeCV(ctx context.Context, userID uuid.UUID) (*dto.CVRes
 		return nil, response.ErrNotFound("cv not found, please upload your cv first")
 	}
 
-	// fetch PDF dari Supabase Storage
+	// fetch PDF from Supabase Storage
 	pdfBytes, err := fetchFromURL(cv.CvURL)
 	if err != nil {
 		slog.Error("failed to fetch pdf from storage", "error", err, "url", cv.CvURL)
@@ -134,7 +135,7 @@ func (s *cvService) AnalyzeCV(ctx context.Context, userID uuid.UUID) (*dto.CVRes
 		return nil, response.ErrInternal("failed to parse cv extraction result")
 	}
 
-	// update cv dengan hasil extract
+	// update cv table with the extract result
 	cv.Summary = extracted.Summary
 	cv.Education = datatypes.JSON(mustMarshal(extracted.Education))
 	cv.Experience = datatypes.JSON(mustMarshal(extracted.Experience))
@@ -160,43 +161,6 @@ func (s *cvService) GetCV(ctx context.Context, userID uuid.UUID) (*dto.CVRespons
 	if cv == nil {
 		return nil, response.ErrNotFound("cv not found, please upload your cv first")
 	}
-	return toCVResponse(cv), nil
-}
-
-func (s *cvService) UpdateCV(ctx context.Context, userID uuid.UUID, req *dto.UpdateCVRequest) (*dto.CVResponse, *response.APIError) {
-	cv, err := s.repo.FindByUserID(ctx, userID)
-	if err != nil {
-		slog.Error("failed to get cv", "error", err, "userID", userID)
-		return nil, response.ErrInternal("failed to get cv")
-	}
-	if cv == nil {
-		return nil, response.ErrNotFound("cv not found, please upload your cv first")
-	}
-
-	if req.Summary != nil {
-		cv.Summary = *req.Summary
-	}
-	if req.Education != nil {
-		cv.Education = datatypes.JSON(mustMarshal(req.Education))
-	}
-	if req.Experience != nil {
-		cv.Experience = datatypes.JSON(mustMarshal(req.Experience))
-	}
-	if req.Skills != nil {
-		cv.Skills = datatypes.JSON(mustMarshal(req.Skills))
-	}
-	if req.AdaptiveSkills != nil {
-		cv.AdaptiveSkills = datatypes.JSON(mustMarshal(req.AdaptiveSkills))
-	}
-
-	cv.CvScore = calculateScore(cv)
-	cv.IsAiVerified = cv.CvScore >= 80
-
-	if err := s.repo.Update(ctx, cv); err != nil {
-		slog.Error("failed to update cv", "error", err, "userID", userID)
-		return nil, response.ErrInternal("failed to update cv")
-	}
-
 	return toCVResponse(cv), nil
 }
 
@@ -237,10 +201,6 @@ func (s *cvService) GetAICallsRemaining(ctx context.Context, userID uuid.UUID) (
 		Max:       maxAICallsPerDay,
 	}, nil
 }
-
-// ── AI Features (Premium) ─────────────────────────────────────────────────────
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 func (s *cvService) checkAndIncrementAICall(ctx context.Context, userID uuid.UUID) (*entity.CV, *response.APIError) {
 	cv, err := s.repo.FindByUserID(ctx, userID)
@@ -380,7 +340,9 @@ func toCVResponse(cv *entity.CV) *dto.CVResponse {
 	}
 }
 
-// PerkuatKalimat → identifikasi kalimat lemah di CV + kasih 2 alternatif
+//AI featurs ----
+
+// Imporve sentence give suggestions to make cv sentences more impactful, based on the extracted data and Gemini's analysis
 func (s *cvService) ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto.PerkuatKalimatResponse, *response.APIError) {
 	cv, apiErr := s.checkAndIncrementAICall(ctx, userID)
 	if apiErr != nil {
@@ -453,7 +415,7 @@ func (s *cvService) SuggestKeywords(ctx context.Context, userID uuid.UUID) (*dto
 	}, nil
 }
 
-// RingkasanProfil → generate ringkasan profil profesional dari CV
+// Summarize Profile  to create a concise summary of the user's profile based on the CV content and Gemini's analysis, which can be used for quick sharing or as an introduction in job applications. This will also be a premium feature with limited daily calls. The response will include both a detailed summary and a shorter version suitable for LinkedIn or resume introductions.
 func (s *cvService) SummarizeProfile(ctx context.Context, userID uuid.UUID) (*dto.RingkasanProfilResponse, *response.APIError) {
 	cv, apiErr := s.checkAndIncrementAICall(ctx, userID)
 	if apiErr != nil {

@@ -10,14 +10,12 @@ func RegisterRoutes(router fiber.Router, service contract.CVService, jwtSecret s
 	h := &cvHandler{service: service}
 
 	cv := router.Group("api/cv", middleware.JWTProtected(jwtSecret))
-	cv.Post("/upload", h.uploadCV)                       // POST  /api/cv/upload   → upload PDF ke storage
-	cv.Post("/analyze", h.analyzeCV)                     // POST  /api/cv/analyze  → Gemini extract
-	cv.Get("", h.getCV)                                  // GET   /api/cv
-	cv.Patch("", h.updateCV)                             // PATCH /api/cv
-	cv.Get("/score", h.getScore)                         // GET   /api/cv/score
-	cv.Get("/ai-calls-remaining", h.getAICallsRemaining) // GET   /api/cv/ai-calls-remaining
+	cv.Post("/upload", h.uploadCV)
+	cv.Post("/analyze", h.analyzeCV)
+	cv.Get("/ai-calls-remaining", h.getAICallsRemaining)
 
 	cvAI := router.Group("api/cv-ai", middleware.JWTProtected(jwtSecret))
+	cvAI.Get("/score", h.getScore)
 	cvAI.Post("/improve-sentence", middleware.JWTProtected(jwtSecret), h.ImproveSentence)
 	cvAI.Post("/suggest-keywords", middleware.JWTProtected(jwtSecret), h.SuggestKeywords)
 	cvAI.Post("/summarize-profile", middleware.JWTProtected(jwtSecret), h.SummarizeProfile)

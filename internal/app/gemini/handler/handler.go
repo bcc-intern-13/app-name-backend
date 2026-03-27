@@ -2,7 +2,6 @@ package handler
 
 import (
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/contract"
-	"github.com/bcc-intern-13/WorkAble-backend/internal/app/gemini/dto"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -48,41 +47,6 @@ func (h *cvHandler) analyzeCV(ctx *fiber.Ctx) error {
 	}
 
 	return response.Success(ctx, fiber.StatusOK, "CV analyzed successfully", result)
-}
-
-// GET /api/cv
-func (h *cvHandler) getCV(ctx *fiber.Ctx) error {
-	userID, err := getUserID(ctx)
-	if err != nil {
-		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
-	}
-
-	result, apiErr := h.service.GetCV(ctx.Context(), userID)
-	if apiErr != nil {
-		return response.Error(ctx, apiErr, nil)
-	}
-
-	return response.Success(ctx, fiber.StatusOK, "success", result)
-}
-
-// PATCH /api/cv
-func (h *cvHandler) updateCV(ctx *fiber.Ctx) error {
-	userID, err := getUserID(ctx)
-	if err != nil {
-		return response.Error(ctx, response.ErrBadRequest("invalid user id"), err)
-	}
-
-	var req dto.UpdateCVRequest
-	if err := ctx.BodyParser(&req); err != nil {
-		return response.Error(ctx, response.ErrBadRequest("body format is invalid"), err)
-	}
-
-	result, apiErr := h.service.UpdateCV(ctx.Context(), userID, &req)
-	if apiErr != nil {
-		return response.Error(ctx, apiErr, nil)
-	}
-
-	return response.Success(ctx, fiber.StatusOK, "CV updated successfully", result)
 }
 
 // GET /api/cv/score
