@@ -36,3 +36,10 @@ func (r *cvRepository) Create(ctx context.Context, cv *entity.CV) error {
 func (r *cvRepository) Update(ctx context.Context, cv *entity.CV) error {
 	return r.db.WithContext(ctx).Save(cv).Error
 }
+
+func (r *cvRepository) ResetAICalls(ctx context.Context) error {
+	return r.db.WithContext(ctx).
+		Model(&entity.CV{}).
+		Where("ai_calls_today > ?", 0).
+		Update("ai_calls_today", 0).Error
+}

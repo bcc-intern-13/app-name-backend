@@ -402,11 +402,25 @@ func (s *cvService) SummarizeProfile(ctx context.Context, userID uuid.UUID) (*dt
 }
 
 func (s *cvService) GetScore(ctx context.Context, userID uuid.UUID) (*dto.CVScoreResponse, *response.APIError) {
-	cv, apiErr := s.checkAndIncrementAICall(ctx, userID)
-	if apiErr != nil {
-		return nil, apiErr
+
+	user, err := s.userRepo.FindByID(userID.String())
+	if err != nil || user == nil {
+		return nil, response.ErrInternal("failed to get user")
 	}
+	if !user.IsPremium {
+		return nil, response.ErrForbidden("this feature is for premium users only")
+	}
+
+	cv, err := s.repo.FindByUserID(ctx, userID)
+
+	if err != nil {
+		return nil, response.ErrInternal("internal server error")
+	}
+
 	if cv.CvURL == "" {
+		return nil, response.ErrNotFound("cv not found, please upload your cv first")
+	}
+	if cv == nil || cv.CvURL == "" {
 		return nil, response.ErrNotFound("cv not found, please upload your cv first")
 	}
 
