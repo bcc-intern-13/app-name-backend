@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"time"
 
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/contract"
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/entity"
@@ -58,4 +59,14 @@ func (r *userRepository) UpdateIsPremium(userID uuid.UUID) error {
 	return r.db.Model(&entity.User{}).
 		Where("id = ?", userID).
 		Update("is_premium", true).Error
+}
+
+// repository for updating premoum status if  premium has already expired
+func (r *userRepository) UpdatePremiumStatus(userID uuid.UUID, isPremium bool, expiresAt *time.Time) error {
+	return r.db.Model(&entity.User{}).
+		Where("id = ?", userID).
+		Updates(map[string]interface{}{
+			"is_premium":         isPremium,
+			"premium_expires_at": expiresAt,
+		}).Error
 }

@@ -156,7 +156,7 @@ func main() {
 	}
 
 	// gemini routes
-	geminiHandler.RegisterRoutes(app.Fiber, geminiService, app.Config.JWTSecret)
+	geminiHandler.RegisterRoutes(app.Fiber, geminiService, app.Config.JWTSecret, userRepo)
 
 	//payment domain
 	orderRepo := paymentRepository.NewOrderRepository(app.DB)

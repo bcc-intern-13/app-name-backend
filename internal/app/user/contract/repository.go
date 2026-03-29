@@ -1,6 +1,8 @@
 package contract
 
 import (
+	"time"
+
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/entity"
 	"github.com/google/uuid"
 )
@@ -19,6 +21,7 @@ type UserRepository interface {
 	UpdateVerified(userID uuid.UUID) error
 	UpdateOnboardingCompleted(userID uuid.UUID) error
 	UpdateIsPremium(userID uuid.UUID) error
+	UpdatePremiumStatus(userID uuid.UUID, isPremium bool, expiresAt *time.Time) error
 }
 
 type VerificationTokenRepository interface {
