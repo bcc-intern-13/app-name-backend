@@ -12,6 +12,7 @@ type PersonalInfoResponse struct {
 	Age       string `json:"age"`
 	City      string `json:"city"`
 	Education string `json:"education"`
+	AvatarURL string `json:"avatar_url"`
 }
 
 type CareerPreferenceResponse struct {

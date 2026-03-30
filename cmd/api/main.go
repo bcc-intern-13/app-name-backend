@@ -126,7 +126,7 @@ func main() {
 	companyHandler.RegisterCompanyRoutes(app.Fiber, companySvc, app.Config.JWTSecret)
 
 	// smart profile domain
-	smartProfileSvc := smartProfileService.NewSmartProfileService(onboardingRepo, careerMappingSvc)
+	smartProfileSvc := smartProfileService.NewSmartProfileService(onboardingRepo, careerMappingSvc, userRepo)
 
 	// smart-profile routes
 	smartProfileHandler.RegisterSmartProfileRoutes(app.Fiber, smartProfileSvc, app.Config.JWTSecret)
