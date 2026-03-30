@@ -30,7 +30,7 @@ func RegisterRoutes(app *fiber.App, userService contract.UserAuthService, jwtSec
 
 	// Protected
 	userH := &userHandler{service: userService}
-	users := app.Group("/users", middleware.JWTProtected(jwtSecret))
+	users := app.Group("api/v1/users", middleware.JWTProtected(jwtSecret))
 	users.Get("/me", userH.getMe)
 	//upload avatar
 	users.Patch("/avatar", userH.UploadAvatar)
