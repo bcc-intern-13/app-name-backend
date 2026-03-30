@@ -2,7 +2,7 @@ services:
   api:
     build: .
     ports:
-      - "3013:3000" # port kampus:port fiber lo
+      - "3013:3013"
     env_file:
       - .env
     restart: unless-stopped
