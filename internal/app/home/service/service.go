@@ -32,11 +32,13 @@ func NewHomeService(
 	onboardingRepo onboardingContract.OnboardingRepository,
 	jobBoardService jobBoardContract.JobBoardService,
 	careerMappingSvc careerMappingContract.CareerMappingService,
+	userRepo userContract.UserRepository,
 ) HomeService {
 	return &homeService{
 		onboardingRepo:   onboardingRepo,
 		jobBoardService:  jobBoardService,
 		careerMappingSvc: careerMappingSvc,
+		userRepo:         userRepo,
 	}
 }
 
