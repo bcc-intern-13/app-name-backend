@@ -1,7 +1,10 @@
 package service
 
 import (
+	"context"
+	"io"
 	"log/slog"
+	"mime/multipart"
 	"time"
 
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/contract"
@@ -10,6 +13,7 @@ import (
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/email"
 	jwt "github.com/bcc-intern-13/WorkAble-backend/pkg/jwt"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/storage"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -20,6 +24,7 @@ type userAuthService struct {
 	jwtSecret             string
 	email                 *email.EmailService
 	verificationTokenRepo contract.VerificationTokenRepository
+	storage               *storage.StorageService
 }
 
 func NewUserAuthService(
@@ -28,6 +33,7 @@ func NewUserAuthService(
 	refreshTokenRepo contract.RefreshTokenRepository,
 	verificationTokenRepo contract.VerificationTokenRepository,
 	email *email.EmailService,
+	storageSvc *storage.StorageService,
 ) contract.UserAuthService {
 	return &userAuthService{
 		repo:                  repo,
@@ -35,6 +41,7 @@ func NewUserAuthService(
 		verificationTokenRepo: verificationTokenRepo,
 		email:                 email,
 		jwtSecret:             jwtSecret,
+		storage:               storageSvc,
 	}
 }
 
@@ -291,4 +298,53 @@ func (s *userAuthService) GoogleAuth(req *dto.GoogleAuthRequest) (*dto.LoginResp
 			Email: user.Email,
 		},
 	}, nil
+}
+
+func (s *userAuthService) UploadAvatar(ctx context.Context, userID uuid.UUID, file *multipart.FileHeader) (*dto.AvatarUploadResponse, *response.APIError) {
+	// 1. Validasi Format (Cuma boleh gambar)
+	contentType := file.Header.Get("Content-Type")
+	if contentType != "image/jpeg" && contentType != "image/png" && contentType != "image/webp" {
+		return nil, response.ErrBadRequest("avatar must be an image (jpeg, png, webp)")
+	}
+
+	// 2. Validasi Ukuran (Maks 2MB)
+	if file.Size > 2*1024*1024 {
+		return nil, response.ErrBadRequest("avatar size must be less than 2MB")
+	}
+
+	// 3. Baca File
+	f, err := file.Open()
+	if err != nil {
+		slog.Error("failed to open avatar file", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to process avatar file")
+	}
+	defer f.Close()
+
+	fileBytes, err := io.ReadAll(f)
+	if err != nil {
+		slog.Error("failed to read avatar file", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to read avatar file")
+	}
+
+	// 4. Lempar ke Kurir Supabase
+	avatarURL, err := s.storage.UploadAvatar(userID.String(), fileBytes, contentType)
+	if err != nil {
+		slog.Error("failed to upload avatar to storage", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to upload avatar")
+	}
+
+	// 5. Update kolom avatar_url di tabel users
+	user, err := s.repo.FindByID(userID.String())
+	if err != nil || user == nil {
+		return nil, response.ErrInternal("failed to get user")
+	}
+
+	user.AvatarURL = avatarURL
+	// Asumsi gua lu punya fungsi Update di UserRepository
+	if err := s.repo.Update(user); err != nil {
+		slog.Error("failed to update user avatar", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to save avatar url")
+	}
+
+	return &dto.AvatarUploadResponse{AvatarURL: avatarURL}, nil
 }
