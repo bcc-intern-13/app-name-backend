@@ -229,3 +229,66 @@ func (s *userAuthService) VerifyEmail(token string) *response.APIError {
 func (s *userAuthService) ResendVerificationEmail(email string) *response.APIError {
 	return nil
 }
+
+func (s *userAuthService) GoogleAuth(req *dto.GoogleAuthRequest) (*dto.LoginResponse, *response.APIError) {
+	// cek apakah user sudah ada
+	existing, err := s.repo.FindByEmail(req.Email)
+	if err != nil {
+		slog.Error("failed to check existing user", "error", err, "email", req.Email)
+		return nil, response.ErrInternal("failed to check existing user")
+	}
+
+	var user *entity.User
+
+	if existing == nil {
+		// register otomatis — tidak perlu password karena Google yang auth
+		user = &entity.User{
+			ID:         uuid.New(),
+			Email:      req.Email,
+			Nama:       req.Name,
+			AvatarURL:  req.Picture,
+			Password:   uuid.New().String(), // random password — tidak dipakai
+			IsVerified: true,                // langsung verified karena dari Google
+		}
+		if err := s.repo.Create(user); err != nil {
+			slog.Error("failed to create google user", "error", err)
+			return nil, response.ErrInternal("failed to create user")
+		}
+	} else {
+		// update avatar kalau sudah ada
+		user = existing
+		if req.Picture != "" && user.AvatarURL != req.Picture {
+			user.AvatarURL = req.Picture
+			s.repo.Update(user)
+		}
+	}
+
+	// generate JWT
+	accessToken, err := jwt.GenerateToken(user, s.jwtSecret)
+	if err != nil {
+		slog.Error("failed to generate token", "error", err)
+		return nil, response.ErrInternal("failed to generate token")
+	}
+
+	// generate refresh token
+	refreshTokenStr := jwt.GenerateRefreshToken()
+	refreshToken := &entity.RefreshToken{
+		ID:        uuid.New(),
+		UserID:    user.ID,
+		Token:     refreshTokenStr,
+		ExpiredAt: time.Now().Add(30 * 24 * time.Hour),
+	}
+	if err := s.refreshTokenRepo.Create(refreshToken); err != nil {
+		slog.Error("failed to save refresh token", "error", err)
+		return nil, response.ErrInternal("failed to save refresh token")
+	}
+
+	return &dto.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshTokenStr,
+		User: dto.UserData{
+			ID:    user.ID.String(),
+			Email: user.Email,
+		},
+	}, nil
+}

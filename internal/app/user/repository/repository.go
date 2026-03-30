@@ -70,3 +70,8 @@ func (r *userRepository) UpdatePremiumStatus(userID uuid.UUID, isPremium bool, e
 			"premium_expires_at": expiresAt,
 		}).Error
 }
+
+// update function for google auth
+func (r *userRepository) Update(user *entity.User) error {
+	return r.db.Save(user).Error
+}

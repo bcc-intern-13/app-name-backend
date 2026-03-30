@@ -22,6 +22,7 @@ type UserRepository interface {
 	UpdateOnboardingCompleted(userID uuid.UUID) error
 	UpdateIsPremium(userID uuid.UUID) error
 	UpdatePremiumStatus(userID uuid.UUID, isPremium bool, expiresAt *time.Time) error
+	Update(user *entity.User) error
 }
 
 type VerificationTokenRepository interface {
