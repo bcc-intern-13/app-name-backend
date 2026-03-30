@@ -6,23 +6,24 @@ import (
 	"github.com/bcc-intern-13/WorkAble-backend/config"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/email"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/gemini"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/oauth"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/storage"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/xendit"
 
 	"github.com/bcc-intern-13/WorkAble-backend/internal/infra/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 )
 
 type App struct {
-	Fiber          *fiber.App
-	DB             *gorm.DB
-	Config         *config.Config
-	EmailService   *email.EmailService
-	StorageService *storage.StorageService
-	GeminiService  *gemini.GeminiService
-	XenditService  *xendit.XenditService
+	Fiber              *fiber.App
+	DB                 *gorm.DB
+	Config             *config.Config
+	EmailService       *email.EmailService
+	StorageService     *storage.StorageService
+	GeminiService      *gemini.GeminiService
+	XenditService      *xendit.XenditService
+	GoogleOAuthService *oauth.GoogleOAuthService
 }
 
 func NewApp() *App {
@@ -63,38 +64,22 @@ func NewApp() *App {
 	// xendit service package
 	xenditService := xendit.NewXenditService(cfg.XenditSecretKey)
 
-	c := cron.New()
-
-	// 0 0 * * means run it every night or 00.00 AM
-	_, cronErr := c.AddFunc("0 0 * * *", func() {
-		log.Println("⏳ [CRON] Tengah malam tiba! Memulai reset kuota AI Calls...")
-
-		// exec raw sql
-		result := db.Exec("UPDATE cvs SET ai_calls_today = 0 WHERE ai_calls_today > 0")
-
-		if result.Error != nil {
-			log.Println("❌ [CRON] Duh, gagal ngereset kuota AI:", result.Error)
-		} else {
-			log.Printf("✅ [CRON] Reset kuota sukses. %d data CV di-reset. User siap gacha AI lagi!\n", result.RowsAffected)
-		}
-	})
-
-	if cronErr != nil {
-		log.Println("⚠️ [CRON] Gagal memasang jam beker:", cronErr)
-	} else {
-		c.Start() // Nyalakan bekernya di background
-		log.Println("✅ [CRON] Jam beker penjaga kuota AI berhasil dipasang di background.")
-	}
-	// =========================================================================
+	//google oauth service
+	googleOAuth := oauth.NewGoogleOAuthService(
+		cfg.GoogleClientID,
+		cfg.GoogleClientSecret,
+		cfg.GoogleRedirectURL,
+	)
 
 	return &App{
-		Fiber:          fiber.New(),
-		DB:             db,
-		Config:         cfg,
-		EmailService:   EmailService,
-		StorageService: storageService,
-		GeminiService:  geminiService,
-		XenditService:  xenditService,
+		Fiber:              fiber.New(),
+		DB:                 db,
+		Config:             cfg,
+		EmailService:       EmailService,
+		StorageService:     storageService,
+		GeminiService:      geminiService,
+		XenditService:      xenditService,
+		GoogleOAuthService: googleOAuth,
 	}
 }
 
