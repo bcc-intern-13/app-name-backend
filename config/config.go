@@ -35,6 +35,11 @@ type Config struct {
 	// midtrans api key and is in production or not
 	XenditSecretKey    string
 	XenditWebhookToken string
+
+	//google oauth
+	GoogleClientID     string
+	GoogleClientSecret string
+	GoogleRedirectURL  string
 }
 
 func Load() *Config {
@@ -68,6 +73,11 @@ func Load() *Config {
 		// xendit api key and webhook token
 		XenditSecretKey:    mustGetEnv("XENDIT_SECRET_KEY"),
 		XenditWebhookToken: mustGetEnv("XENDIT_WEBHOOK_TOKEN"),
+
+		//google oauth
+		GoogleClientID:     mustGetEnv("GOOGLE_CLIENT_ID"),
+		GoogleClientSecret: mustGetEnv("GOOGLE_CLIENT_SECRET"),
+		GoogleRedirectURL:  mustGetEnv("GOOGLE_REDIRECT_URL"),
 	}
 }
 
