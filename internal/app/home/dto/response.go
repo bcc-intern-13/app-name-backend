@@ -10,6 +10,7 @@ import (
 type GreetingResponse struct {
 	Name      string    `json:"name"`
 	Timestamp time.Time `json:"timestamp"`
+	AvatarURL string    `json:"avatar_url"`
 }
 
 type HomeSummaryResponse struct {

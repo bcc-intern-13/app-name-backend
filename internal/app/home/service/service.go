@@ -6,6 +6,9 @@ import (
 
 	careerMappingContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/contract"
 	careerMappingDto "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/dto"
+
+	userContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/user/contract"
+
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/home/dto"
 	jobBoardContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/contract"
 	jobDto "github.com/bcc-intern-13/WorkAble-backend/internal/app/job_board/dto"
@@ -22,6 +25,7 @@ type homeService struct {
 	onboardingRepo   onboardingContract.OnboardingRepository
 	jobBoardService  jobBoardContract.JobBoardService
 	careerMappingSvc careerMappingContract.CareerMappingService
+	userRepo         userContract.UserRepository
 }
 
 func NewHomeService(
@@ -46,9 +50,18 @@ func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *r
 		nama = profile.Name
 	}
 
+	avatarURL := ""
+	user, err := s.userRepo.FindByID(userID.String())
+	if err != nil {
+		slog.Error("failed to get user for avatar", "error", err, "userID", userID)
+	} else if user != nil {
+		avatarURL = user.AvatarURL
+	}
+
 	greeting := dto.GreetingResponse{
 		Name:      nama,
 		Timestamp: time.Now().UTC(),
+		AvatarURL: avatarURL,
 	}
 
 	// get career mapping

@@ -80,6 +80,7 @@ func main() {
 		refreshTokenRepo,
 		verificationTokenRepo,
 		app.EmailService,
+		app.StorageService,
 	)
 
 	// onboarding domain
