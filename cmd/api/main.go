@@ -57,6 +57,7 @@ import (
 
 	//allow cors for fe implementaion
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	//google oatuh packages
 )
 
 func main() {
@@ -86,7 +87,7 @@ func main() {
 	onboardingSvc := onboardingService.NewOnboardingService(onboardingRepo, userRepo)
 
 	// onboarding routes
-	handler.RegisterRoutes(app.Fiber, userService, app.Config.JWTSecret)
+	handler.RegisterRoutes(app.Fiber, userService, app.Config.JWTSecret, app.GoogleOAuthService)
 	onboardingHandler.RegisterOnboardingRoutes(app.Fiber, onboardingSvc, app.Config.JWTSecret)
 
 	// career mapping domain
@@ -156,7 +157,7 @@ func main() {
 	}
 
 	// gemini routes
-	geminiHandler.RegisterRoutes(app.Fiber, geminiService, app.Config.JWTSecret)
+	geminiHandler.RegisterRoutes(app.Fiber, geminiService, app.Config.JWTSecret, userRepo)
 
 	//payment domain
 	orderRepo := paymentRepository.NewOrderRepository(app.DB)

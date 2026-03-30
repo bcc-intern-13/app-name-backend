@@ -122,6 +122,14 @@ func (s *paymentService) HandleWebhook(ctx context.Context, req *dto.WebhookRequ
 		order.Status = "PAID"
 		order.PaymentType = req.PaymentMethod
 
+		expiresAt := time.Now().Add(30 * 24 * time.Hour)
+		if err := s.userRepo.UpdatePremiumStatus(order.UserID, true, &expiresAt); err != nil {
+			slog.Error("failed to upgrade user to premium", "error", err, "userID", order.UserID)
+			return response.ErrInternal("failed to upgrade user to premium")
+		}
+
+		slog.Info("user upgraded to premium", "userID", order.UserID, "expires_at", expiresAt)
+
 		// upgrade user to premium
 		user, err := s.userRepo.FindByID(order.UserID.String())
 		if err != nil || user == nil {

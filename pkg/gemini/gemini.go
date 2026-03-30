@@ -201,7 +201,7 @@ Gunakan bahasa Indonesia yang profesional dan percaya diri. Hindari kalimat pasi
 func (g *GeminiService) ScoreCV(ctx context.Context, fileBytes []byte) (string, error) {
 	model := g.client.GenerativeModel(g.model)
 	model.SetTemperature(0.1)
-	model.SetMaxOutputTokens(2048)
+	model.SetMaxOutputTokens(4096)
 
 	prompt := `Kamu adalah AI career advisor yang membantu penyandang disabilitas
 di Indonesia meningkatkan kualitas CV mereka.

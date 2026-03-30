@@ -16,4 +16,6 @@ type UserAuthService interface {
 	//verification gmial
 	VerifyEmail(token string) *response.APIError
 	ResendVerificationEmail(email string) *response.APIError
+
+	GoogleAuth(req *dto.GoogleAuthRequest) (*dto.LoginResponse, *response.APIError)
 }
