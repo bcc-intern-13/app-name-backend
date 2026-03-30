@@ -23,7 +23,7 @@ func (h *authHandler) register(ctx *fiber.Ctx) error {
 	var req dto.RegisterRequest
 
 	if err := ctx.BodyParser(&req); err != nil {
-		thing := response.ErrBadRequest("body format is invalid") //note mencoba belajar parse ke dalam parameter langsung dan di inferensikan ke variabel dulu
+		thing := response.ErrBadRequest("body format is invalid")
 		return response.Error(ctx, thing, err)
 	}
 
@@ -44,7 +44,7 @@ func (h *authHandler) login(ctx *fiber.Ctx) error {
 	var req dto.LoginRequest
 
 	if err := ctx.BodyParser(&req); err != nil {
-		thing := response.ErrBadRequest("body format is invalid") //note mencoba belajar parse ke dalam parameter langsung dan di inferensikan ke variabel dulu
+		thing := response.ErrBadRequest("body format is invalid")
 		return response.Error(ctx, thing, err)
 	}
 
@@ -65,7 +65,7 @@ func (h *authHandler) refresh(ctx *fiber.Ctx) error {
 	var req dto.RefreshRequest
 
 	if err := ctx.BodyParser(&req); err != nil {
-		thing := response.ErrBadRequest("body format is invalid") //note mencoba belajar parse ke dalam parameter langsung dan di inferensikan ke variabel dulu
+		thing := response.ErrBadRequest("body format is invalid")
 		return response.Error(ctx, thing, err)
 	}
 
@@ -81,7 +81,6 @@ func (h *authHandler) refresh(ctx *fiber.Ctx) error {
 
 	// return Successs
 	return response.Success(ctx, fiber.StatusOK, "Your session has been refreshed", res)
-	//todo  dan pahmin ini
 
 }
 

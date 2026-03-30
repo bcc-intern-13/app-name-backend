@@ -10,7 +10,7 @@ import (
 
 type User struct {
 	ID               uuid.UUID  `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
-	Nama             string     `gorm:"type:varchar(100)" json:"nama"`
+	Name             string     `gorm:"type:varchar(100)" json:"nama"`
 	Email            string     `gorm:"type:varchar(255);uniqueIndex;not null"         json:"email"`
 	Password         string     `gorm:"type:text;not null"                             json:"-"`
 	AvatarURL        string     `json:"avatar_url" gorm:"type:varchar(255)"`
