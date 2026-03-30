@@ -1,7 +1,10 @@
 package service
 
 import (
+	"context"
+	"io"
 	"log/slog"
+	"mime/multipart"
 	"time"
 
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/contract"
@@ -10,6 +13,7 @@ import (
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/email"
 	jwt "github.com/bcc-intern-13/WorkAble-backend/pkg/jwt"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
+	"github.com/bcc-intern-13/WorkAble-backend/pkg/storage"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -20,6 +24,7 @@ type userAuthService struct {
 	jwtSecret             string
 	email                 *email.EmailService
 	verificationTokenRepo contract.VerificationTokenRepository
+	storage               *storage.StorageService
 }
 
 func NewUserAuthService(
@@ -28,6 +33,7 @@ func NewUserAuthService(
 	refreshTokenRepo contract.RefreshTokenRepository,
 	verificationTokenRepo contract.VerificationTokenRepository,
 	email *email.EmailService,
+	storageSvc *storage.StorageService,
 ) contract.UserAuthService {
 	return &userAuthService{
 		repo:                  repo,
@@ -35,6 +41,7 @@ func NewUserAuthService(
 		verificationTokenRepo: verificationTokenRepo,
 		email:                 email,
 		jwtSecret:             jwtSecret,
+		storage:               storageSvc,
 	}
 }
 
@@ -56,6 +63,7 @@ func (s *userAuthService) Register(req *dto.RegisterRequest) (*entity.User, *res
 
 	user := &entity.User{
 		ID:       uuid.New(),
+		Name:     req.Name,
 		Email:    req.Email,
 		Password: string(hashed),
 	}
@@ -241,21 +249,20 @@ func (s *userAuthService) GoogleAuth(req *dto.GoogleAuthRequest) (*dto.LoginResp
 	var user *entity.User
 
 	if existing == nil {
-		// register otomatis — tidak perlu password karena Google yang auth
+
 		user = &entity.User{
 			ID:         uuid.New(),
 			Email:      req.Email,
-			Nama:       req.Name,
+			Name:       req.Name,
 			AvatarURL:  req.Picture,
-			Password:   uuid.New().String(), // random password — tidak dipakai
-			IsVerified: true,                // langsung verified karena dari Google
+			Password:   uuid.New().String(),
+			IsVerified: true,
 		}
 		if err := s.repo.Create(user); err != nil {
 			slog.Error("failed to create google user", "error", err)
 			return nil, response.ErrInternal("failed to create user")
 		}
 	} else {
-		// update avatar kalau sudah ada
 		user = existing
 		if req.Picture != "" && user.AvatarURL != req.Picture {
 			user.AvatarURL = req.Picture
@@ -291,4 +298,50 @@ func (s *userAuthService) GoogleAuth(req *dto.GoogleAuthRequest) (*dto.LoginResp
 			Email: user.Email,
 		},
 	}, nil
+}
+
+func (s *userAuthService) UploadAvatar(ctx context.Context, userID uuid.UUID, file *multipart.FileHeader) (*dto.AvatarUploadResponse, *response.APIError) {
+	//validate formats
+	contentType := file.Header.Get("Content-Type")
+	if contentType != "image/jpeg" && contentType != "image/png" && contentType != "image/webp" {
+		return nil, response.ErrBadRequest("avatar must be an image (jpeg, png, webp)")
+	}
+
+	//validate maximum capacity 2MB
+	if file.Size > 2*1024*1024 {
+		return nil, response.ErrBadRequest("avatar size must be less than 2MB")
+	}
+
+	//read file
+	f, err := file.Open()
+	if err != nil {
+		slog.Error("failed to open avatar file", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to process avatar file")
+	}
+	defer f.Close()
+
+	fileBytes, err := io.ReadAll(f)
+	if err != nil {
+		slog.Error("failed to read avatar file", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to read avatar file")
+	}
+
+	avatarURL, err := s.storage.UploadAvatar(userID.String(), fileBytes, contentType)
+	if err != nil {
+		slog.Error("failed to upload avatar to storage", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to upload avatar")
+	}
+
+	user, err := s.repo.FindByID(userID.String())
+	if err != nil || user == nil {
+		return nil, response.ErrInternal("failed to get user")
+	}
+
+	user.AvatarURL = avatarURL
+	if err := s.repo.Update(user); err != nil {
+		slog.Error("failed to update user avatar", "error", err, "userID", userID)
+		return nil, response.ErrInternal("failed to save avatar url")
+	}
+
+	return &dto.AvatarUploadResponse{AvatarURL: avatarURL}, nil
 }

@@ -80,6 +80,7 @@ func main() {
 		refreshTokenRepo,
 		verificationTokenRepo,
 		app.EmailService,
+		app.StorageService,
 	)
 
 	// onboarding domain
@@ -105,7 +106,7 @@ func main() {
 	jobBoardHandler.RegisterJobBoardRoutes(app.Fiber, jobBoardSvc, app.Config.JWTSecret)
 
 	// home domain
-	homeSvc := homeService.NewHomeService(onboardingRepo, jobBoardSvc, careerMappingSvc)
+	homeSvc := homeService.NewHomeService(onboardingRepo, jobBoardSvc, careerMappingSvc, userRepo)
 
 	// home routes
 	homeHandler.RegisterHomeRoutes(app.Fiber, homeSvc, app.Config.JWTSecret)
@@ -125,7 +126,7 @@ func main() {
 	companyHandler.RegisterCompanyRoutes(app.Fiber, companySvc, app.Config.JWTSecret)
 
 	// smart profile domain
-	smartProfileSvc := smartProfileService.NewSmartProfileService(onboardingRepo, careerMappingSvc)
+	smartProfileSvc := smartProfileService.NewSmartProfileService(onboardingRepo, careerMappingSvc, userRepo)
 
 	// smart-profile routes
 	smartProfileHandler.RegisterSmartProfileRoutes(app.Fiber, smartProfileSvc, app.Config.JWTSecret)

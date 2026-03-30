@@ -6,6 +6,7 @@ import (
 	careerMappingContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/contract"
 	careerMappingDto "github.com/bcc-intern-13/WorkAble-backend/internal/app/career_mapping/dto"
 	onboardingContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/onboarding/contract"
+	userContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/user/contract"
 
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/smart_profile/contract"
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/smart_profile/dto"
@@ -16,15 +17,19 @@ import (
 type smartProfileService struct {
 	onboardingRepo   onboardingContract.OnboardingRepository
 	careerMappingSvc careerMappingContract.CareerMappingService
+	userRepo         userContract.UserRepository
 }
 
 func NewSmartProfileService(
 	onboardingRepo onboardingContract.OnboardingRepository,
 	careerMappingSvc careerMappingContract.CareerMappingService,
+	userRepo userContract.UserRepository,
+
 ) contract.SmartProfileService {
 	return &smartProfileService{
 		onboardingRepo:   onboardingRepo,
 		careerMappingSvc: careerMappingSvc,
+		userRepo:         userRepo,
 	}
 }
 
@@ -38,6 +43,14 @@ func (s *smartProfileService) GetByUserID(userID uuid.UUID) (*dto.SmartProfileRe
 	}
 	if profile == nil {
 		return nil, response.ErrNotFound("profile not found, please complete onboarding first")
+	}
+
+	avatarURL := ""
+	user, err := s.userRepo.FindByID(userID.String())
+	if err != nil {
+		slog.Error("failed to get user for avatar", "error", err, "userID", userID)
+	} else if user != nil {
+		avatarURL = user.AvatarURL
 	}
 
 	// get newest career mapping result by user id
@@ -57,6 +70,7 @@ func (s *smartProfileService) GetByUserID(userID uuid.UUID) (*dto.SmartProfileRe
 			Age:       profile.Age,
 			City:      profile.City,
 			Education: profile.Education,
+			AvatarURL: avatarURL,
 		},
 		CareerPreference: dto.CareerPreferenceResponse{
 			JobField: profile.JobField,

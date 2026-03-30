@@ -1,16 +1,8 @@
-version: "3.8"
 services:
-  postgres:
-    image: postgres:15
-    container_name: workable-db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: workable
+  api:
+    build: .
     ports:
-      - "5432:5432"
-    volumes:
-      - workable_data:/var/lib/postgresql/data
-
-volumes:
-  workable_data:
+      - "3013:3000" # port kampus:port fiber lo
+    env_file:
+      - .env
+    restart: unless-stopped

@@ -1,9 +1,13 @@
 package contract
 
 import (
+	"context"
+	"mime/multipart"
+
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/dto"
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/entity"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
+	"github.com/google/uuid"
 )
 
 type UserAuthService interface {
@@ -18,4 +22,6 @@ type UserAuthService interface {
 	ResendVerificationEmail(email string) *response.APIError
 
 	GoogleAuth(req *dto.GoogleAuthRequest) (*dto.LoginResponse, *response.APIError)
+
+	UploadAvatar(ctx context.Context, userID uuid.UUID, file *multipart.FileHeader) (*dto.AvatarUploadResponse, *response.APIError)
 }

@@ -72,7 +72,7 @@ func (s *paymentService) CreateOrder(ctx context.Context, userID uuid.UUID) (*dt
 		externalID,
 		premiumPrice,
 		user.Email,
-		user.Nama,
+		user.Name,
 	)
 	if err != nil {
 		slog.Error("failed to create xendit invoice", "error", err, "userID", userID)
