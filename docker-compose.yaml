@@ -5,4 +5,7 @@ services:
       - "3013:3013"
     env_file:
       - .env
+    volumes:
+      - ./.env:/app/.env
+    network_mode: host
     restart: unless-stopped
