@@ -1,8 +1,12 @@
 package dto
 
+import "time"
+
 type LoginResponse struct {
 	AccessToken  string   `json:"access_token"`
 	RefreshToken string   `json:"refresh_token"`
+	RefreshTokenExpiresAt    time.Time `json:"refresh_token_expires_at"` 
+
 	User         UserData `json:"user"`
 }
 

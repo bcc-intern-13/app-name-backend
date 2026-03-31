@@ -15,7 +15,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const premiumPrice float64 = 99000 // Rp 99.000
+const premiumPrice float64 = 14900 // 14_900 IDR
 
 type paymentService struct {
 	orderRepo    contract.OrderRepository
