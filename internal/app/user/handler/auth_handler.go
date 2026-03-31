@@ -10,6 +10,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"time"
+
 )
 
 var validate = validator.New()
@@ -44,10 +46,8 @@ func (h *authHandler) login(ctx *fiber.Ctx) error {
 	var req dto.LoginRequest
 
 	if err := ctx.BodyParser(&req); err != nil {
-		thing := response.ErrBadRequest("body format is invalid")
-		return response.Error(ctx, thing, err)
+		return response.Error(ctx, response.ErrBadRequest("body format is invalid"), err)
 	}
-
 	if err := validate.Struct(req); err != nil {
 		return response.Error(ctx, response.NewValidationError(err), err)
 	}
@@ -56,52 +56,70 @@ func (h *authHandler) login(ctx *fiber.Ctx) error {
 	if apiErr != nil {
 		return response.Error(ctx, apiErr, nil)
 	}
-	return response.Success(ctx, fiber.StatusCreated, "Login Success", res)
 
+	// Set refresh token ke HTTP-only cookie
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "refresh_token",
+		Value:    res.RefreshToken,
+		MaxAge:   int(time.Until(res.RefreshTokenExpiresAt).Seconds()), // 7 hari
+		HTTPOnly: true,
+		Secure:   false, // ganti true kalau udah HTTPS
+		SameSite: "Lax",
+	})
+
+	// Hapus refresh token dari body
+	res.RefreshToken = ""
+
+	return response.Success(ctx, fiber.StatusOK, "Login Success", res)
 }
-
 func (h *authHandler) refresh(ctx *fiber.Ctx) error {
-	// get refresh token base on refresh request
-	var req dto.RefreshRequest
-
-	if err := ctx.BodyParser(&req); err != nil {
-		thing := response.ErrBadRequest("body format is invalid")
-		return response.Error(ctx, thing, err)
+	// Ambil refresh token dari cookie, bukan body
+	refreshToken := ctx.Cookies("refresh_token")
+	if refreshToken == "" {
+		return response.Error(ctx, response.ErrUnAuthorized("refresh token not found"), nil)
 	}
 
-	if err := validate.Struct(req); err != nil {
-		return response.Error(ctx, response.NewValidationError(err), err)
-	}
-
-	//refresh token
-	res, apiErr := h.service.RefreshToken(req.RefreshToken)
+	res, apiErr := h.service.RefreshToken(refreshToken)
 	if apiErr != nil {
 		return response.Error(ctx, apiErr, nil)
 	}
 
-	// return Successs
-	return response.Success(ctx, fiber.StatusOK, "Your session has been refreshed", res)
+	// Perbarui cookie
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "refresh_token",
+		Value:    res.RefreshToken,
+		MaxAge:   int(time.Until(res.RefreshTokenExpiresAt).Seconds()),
+		HTTPOnly: true,
+		Secure:   false,
+		SameSite: "Lax",
+	})
 
+	res.RefreshToken = ""
+
+	return response.Success(ctx, fiber.StatusOK, "Your session has been refreshed", res)
 }
+
 
 func (h *authHandler) logout(ctx *fiber.Ctx) error {
-	var req dto.RefreshRequest
-
-	if err := ctx.BodyParser(&req); err != nil {
-		thing := response.ErrBadRequest("invalid body format")
-		return response.Error(ctx, thing, err)
+	// Ambil dari cookie
+	refreshToken := ctx.Cookies("refresh_token")
+	if refreshToken == "" {
+		return response.Error(ctx, response.ErrBadRequest("refresh token not found"), nil)
 	}
 
-	if err := validate.Struct(req); err != nil {
-		return response.Error(ctx, response.NewValidationError(err), err)
-	}
-
-	apiErr := h.service.Logout(req.RefreshToken)
+	apiErr := h.service.Logout(refreshToken)
 	if apiErr != nil {
 		return response.Error(ctx, apiErr, nil)
 	}
 
-	// return
+	// Hapus cookie
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "refresh_token",
+		Value:    "",
+		MaxAge:   -1,
+		HTTPOnly: true,
+	})
+
 	return response.Success(ctx, fiber.StatusOK, "Logout Success, see you later! bye", nil)
 }
 
@@ -139,7 +157,6 @@ func (h *authHandler) googleLogin(ctx *fiber.Ctx) error {
 }
 
 func (h *authHandler) googleCallback(ctx *fiber.Ctx) error {
-
 	state := ctx.Query("state")
 	cookieState := ctx.Cookies("oauth_state")
 	if !h.googleOAuth.VerifyState(state, cookieState) {
@@ -169,6 +186,18 @@ func (h *authHandler) googleCallback(ctx *fiber.Ctx) error {
 	if apiErr != nil {
 		return response.Error(ctx, apiErr, nil)
 	}
+
+	// Set refresh token ke cookie juga untuk Google login
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "refresh_token",
+		Value:    res.RefreshToken,
+		MaxAge:   int(time.Until(res.RefreshTokenExpiresAt).Seconds()),
+		HTTPOnly: true,
+		Secure:   false,
+		SameSite: "Lax",
+	})
+
+	res.RefreshToken = ""
 
 	return response.Success(ctx, fiber.StatusOK, "Google login successful", res)
 }

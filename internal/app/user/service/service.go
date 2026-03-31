@@ -138,7 +138,7 @@ func (s *userAuthService) Login(req *dto.LoginRequest) (*dto.LoginResponse, *res
 		ID:        uuid.New(),
 		UserID:    user.ID,
 		Token:     refreshTokenStr,
-		ExpiredAt: time.Now().Add(refreshTokenDuration), //one week
+		RefreshTokenExpiresAt: refreshToken.ExpiredAt,,
 	}
 
 	if err := s.refreshTokenRepo.Create(refreshToken); err != nil {
@@ -149,6 +149,7 @@ func (s *userAuthService) Login(req *dto.LoginRequest) (*dto.LoginResponse, *res
 	return &dto.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshTokenStr,
+		ExpiresAt:    refreshToken.ExpiredAt, 
 		User: dto.UserData{
 			ID:    user.ID.String(),
 			Email: user.Email,
@@ -191,6 +192,7 @@ func (s *userAuthService) RefreshToken(token string) (*dto.LoginResponse, *respo
 	return &dto.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: token,
+		RefreshTokenExpiresAt: refreshToken.ExpiredAt,
 		User: dto.UserData{
 			ID:    user.ID.String(),
 			Email: user.Email,
@@ -293,6 +295,8 @@ func (s *userAuthService) GoogleAuth(req *dto.GoogleAuthRequest) (*dto.LoginResp
 	return &dto.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshTokenStr,
+		RefreshTokenExpiresAt: refreshToken.ExpiredAt, 
+
 		User: dto.UserData{
 			ID:    user.ID.String(),
 			Email: user.Email,
