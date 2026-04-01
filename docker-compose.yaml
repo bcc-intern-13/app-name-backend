@@ -1,11 +1,15 @@
 services:
   api:
     build: .
+    container_name: neval_be
+    restart: unless-stopped
     ports:
-      - "3013:3013"
+      - "127.0.0.1:3013:3013"
     env_file:
       - .env
-    volumes:
-      - ./.env:/app/.env
-    network_mode: host
-    restart: unless-stopped
+    networks:
+      - postgres_network
+
+networks:
+  postgres_network:
+    external: true
