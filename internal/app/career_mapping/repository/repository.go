@@ -19,7 +19,7 @@ func NewCareerMappingRepository(db *gorm.DB) contract.CareerMappingRepository {
 
 func (r *careerMappingRepository) GetAllQuestions() ([]entity.CareerMappingQuestion, error) {
 	var questions []entity.CareerMappingQuestion
-	err := r.db.Order("nomor asc").Find(&questions).Error
+	err := r.db.Order("number asc").Find(&questions).Error
 	return questions, err
 }
 
