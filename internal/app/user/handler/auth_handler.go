@@ -3,6 +3,8 @@ package handler
 import (
 	"strings"
 
+	"time"
+
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/contract"
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/dto"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/oauth"
@@ -10,8 +12,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"time"
-
 )
 
 var validate = validator.New()
@@ -99,7 +99,6 @@ func (h *authHandler) refresh(ctx *fiber.Ctx) error {
 	return response.Success(ctx, fiber.StatusOK, "Your session has been refreshed", res)
 }
 
-
 func (h *authHandler) logout(ctx *fiber.Ctx) error {
 	// Ambil dari cookie
 	refreshToken := ctx.Cookies("refresh_token")
@@ -124,19 +123,22 @@ func (h *authHandler) logout(ctx *fiber.Ctx) error {
 }
 
 func (h *authHandler) verifyEmail(ctx *fiber.Ctx) error {
-
 	token := strings.TrimSpace(ctx.Query("token"))
 
+	frontendLoginURL := "http://localhost:3001/login"
+
 	if token == "" {
-		return response.Error(ctx, response.ErrBadRequest("token is required"), nil)
+
+		return ctx.Redirect(frontendLoginURL+"?error=token_kosong", fiber.StatusTemporaryRedirect)
 	}
 
+	//service check token match
 	apiErr := h.service.VerifyEmail(token)
 	if apiErr != nil {
-		return response.Error(ctx, apiErr, nil)
+		return ctx.Redirect(frontendLoginURL+"?error=verifikasi_gagal", fiber.StatusTemporaryRedirect)
 	}
-	return response.Success(ctx, fiber.StatusOK, "Email verification successful, you can now login", nil)
 
+	return ctx.Redirect(frontendLoginURL+"?verified=true", fiber.StatusTemporaryRedirect)
 }
 
 func (h *authHandler) googleLogin(ctx *fiber.Ctx) error {
