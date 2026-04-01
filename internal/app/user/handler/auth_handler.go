@@ -125,7 +125,7 @@ func (h *authHandler) logout(ctx *fiber.Ctx) error {
 func (h *authHandler) verifyEmail(ctx *fiber.Ctx) error {
 	token := strings.TrimSpace(ctx.Query("token"))
 
-	frontendLoginURL := "http://localhost:3001/login"
+	frontendLoginURL := "https://workable-app.vercel.app/verify"
 
 	if token == "" {
 
