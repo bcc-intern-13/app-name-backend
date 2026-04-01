@@ -98,9 +98,16 @@ func main() {
 	// career mapping routes
 	careerMappingHandler.RegisterCareerMappingRoutes(app.Fiber, careerMappingSvc, app.Config.JWTSecret)
 
+	//company doomain
+	companyRepo := companyRepository.NewCompanyRepository(app.DB)
+	companySvc := companyService.NewCompanyService(companyRepo)
+
+	// company routes
+	companyHandler.RegisterCompanyRoutes(app.Fiber, companySvc, app.Config.JWTSecret)
+
 	// job board domain
 	jobBoardRepo := jobBoardRepository.NewJobBoardRepository(app.DB)
-	jobBoardSvc := jobBoardService.NewJobBoardService(jobBoardRepo)
+	jobBoardSvc := jobBoardService.NewJobBoardService(jobBoardRepo, companyRepo)
 
 	// job board routes
 	jobBoardHandler.RegisterJobBoardRoutes(app.Fiber, jobBoardSvc, app.Config.JWTSecret)
@@ -117,13 +124,6 @@ func main() {
 
 	//applications routes
 	applicationHandler.RegisterApplicationRoutes(app.Fiber, applicationSvc, app.Config.JWTSecret)
-
-	//company doomain
-	companyRepo := companyRepository.NewCompanyRepository(app.DB)
-	companySvc := companyService.NewCompanyService(companyRepo)
-
-	// company routes
-	companyHandler.RegisterCompanyRoutes(app.Fiber, companySvc, app.Config.JWTSecret)
 
 	// smart profile domain
 	smartProfileSvc := smartProfileService.NewSmartProfileService(onboardingRepo, careerMappingSvc, userRepo)
