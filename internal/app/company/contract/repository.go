@@ -9,4 +9,5 @@ import (
 type CompanyRepository interface {
 	FindCompanyByID(id uuid.UUID) (*entity.Company, error)
 	FindActiveJobsByCompanyID(id uuid.UUID) ([]dto.JobListingWithCompany, error)
+	FindAllCompaniesExcluding(companyID uuid.UUID) ([]entity.Company, error)
 }

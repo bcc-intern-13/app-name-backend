@@ -23,6 +23,8 @@ func RegisterRoutes(app *fiber.App, userService contract.UserAuthService, jwtSec
 
 	//verify gmail
 	auth.Get("/verify", authH.verifyEmail)
+	//reverify gmail because of miss expired window
+	auth.Post("/resend-verification", authH.resendVerification)
 
 	//google login
 	auth.Get("/google", authH.googleLogin)

@@ -9,7 +9,7 @@ import (
 func RegisterPaymentRoutes(router fiber.Router, service contract.PaymentService, jwtSecret string) {
 	h := &paymentHandler{service: service}
 
-	payment := router.Group("api/payment")
+	payment := router.Group("api/v1/payment")
 	//xendit will hit this endpoint to update oder table
 	payment.Post("/webhook", h.handleWebhook)
 

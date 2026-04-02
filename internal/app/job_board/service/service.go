@@ -12,12 +12,12 @@ import (
 
 type jobBoardService struct {
 	repo        contract.JobBoardRepository
-	companyRepo companyContract.CompanyRepository // ← tambah
-
+	companyRepo companyContract.CompanyRepository
 }
 
-func NewJobBoardService(repo contract.JobBoardRepository) contract.JobBoardService {
-	return &jobBoardService{repo: repo}
+func NewJobBoardService(repo contract.JobBoardRepository, companyRepo companyContract.CompanyRepository) contract.JobBoardService {
+	return &jobBoardService{repo: repo, companyRepo: companyRepo}
+
 }
 
 func (s *jobBoardService) GetAll(filter dto.JobBoardFilter, userID uuid.UUID) (*dto.PaginatedJobResponse, *response.APIError) {
@@ -32,9 +32,8 @@ func (s *jobBoardService) GetAll(filter dto.JobBoardFilter, userID uuid.UUID) (*
 		result = append(result, dto.JobListingResponse{
 			ID:                 job.ID,
 			CompanyID:          job.CompanyID,
-			CompanyName:        job.CompanyName, // ← langsung dari JOIN
-			CompanyLogo:        job.CompanyLogo, // ← langsung dari JOIN
-			Title:              job.Title,
+			CompanyName:        job.CompanyName,
+			CompanyLogo:        job.CompanyLogo,
 			City:               job.City,
 			JobType:            job.JobType,
 			JobField:           job.JobField,

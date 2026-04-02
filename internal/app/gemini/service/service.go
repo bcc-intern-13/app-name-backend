@@ -417,10 +417,10 @@ func (s *cvService) GetScore(ctx context.Context, userID uuid.UUID) (*dto.CVScor
 		return nil, response.ErrInternal("internal server error")
 	}
 
-	if cv.CvURL == "" {
+	if cv == nil || cv.CvURL == "" {
 		return nil, response.ErrNotFound("cv not found, please upload your cv first")
 	}
-	if cv == nil || cv.CvURL == "" {
+	if cv.CvURL == "" {
 		return nil, response.ErrNotFound("cv not found, please upload your cv first")
 	}
 

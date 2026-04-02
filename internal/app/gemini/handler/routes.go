@@ -11,13 +11,13 @@ func RegisterRoutes(router fiber.Router, service contract.CVService, jwtSecret s
 	h := &cvHandler{service: service}
 
 	// ai pre usage routes
-	cv := router.Group("api/cv", middleware.JWTProtected(jwtSecret))
+	cv := router.Group("api/v1/cv", middleware.JWTProtected(jwtSecret))
 	cv.Post("/upload", h.uploadCV)
 	cv.Post("/analyze", h.analyzeCV)
 	cv.Get("/ai-calls-remaining", h.getAICallsRemaining)
 
 	//cv ai routes
-	cvAI := router.Group("/api/cv-ai",
+	cvAI := router.Group("/api/v1/cv-ai",
 		middleware.JWTProtected(jwtSecret),
 		middleware.PremiumRequired(userRepo),
 	)

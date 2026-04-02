@@ -21,3 +21,7 @@ type GoogleAuthRequest struct {
 	Name    string `json:"name"`
 	Picture string `json:"picture"`
 }
+
+type ResendVerificationRequest struct {
+	Email string `json:"email" validate:"required,email"`
+}

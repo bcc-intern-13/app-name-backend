@@ -65,9 +65,10 @@ func main() {
 
 	// CORS configuration
 	app.Fiber.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization, ngrok-skip-browser-warning",
-		AllowMethods: "GET, POST, HEAD, PUT, DELETE, PATCH, OPTIONS",
+		AllowOrigins:     "https://work-able-app.vercel.app,http://localhost:3000",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, ngrok-skip-browser-warning",
+		AllowMethods:     "GET, POST, HEAD, PUT, DELETE, PATCH, OPTIONS",
+		AllowCredentials: true,
 	}))
 
 	//user domain
@@ -98,9 +99,16 @@ func main() {
 	// career mapping routes
 	careerMappingHandler.RegisterCareerMappingRoutes(app.Fiber, careerMappingSvc, app.Config.JWTSecret)
 
+	//company doomain
+	companyRepo := companyRepository.NewCompanyRepository(app.DB)
+	companySvc := companyService.NewCompanyService(companyRepo)
+
+	// company routes
+	companyHandler.RegisterCompanyRoutes(app.Fiber, companySvc, app.Config.JWTSecret)
+
 	// job board domain
 	jobBoardRepo := jobBoardRepository.NewJobBoardRepository(app.DB)
-	jobBoardSvc := jobBoardService.NewJobBoardService(jobBoardRepo)
+	jobBoardSvc := jobBoardService.NewJobBoardService(jobBoardRepo, companyRepo)
 
 	// job board routes
 	jobBoardHandler.RegisterJobBoardRoutes(app.Fiber, jobBoardSvc, app.Config.JWTSecret)
@@ -117,13 +125,6 @@ func main() {
 
 	//applications routes
 	applicationHandler.RegisterApplicationRoutes(app.Fiber, applicationSvc, app.Config.JWTSecret)
-
-	//company doomain
-	companyRepo := companyRepository.NewCompanyRepository(app.DB)
-	companySvc := companyService.NewCompanyService(companyRepo)
-
-	// company routes
-	companyHandler.RegisterCompanyRoutes(app.Fiber, companySvc, app.Config.JWTSecret)
 
 	// smart profile domain
 	smartProfileSvc := smartProfileService.NewSmartProfileService(onboardingRepo, careerMappingSvc, userRepo)

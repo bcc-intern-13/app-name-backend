@@ -3,6 +3,8 @@ package handler
 import (
 	"strings"
 
+	"time"
+
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/contract"
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/dto"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/oauth"
@@ -10,8 +12,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"time"
-
 )
 
 var validate = validator.New()
@@ -63,8 +63,8 @@ func (h *authHandler) login(ctx *fiber.Ctx) error {
 		Value:    res.RefreshToken,
 		MaxAge:   int(time.Until(res.RefreshTokenExpiresAt).Seconds()), // 7 hari
 		HTTPOnly: true,
-		Secure:   false, // ganti true kalau udah HTTPS
-		SameSite: "Lax",
+		Secure:   true,
+		SameSite: "None",
 	})
 
 	// Hapus refresh token dari body
@@ -90,15 +90,14 @@ func (h *authHandler) refresh(ctx *fiber.Ctx) error {
 		Value:    res.RefreshToken,
 		MaxAge:   int(time.Until(res.RefreshTokenExpiresAt).Seconds()),
 		HTTPOnly: true,
-		Secure:   false,
-		SameSite: "Lax",
+		Secure:   true,
+		SameSite: "None",
 	})
 
 	res.RefreshToken = ""
 
 	return response.Success(ctx, fiber.StatusOK, "Your session has been refreshed", res)
 }
-
 
 func (h *authHandler) logout(ctx *fiber.Ctx) error {
 	// Ambil dari cookie
@@ -124,19 +123,22 @@ func (h *authHandler) logout(ctx *fiber.Ctx) error {
 }
 
 func (h *authHandler) verifyEmail(ctx *fiber.Ctx) error {
-
 	token := strings.TrimSpace(ctx.Query("token"))
 
+	frontendLoginURL := "https://work-able-app.vercel.app/verify"
+
 	if token == "" {
-		return response.Error(ctx, response.ErrBadRequest("token is required"), nil)
+
+		return ctx.Redirect(frontendLoginURL+"?error=token_empty", fiber.StatusTemporaryRedirect)
 	}
 
+	//service check token match
 	apiErr := h.service.VerifyEmail(token)
 	if apiErr != nil {
-		return response.Error(ctx, apiErr, nil)
+		return ctx.Redirect(frontendLoginURL+"?error=verification_failed", fiber.StatusTemporaryRedirect)
 	}
-	return response.Success(ctx, fiber.StatusOK, "Email verification successful, you can now login", nil)
 
+	return ctx.Redirect(frontendLoginURL+"?verified=true", fiber.StatusTemporaryRedirect)
 }
 
 func (h *authHandler) googleLogin(ctx *fiber.Ctx) error {
@@ -193,11 +195,25 @@ func (h *authHandler) googleCallback(ctx *fiber.Ctx) error {
 		Value:    res.RefreshToken,
 		MaxAge:   int(time.Until(res.RefreshTokenExpiresAt).Seconds()),
 		HTTPOnly: true,
-		Secure:   false,
-		SameSite: "Lax",
+		Secure:   true,
+		SameSite: "Non",
 	})
 
 	res.RefreshToken = ""
 
 	return response.Success(ctx, fiber.StatusOK, "Google login successful", res)
+}
+
+func (h *authHandler) resendVerification(ctx *fiber.Ctx) error {
+	var req dto.ResendVerificationRequest
+
+	if err := ctx.BodyParser(&req); err != nil {
+		return response.Error(ctx, response.ErrBadRequest("invalid request format"), err)
+	}
+
+	if apiErr := h.service.ResendVerificationEmail(req.Email); apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
+	}
+
+	return response.Success(ctx, fiber.StatusOK, "Verification email has been resent successfully", nil)
 }

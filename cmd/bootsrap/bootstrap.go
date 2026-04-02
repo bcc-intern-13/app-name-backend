@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"log"
+	"log/slog"
 
 	"github.com/bcc-intern-13/WorkAble-backend/config"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/email"
@@ -27,13 +28,17 @@ type App struct {
 }
 
 func NewApp() *App {
+	slog.Info("Loading configs and ENV")
 	cfg := config.Load()
+
+	slog.Info("connecting to database")
 	db, err := database.Connect(cfg.DatabaseURL)
 	if err != nil {
 		panic(err)
 	}
 
 	// migrate and seed
+	slog.Info("Migrating to database")
 	database.Migrate(db)
 	database.Seed(db)
 

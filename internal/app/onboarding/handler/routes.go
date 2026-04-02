@@ -7,7 +7,7 @@ import (
 )
 
 func RegisterOnboardingRoutes(app *fiber.App, service contract.OnboardingService, jwtSecret string) {
-	onboarding := app.Group("/api/onboarding", middleware.JWTProtected(jwtSecret))
+	onboarding := app.Group("/api/v1/onboarding", middleware.JWTProtected(jwtSecret))
 	h := &onboardingHandler{service: service}
 
 	onboarding.Post("/submit", h.submit)

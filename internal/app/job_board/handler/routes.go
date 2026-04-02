@@ -9,7 +9,7 @@ import (
 func RegisterJobBoardRoutes(app *fiber.App, service contract.JobBoardService, jwtSecret string) {
 	h := &jobBoardHandler{service: service}
 
-	jobBoard := app.Group("/api/job-board", middleware.JWTProtected(jwtSecret))
+	jobBoard := app.Group("/api/v1/job-board", middleware.JWTProtected(jwtSecret))
 	jobBoard.Get("/", h.getAll)
 	jobBoard.Get("/saved", h.getSavedJobs)
 	jobBoard.Get("/:id", h.getByID)

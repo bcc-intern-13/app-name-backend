@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"mime/multipart"
+	"strings"
 	"time"
 
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/contract"
@@ -14,6 +15,7 @@ import (
 	jwt "github.com/bcc-intern-13/WorkAble-backend/pkg/jwt"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/storage"
+	util "github.com/bcc-intern-13/WorkAble-backend/pkg/utils"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -46,6 +48,11 @@ func NewUserAuthService(
 }
 
 func (s *userAuthService) Register(req *dto.RegisterRequest) (*entity.User, *response.APIError) {
+
+	if err := util.ValidatePassword(req.Password); err != nil {
+		return nil, response.ErrBadRequest(err.Error())
+	}
+
 	existing, err := s.repo.FindByEmail(req.Email)
 	if err != nil {
 		slog.Error("failed to check existing user", "error", err)
@@ -237,6 +244,44 @@ func (s *userAuthService) VerifyEmail(token string) *response.APIError {
 }
 
 func (s *userAuthService) ResendVerificationEmail(email string) *response.APIError {
+	//find user by gmail
+	user, err := s.repo.FindByEmail(email)
+	if err != nil {
+		slog.Error("failed to find user by email", "error", err, "email", email)
+		return response.ErrInternal("failed to process request")
+	}
+
+	// user not found
+	if user == nil {
+		return response.ErrNotFound("user not found with this email")
+	}
+
+	// check if user isverified
+	if user.IsVerified {
+		return response.ErrBadRequest("user is already verified")
+	}
+
+	// generate new token
+	verificationTokenStr := jwt.GenerateRefreshToken()
+	verificationToken := &entity.VerificationToken{
+		ID:        uuid.New(),
+		UserID:    user.ID,
+		Token:     verificationTokenStr,
+		ExpiredAt: time.Now().Add(24 * time.Hour), // Berlaku 24 jam lagi
+	}
+
+	// save token to database
+	if err := s.verificationTokenRepo.Create(verificationToken); err != nil {
+		slog.Error("failed to save new verification token", "error", err, "userID", user.ID)
+		return response.ErrInternal("failed to generate new verification link")
+	}
+
+	// resend the gmail
+	if err := s.email.SendVerificationEmail(user.Email, verificationTokenStr); err != nil {
+		slog.Error("failed to resend verification email", "error", err, "email", user.Email)
+		return response.ErrInternal("failed to resend verification email")
+	}
+
 	return nil
 }
 
@@ -305,18 +350,34 @@ func (s *userAuthService) GoogleAuth(req *dto.GoogleAuthRequest) (*dto.LoginResp
 }
 
 func (s *userAuthService) UploadAvatar(ctx context.Context, userID uuid.UUID, file *multipart.FileHeader) (*dto.AvatarUploadResponse, *response.APIError) {
-	//validate formats
+	// Validate formats
 	contentType := file.Header.Get("Content-Type")
 	if contentType != "image/jpeg" && contentType != "image/png" && contentType != "image/webp" {
 		return nil, response.ErrBadRequest("avatar must be an image (jpeg, png, webp)")
 	}
 
-	//validate maximum capacity 2MB
+	// Validate maximum capacity 2MB
 	if file.Size > 2*1024*1024 {
 		return nil, response.ErrBadRequest("avatar size must be less than 2MB")
 	}
 
-	//read file
+	// cek user old avvatar
+	user, err := s.repo.FindByID(userID.String())
+	if err != nil || user == nil {
+		return nil, response.ErrInternal("failed to get user")
+	}
+
+	// erase old avatar
+	if user.AvatarURL != "" {
+		// cut avatar to gert relative path
+		parts := strings.Split(user.AvatarURL, s.storage.BucketAvatar+"/")
+		if len(parts) == 2 {
+			oldFilePath := parts[1]
+			_ = s.storage.DeleteFile(s.storage.BucketAvatar, oldFilePath)
+			slog.Info("deleted old avatar from storage", "path", oldFilePath)
+		}
+	}
+
 	f, err := file.Open()
 	if err != nil {
 		slog.Error("failed to open avatar file", "error", err, "userID", userID)
@@ -336,14 +397,9 @@ func (s *userAuthService) UploadAvatar(ctx context.Context, userID uuid.UUID, fi
 		return nil, response.ErrInternal("failed to upload avatar")
 	}
 
-	user, err := s.repo.FindByID(userID.String())
-	if err != nil || user == nil {
-		return nil, response.ErrInternal("failed to get user")
-	}
-
 	user.AvatarURL = avatarURL
 	if err := s.repo.Update(user); err != nil {
-		slog.Error("failed to update user avatar", "error", err, "userID", userID)
+		slog.Error("failed to update user avatar in db", "error", err, "userID", userID)
 		return nil, response.ErrInternal("failed to save avatar url")
 	}
 

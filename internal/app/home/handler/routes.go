@@ -9,6 +9,6 @@ import (
 func RegisterHomeRoutes(app *fiber.App, svc service.HomeService, jwtSecret string) {
 	h := &homeHandler{service: svc}
 
-	home := app.Group("/api/home", middleware.JWTProtected(jwtSecret))
+	home := app.Group("/api/v1/home", middleware.JWTProtected(jwtSecret))
 	home.Get("/summary", h.getSummary)
 }

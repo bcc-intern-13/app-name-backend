@@ -28,14 +28,30 @@ func (s *companyService) GetByID(id uuid.UUID) (*dto.CompanyResponse, *response.
 		return nil, response.ErrNotFound("company not found")
 	}
 
-	// get jobs by company id
+	// Get jobs by company id
 	jobs, err := s.repo.FindActiveJobsByCompanyID(id)
 	if err != nil {
 		slog.Error("failed to get company jobs", "error", err, "id", id)
 		return nil, response.ErrInternal("failed to get company jobs")
 	}
 
-	// convert job to JobListingResponse
+	// Get "Similar" Companies (get companies except the current company)
+	var similarCompanies []dto.CompanyPreviewResponse
+	otherCompanies, err := s.repo.FindAllCompaniesExcluding(id)
+	if err != nil {
+		slog.Error("failed to get other companies", "error", err, "id", id)
+	} else {
+		for _, c := range otherCompanies {
+			similarCompanies = append(similarCompanies, dto.CompanyPreviewResponse{
+				ID:       c.ID,
+				Name:     c.Name,
+				LogoURL:  c.LogoURL,
+				Industry: c.Industry,
+				Location: c.Location,
+			})
+		}
+	}
+
 	var jobListings []jobDto.JobListingResponse
 	for _, job := range jobs {
 		jobListings = append(jobListings, jobDto.JobListingResponse{
@@ -67,5 +83,6 @@ func (s *companyService) GetByID(id uuid.UUID) (*dto.CompanyResponse, *response.
 		AccessibilityLabel: company.AccessibilityLabel,
 		CreatedAt:          company.CreatedAt,
 		JobListings:        jobListings,
+		SimilarCompanies:   similarCompanies,
 	}, nil
 }

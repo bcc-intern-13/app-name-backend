@@ -24,7 +24,7 @@ func NewEmailService(host, port, email, password, appURL string) *EmailService {
 }
 
 func (e *EmailService) SendVerificationEmail(toEmail, token string) error {
-	link := fmt.Sprintf("%s/auth/verify?token=%s", e.appURL, token)
+	link := fmt.Sprintf("%s/api/v1/auth/verify?token=%s", e.appURL, token)
 	fmt.Println("APP URL:", e.appURL)
 
 	fmt.Println(link)
