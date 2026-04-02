@@ -43,7 +43,7 @@ func NewHomeService(
 }
 
 func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *response.APIError) {
-	// get profile, not fatal if error, name just will be empty
+	//Get profile
 	profile, err := s.onboardingRepo.FindByUserID(userID)
 	nama := ""
 	if err != nil {
@@ -52,6 +52,7 @@ func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *r
 		nama = profile.Name
 	}
 
+	// Get Avatar
 	avatarURL := ""
 	user, err := s.userRepo.FindByID(userID.String())
 	if err != nil {
@@ -66,11 +67,9 @@ func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *r
 		AvatarURL: avatarURL,
 	}
 
-	// get career mapping
 	var careerMapping *careerMappingDto.CareerMappingResponse
 	cmResult, apiErr := s.careerMappingSvc.GetLatestResult(userID)
 	if apiErr != nil {
-		// user havent done career mapping test
 		if apiErr.Status != 404 {
 			slog.Error("failed to get career mapping result", "error", apiErr.Message, "userID", userID)
 		}
@@ -78,26 +77,28 @@ func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *r
 		careerMapping = cmResult
 	}
 
-	// get job recommendations, not fatal if error, just return empty list
+	filter := jobDto.JobBoardFilter{
+		Limit: 5,
+		Page:  1,
+	}
+
+	if careerMapping != nil && len(careerMapping.TopCategories) > 0 {
+		filter.JobField = mapCategoryToField(careerMapping.TopCategories[0].Code)
+
+		if profile != nil {
+			filter.JobType = profile.JobType
+		}
+	} else if profile != nil {
+		filter.JobField = profile.JobField
+		filter.JobType = profile.JobType
+	}
+
 	var jobRecommendations []jobDto.JobListingResponse
-	if profile != nil {
-		filter := jobDto.JobBoardFilter{
-			JobField: profile.JobField,
-			JobType:  profile.JobType,
-			Limit:    5,
-			Page:     1,
-		}
-
-		if careerMapping != nil && len(careerMapping.TopCategories) > 0 {
-			filter.JobField = mapCategoryToField(careerMapping.TopCategories[0].Code)
-		}
-
-		result, apiErr := s.jobBoardService.GetAll(filter, userID)
-		if apiErr != nil {
-			slog.Error("failed to get job recommendations", "error", apiErr.Message, "userID", userID)
-		} else if result != nil {
-			jobRecommendations = result.Data
-		}
+	result, apiErr := s.jobBoardService.GetAll(filter, userID)
+	if apiErr != nil {
+		slog.Error("failed to get job recommendations", "error", apiErr.Message, "userID", userID)
+	} else if result != nil {
+		jobRecommendations = result.Data
 	}
 
 	return &dto.HomeSummaryResponse{
@@ -109,13 +110,14 @@ func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *r
 
 func mapCategoryToField(code string) string {
 	mapping := map[string]string{
-		"KR": "Desain & Kreatif",
-		"TK": "Teknologi & IT",
-		"KO": "Administrasi & Keuangan",
-		"ED": "Pendidikan",
-		"AD": "Administrasi & Keuangan",
-		"OP": "Administrasi & Keuangan",
+		"KR": "Kreatif dan Seni",
+		"TK": "Teknologi dan Digital",
+		"KO": "Komunikasi dan Orang",
+		"ED": "Edukasi dan Sosial",
+		"AD": "Administrasi dan Data",
+		"OP": "Operasional dan Detail",
 	}
+
 	if field, ok := mapping[code]; ok {
 		return field
 	}
