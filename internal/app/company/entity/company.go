@@ -7,6 +7,19 @@ import (
 	"gorm.io/datatypes"
 )
 
+// accesability item available or not
+type AccessibilityItem struct {
+	Label  string `json:"label"`
+	Status string `json:"status"`
+}
+
+// CompanyAccessibility to representate the 3 Section of accessability support
+type CompanyAccessibility struct {
+	AksesibilitasFisik []AccessibilityItem `json:"aksesibilitas_fisik"`
+	DukunganDigital    []AccessibilityItem `json:"dukungan_digital"`
+	FormatInterview    []AccessibilityItem `json:"format_interview"`
+}
+
 type Company struct {
 	ID                 uuid.UUID      `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
 	Name               string         `gorm:"column:name;type:varchar(200);not null" json:"name"`
