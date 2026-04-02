@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"mime/multipart"
+	"strings"
 	"time"
 
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/user/contract"
@@ -343,18 +344,34 @@ func (s *userAuthService) GoogleAuth(req *dto.GoogleAuthRequest) (*dto.LoginResp
 }
 
 func (s *userAuthService) UploadAvatar(ctx context.Context, userID uuid.UUID, file *multipart.FileHeader) (*dto.AvatarUploadResponse, *response.APIError) {
-	//validate formats
+	// Validate formats
 	contentType := file.Header.Get("Content-Type")
 	if contentType != "image/jpeg" && contentType != "image/png" && contentType != "image/webp" {
 		return nil, response.ErrBadRequest("avatar must be an image (jpeg, png, webp)")
 	}
 
-	//validate maximum capacity 2MB
+	// Validate maximum capacity 2MB
 	if file.Size > 2*1024*1024 {
 		return nil, response.ErrBadRequest("avatar size must be less than 2MB")
 	}
 
-	//read file
+	// cek user old avvatar
+	user, err := s.repo.FindByID(userID.String())
+	if err != nil || user == nil {
+		return nil, response.ErrInternal("failed to get user")
+	}
+
+	// erase old avatar
+	if user.AvatarURL != "" {
+		// cut avatar to gert relative path
+		parts := strings.Split(user.AvatarURL, s.storage.BucketAvatar+"/")
+		if len(parts) == 2 {
+			oldFilePath := parts[1]
+			_ = s.storage.DeleteFile(s.storage.BucketAvatar, oldFilePath)
+			slog.Info("deleted old avatar from storage", "path", oldFilePath)
+		}
+	}
+
 	f, err := file.Open()
 	if err != nil {
 		slog.Error("failed to open avatar file", "error", err, "userID", userID)
@@ -374,14 +391,9 @@ func (s *userAuthService) UploadAvatar(ctx context.Context, userID uuid.UUID, fi
 		return nil, response.ErrInternal("failed to upload avatar")
 	}
 
-	user, err := s.repo.FindByID(userID.String())
-	if err != nil || user == nil {
-		return nil, response.ErrInternal("failed to get user")
-	}
-
 	user.AvatarURL = avatarURL
 	if err := s.repo.Update(user); err != nil {
-		slog.Error("failed to update user avatar", "error", err, "userID", userID)
+		slog.Error("failed to update user avatar in db", "error", err, "userID", userID)
 		return nil, response.ErrInternal("failed to save avatar url")
 	}
 
