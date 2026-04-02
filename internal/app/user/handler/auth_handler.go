@@ -125,17 +125,17 @@ func (h *authHandler) logout(ctx *fiber.Ctx) error {
 func (h *authHandler) verifyEmail(ctx *fiber.Ctx) error {
 	token := strings.TrimSpace(ctx.Query("token"))
 
-	frontendLoginURL := "https://workable-app.vercel.app/verify"
+	frontendLoginURL := "https://work-able-app.vercel.app/verify"
 
 	if token == "" {
 
-		return ctx.Redirect(frontendLoginURL+"?error=token_kosong", fiber.StatusTemporaryRedirect)
+		return ctx.Redirect(frontendLoginURL+"?error=token_empty", fiber.StatusTemporaryRedirect)
 	}
 
 	//service check token match
 	apiErr := h.service.VerifyEmail(token)
 	if apiErr != nil {
-		return ctx.Redirect(frontendLoginURL+"?error=verifikasi_gagal", fiber.StatusTemporaryRedirect)
+		return ctx.Redirect(frontendLoginURL+"?error=verification_failed", fiber.StatusTemporaryRedirect)
 	}
 
 	return ctx.Redirect(frontendLoginURL+"?verified=true", fiber.StatusTemporaryRedirect)
