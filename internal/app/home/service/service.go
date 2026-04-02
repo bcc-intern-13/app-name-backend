@@ -85,12 +85,8 @@ func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *r
 	if careerMapping != nil && len(careerMapping.TopCategories) > 0 {
 		filter.JobField = mapCategoryToField(careerMapping.TopCategories[0].Code)
 
-		if profile != nil {
-			filter.JobType = profile.JobType
-		}
 	} else if profile != nil {
 		filter.JobField = profile.JobField
-		filter.JobType = profile.JobType
 	}
 
 	var jobRecommendations []jobDto.JobListingResponse
