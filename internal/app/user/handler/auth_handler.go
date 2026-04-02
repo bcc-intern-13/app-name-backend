@@ -90,8 +90,8 @@ func (h *authHandler) refresh(ctx *fiber.Ctx) error {
 		Value:    res.RefreshToken,
 		MaxAge:   int(time.Until(res.RefreshTokenExpiresAt).Seconds()),
 		HTTPOnly: true,
-		Secure:   false,
-		SameSite: "Lax",
+		Secure:   true,
+		SameSite: "None",
 	})
 
 	res.RefreshToken = ""
