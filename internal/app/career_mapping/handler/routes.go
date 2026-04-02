@@ -9,7 +9,7 @@ import (
 func RegisterCareerMappingRoutes(app *fiber.App, service contract.CareerMappingService, jwtSecret string) {
 	h := &careerMappingHandler{service: service}
 
-	app.Get("/api/career-mapping/questions", h.getQuestions)
+	app.Get("/api/v1/career-mapping/questions", h.getQuestions)
 
 	cm := app.Group("/api/career-mapping", middleware.JWTProtected(jwtSecret))
 	cm.Post("/submit", h.submit)

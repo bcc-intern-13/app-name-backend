@@ -9,7 +9,7 @@ import (
 func RegisterApplicationRoutes(app *fiber.App, service contract.ApplicationService, jwtSecret string) {
 	h := &applicationHandler{service: service}
 
-	applications := app.Group("/api/applications", middleware.JWTProtected(jwtSecret))
+	applications := app.Group("/api/v1/applications", middleware.JWTProtected(jwtSecret))
 	applications.Post("/", h.submit)
 	applications.Get("/", h.getAll)
 	applications.Get("/:id", h.getByID)

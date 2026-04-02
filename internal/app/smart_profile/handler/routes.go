@@ -9,6 +9,6 @@ import (
 func RegisterSmartProfileRoutes(app *fiber.App, service contract.SmartProfileService, jwtSecret string) {
 	h := &smartProfileHandler{service: service}
 
-	smartProfile := app.Group("/api/smart-profile", middleware.JWTProtected(jwtSecret))
+	smartProfile := app.Group("/api/v1/smart-profile", middleware.JWTProtected(jwtSecret))
 	smartProfile.Get("/", h.getSmartProfile)
 }
