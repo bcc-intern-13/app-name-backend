@@ -203,3 +203,17 @@ func (h *authHandler) googleCallback(ctx *fiber.Ctx) error {
 
 	return response.Success(ctx, fiber.StatusOK, "Google login successful", res)
 }
+
+func (h *authHandler) resendVerification(ctx *fiber.Ctx) error {
+	var req dto.ResendVerificationRequest
+
+	if err := ctx.BodyParser(&req); err != nil {
+		return response.Error(ctx, response.ErrBadRequest("invalid request format"), err)
+	}
+
+	if apiErr := h.service.ResendVerificationEmail(req.Email); apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
+	}
+
+	return response.Success(ctx, fiber.StatusOK, "Verification email has been resent successfully", nil)
+}

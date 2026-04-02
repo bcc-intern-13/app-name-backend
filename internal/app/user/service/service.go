@@ -237,6 +237,44 @@ func (s *userAuthService) VerifyEmail(token string) *response.APIError {
 }
 
 func (s *userAuthService) ResendVerificationEmail(email string) *response.APIError {
+	//find user by gmail
+	user, err := s.repo.FindByEmail(email)
+	if err != nil {
+		slog.Error("failed to find user by email", "error", err, "email", email)
+		return response.ErrInternal("failed to process request")
+	}
+
+	// user not found
+	if user == nil {
+		return response.ErrNotFound("user not found with this email")
+	}
+
+	// check if user isverified
+	if user.IsVerified {
+		return response.ErrBadRequest("user is already verified")
+	}
+
+	// generate new token
+	verificationTokenStr := jwt.GenerateRefreshToken()
+	verificationToken := &entity.VerificationToken{
+		ID:        uuid.New(),
+		UserID:    user.ID,
+		Token:     verificationTokenStr,
+		ExpiredAt: time.Now().Add(24 * time.Hour), // Berlaku 24 jam lagi
+	}
+
+	// save token to database
+	if err := s.verificationTokenRepo.Create(verificationToken); err != nil {
+		slog.Error("failed to save new verification token", "error", err, "userID", user.ID)
+		return response.ErrInternal("failed to generate new verification link")
+	}
+
+	// resend the gmail
+	if err := s.email.SendVerificationEmail(user.Email, verificationTokenStr); err != nil {
+		slog.Error("failed to resend verification email", "error", err, "email", user.Email)
+		return response.ErrInternal("failed to resend verification email")
+	}
+
 	return nil
 }
 
