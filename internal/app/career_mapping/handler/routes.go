@@ -11,7 +11,7 @@ func RegisterCareerMappingRoutes(app *fiber.App, service contract.CareerMappingS
 
 	app.Get("/api/v1/career-mapping/questions", h.getQuestions)
 
-	cm := app.Group("/api/career-mapping", middleware.JWTProtected(jwtSecret))
+	cm := app.Group("/api/v1/career-mapping", middleware.JWTProtected(jwtSecret))
 	cm.Post("/submit", h.submit)
 	cm.Get("/result", h.getLatestResult)
 	cm.Get("/history", h.getHistory)
