@@ -15,6 +15,7 @@ import (
 	jwt "github.com/bcc-intern-13/WorkAble-backend/pkg/jwt"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/storage"
+	util "github.com/bcc-intern-13/WorkAble-backend/pkg/utils"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -47,6 +48,11 @@ func NewUserAuthService(
 }
 
 func (s *userAuthService) Register(req *dto.RegisterRequest) (*entity.User, *response.APIError) {
+
+	if err := util.ValidatePassword(req.Password); err != nil {
+		return nil, response.ErrBadRequest(err.Error())
+	}
+
 	existing, err := s.repo.FindByEmail(req.Email)
 	if err != nil {
 		slog.Error("failed to check existing user", "error", err)
