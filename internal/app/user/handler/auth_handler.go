@@ -63,8 +63,8 @@ func (h *authHandler) login(ctx *fiber.Ctx) error {
 		Value:    res.RefreshToken,
 		MaxAge:   int(time.Until(res.RefreshTokenExpiresAt).Seconds()), // 7 hari
 		HTTPOnly: true,
-		Secure:   false, // ganti true kalau udah HTTPS
-		SameSite: "Lax",
+		Secure:   true,
+		SameSite: "None",
 	})
 
 	// Hapus refresh token dari body
