@@ -195,8 +195,8 @@ func (h *authHandler) googleCallback(ctx *fiber.Ctx) error {
 		Value:    res.RefreshToken,
 		MaxAge:   int(time.Until(res.RefreshTokenExpiresAt).Seconds()),
 		HTTPOnly: true,
-		Secure:   false,
-		SameSite: "Lax",
+		Secure:   true,
+		SameSite: "Non",
 	})
 
 	res.RefreshToken = ""
