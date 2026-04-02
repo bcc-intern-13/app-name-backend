@@ -41,3 +41,11 @@ func (r *companyRepository) FindActiveJobsByCompanyID(id uuid.UUID) ([]jobDto.Jo
 		Scan(&results).Error
 	return results, err
 }
+
+// Function to get all companies excluding itself
+// for fullfiling the company profile page to recomend user to other companies.
+func (r *companyRepository) FindAllCompaniesExcluding(companyID uuid.UUID) ([]entity.Company, error) {
+	var companies []entity.Company
+	err := r.db.Where("id != ?", companyID).Find(&companies).Error
+	return companies, err
+}
