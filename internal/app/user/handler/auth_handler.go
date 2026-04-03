@@ -61,7 +61,7 @@ func (h *authHandler) login(ctx *fiber.Ctx) error {
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "refresh_token",
 		Value:    res.RefreshToken,
-		MaxAge:   int(time.Until(res.RefreshTokenExpiresAt).Seconds()), // 7 hari
+		MaxAge:   int(time.Until(res.RefreshTokenExpiresAt).Seconds()), // 7 days
 		HTTPOnly: true,
 		Secure:   true,
 		SameSite: "None",
