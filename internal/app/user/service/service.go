@@ -405,3 +405,34 @@ func (s *userAuthService) UploadAvatar(ctx context.Context, userID uuid.UUID, fi
 
 	return &dto.AvatarUploadResponse{AvatarURL: avatarURL}, nil
 }
+
+func (s *userAuthService) ResetPassword(token string, newPassword string) *response.APIError {
+
+	user, err := s.repo.FindByResetToken(token)
+	if err != nil || user == nil {
+		return response.ErrBadRequest("Token tidak valid atau salah")
+	}
+
+	// check token expiry
+	if user.ResetExpires != nil && time.Now().After(*user.ResetExpires) {
+		return response.ErrBadRequest("Token sudah kadaluarsa, silakan request ulang")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		slog.Error("failed to hash new password", "error", err)
+		return response.ErrInternal("Gagal mengamankan password baru")
+	}
+
+	// Update password passowrd
+	user.Password = string(hashedPassword)
+	user.ResetToken = nil
+	user.ResetExpires = nil
+
+	if err := s.repo.Update(user); err != nil {
+		slog.Error("failed to update user password", "error", err)
+		return response.ErrInternal("Gagal mereset password")
+	}
+
+	return nil
+}

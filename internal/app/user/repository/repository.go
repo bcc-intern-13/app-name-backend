@@ -75,3 +75,13 @@ func (r *userRepository) UpdatePremiumStatus(userID uuid.UUID, isPremium bool, e
 func (r *userRepository) Update(user *entity.User) error {
 	return r.db.Save(user).Error
 }
+
+// find reset paswword repository method
+func (r *userRepository) FindByResetToken(token string) (*entity.User, error) {
+	var user entity.User
+	err := r.db.Where("reset_token = ?", token).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
