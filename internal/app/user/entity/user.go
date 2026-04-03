@@ -23,6 +23,9 @@ type User struct {
 	CreatedAt time.Time      `gorm:"autoCreateTime"                                 json:"created_at"`
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"                                 json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index"                                          json:"-"`
+
+	ResetToken   *string    `gorm:"column:reset_token;type:varchar(255)" json:"-"`
+	ResetExpires *time.Time `gorm:"column:reset_expires;type:timestamp" json:"-"`
 }
 
 type UserProfile struct {

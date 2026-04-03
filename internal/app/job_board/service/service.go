@@ -34,6 +34,7 @@ func (s *jobBoardService) GetAll(filter dto.JobBoardFilter, userID uuid.UUID) (*
 			CompanyID:          job.CompanyID,
 			CompanyName:        job.CompanyName,
 			CompanyLogo:        job.CompanyLogo,
+			Title:              job.Title,
 			City:               job.City,
 			JobType:            job.JobType,
 			JobField:           job.JobField,

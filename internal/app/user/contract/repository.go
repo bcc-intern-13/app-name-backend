@@ -23,6 +23,7 @@ type UserRepository interface {
 	UpdateIsPremium(userID uuid.UUID) error
 	UpdatePremiumStatus(userID uuid.UUID, isPremium bool, expiresAt *time.Time) error
 	Update(user *entity.User) error
+	FindByResetToken(token string) (*entity.User, error)
 }
 
 type VerificationTokenRepository interface {
