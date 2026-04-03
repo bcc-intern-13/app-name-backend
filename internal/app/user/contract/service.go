@@ -24,4 +24,8 @@ type UserAuthService interface {
 	GoogleAuth(req *dto.GoogleAuthRequest) (*dto.LoginResponse, *response.APIError)
 
 	UploadAvatar(ctx context.Context, userID uuid.UUID, file *multipart.FileHeader) (*dto.AvatarUploadResponse, *response.APIError)
+
+	//password
+	ResetPassword(token string, newPassword string) *response.APIError
+	ForgotPassword(email string) *response.APIError
 }

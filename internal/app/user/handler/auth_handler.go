@@ -142,18 +142,17 @@ func (h *authHandler) verifyEmail(ctx *fiber.Ctx) error {
 }
 
 func (h *authHandler) googleLogin(ctx *fiber.Ctx) error {
-	// generate random state untuk prevent CSRF
 	state := uuid.New().String()
 
-	// simpan state ke cookie sementara
+	//save cookie
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "oauth_state",
 		Value:    state,
-		MaxAge:   300, // 5 menit
+		MaxAge:   300, // 5 minutes
 		HTTPOnly: true,
 	})
 
-	// redirect ke Google
+	// redirect to Google
 	url := h.googleOAuth.GetAuthURL(state)
 	return ctx.Redirect(url, fiber.StatusTemporaryRedirect)
 }
@@ -216,4 +215,38 @@ func (h *authHandler) resendVerification(ctx *fiber.Ctx) error {
 	}
 
 	return response.Success(ctx, fiber.StatusOK, "Verification email has been resent successfully", nil)
+}
+
+// Tambahin di struct handler lu
+
+func (h *authHandler) ForgotPassword(ctx *fiber.Ctx) error {
+	var req dto.ForgotPasswordRequest
+
+	// Parsing body request dari FE
+	if err := ctx.BodyParser(&req); err != nil {
+		return response.Error(ctx, response.ErrBadRequest("Invalid Request Format"), nil)
+	}
+
+	apiErr := h.service.ForgotPassword(req.Email)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
+	}
+
+	return response.Success(ctx, fiber.StatusOK, "if email registered, reset password will be sent to your email", nil)
+}
+
+func (h *authHandler) ResetPassword(ctx *fiber.Ctx) error {
+	var req dto.ResetPasswordRequest
+
+	// Parsing body from FE
+	if err := ctx.BodyParser(&req); err != nil {
+		return response.Error(ctx, response.ErrBadRequest("Invalid Request Format"), nil)
+	}
+
+	apiErr := h.service.ResetPassword(req.Token, req.NewPassword)
+	if apiErr != nil {
+		return response.Error(ctx, apiErr, nil)
+	}
+
+	return response.Success(ctx, fiber.StatusOK, "password succesfully changed.", nil)
 }

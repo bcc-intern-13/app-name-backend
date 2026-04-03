@@ -406,6 +406,35 @@ func (s *userAuthService) UploadAvatar(ctx context.Context, userID uuid.UUID, fi
 	return &dto.AvatarUploadResponse{AvatarURL: avatarURL}, nil
 }
 
+func (s *userAuthService) ForgotPassword(email string) *response.APIError {
+	user, err := s.repo.FindByEmail(email)
+
+	//keep sending succes to manipulate hacker
+	if err != nil || user == nil {
+		return nil
+	}
+
+	//unique token
+	token := uuid.New().String()
+	expiresAt := time.Now().Add(15 * time.Minute)
+
+	// store token to database
+	user.ResetToken = &token
+	user.ResetExpires = &expiresAt
+	if err := s.repo.Update(user); err != nil {
+		slog.Error("failed to save reset token", "error", err)
+		return response.ErrInternal("Gagal memproses permintaan")
+	}
+
+	// send using email service
+	if err := s.email.SendResetPasswordEmail(user.Email, token); err != nil {
+		slog.Error("failed to send reset password email", "error", err, "email", user.Email)
+		return response.ErrInternal("Gagal mengirim email reset password")
+	}
+
+	return nil
+}
+
 func (s *userAuthService) ResetPassword(token string, newPassword string) *response.APIError {
 
 	user, err := s.repo.FindByResetToken(token)
@@ -418,20 +447,24 @@ func (s *userAuthService) ResetPassword(token string, newPassword string) *respo
 		return response.ErrBadRequest("Token sudah kadaluarsa, silakan request ulang")
 	}
 
+	if err := util.ValidatePassword(newPassword); err != nil {
+		return response.ErrBadRequest(err.Error())
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	if err != nil {
 		slog.Error("failed to hash new password", "error", err)
-		return response.ErrInternal("Gagal mengamankan password baru")
+		return response.ErrInternal("Failed to create new password")
 	}
 
-	// Update password passowrd
+	// Update password
 	user.Password = string(hashedPassword)
 	user.ResetToken = nil
 	user.ResetExpires = nil
 
 	if err := s.repo.Update(user); err != nil {
 		slog.Error("failed to update user password", "error", err)
-		return response.ErrInternal("Gagal mereset password")
+		return response.ErrInternal("Failed to reset user password")
 	}
 
 	return nil
