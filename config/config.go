@@ -41,6 +41,11 @@ type Config struct {
 	GoogleClientID     string
 	GoogleClientSecret string
 	GoogleRedirectURL  string
+
+	//redis
+	REDISPassword string
+	REDISHost     string
+	REDISPort     string
 }
 
 func Load() *Config {
@@ -80,6 +85,11 @@ func Load() *Config {
 		GoogleClientID:     mustGetEnv("GOOGLE_CLIENT_ID"),
 		GoogleClientSecret: mustGetEnv("GOOGLE_CLIENT_SECRET"),
 		GoogleRedirectURL:  mustGetEnv("GOOGLE_REDIRECT_URL"),
+
+		//redis
+		REDISPassword: mustGetEnv("REDIS_PASSWORD"),
+		REDISHost:     mustGetEnv("REDIS_HOST"),
+		REDISPort:     mustGetEnv("REDIS_PORT"),
 	}
 }
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	bootstrap "github.com/bcc-intern-13/WorkAble-backend/cmd/bootsrap"
@@ -64,9 +65,11 @@ import (
 func main() {
 	app := bootstrap.NewApp()
 
+	redisAddr := fmt.Sprintf("%s:%s", app.Config.REDISHost, app.Config.REDISPort)
+
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
+		Addr:     redisAddr,
+		Password: app.Config.REDISPassword,
 		DB:       0,
 	})
 
