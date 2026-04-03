@@ -59,7 +59,6 @@ import (
 
 	//allow cors for fe implementaion
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	//google oatuh packages
 )
 
 func main() {

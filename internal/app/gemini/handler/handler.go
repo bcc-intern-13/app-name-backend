@@ -11,7 +11,7 @@ type cvHandler struct {
 	service contract.CVService
 }
 
-// helper to get UUID
+// helper to get UUID from token
 func getUserID(ctx *fiber.Ctx) (uuid.UUID, error) {
 	return uuid.Parse(ctx.Locals("userID").(string))
 }

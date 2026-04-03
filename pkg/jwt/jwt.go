@@ -30,8 +30,6 @@ func GenerateToken(user *entity.User, secret string) (string, error) {
 	return token.SignedString([]byte(secret))
 }
 
-// note parse token
-// todo pahamin kodingan ini
 func ParseToken(tokenStr string, secret string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
@@ -48,7 +46,6 @@ func ParseToken(tokenStr string, secret string) (*Claims, error) {
 	return claims, nil
 }
 
-// generate refresh token
 func GenerateRefreshToken() string {
 	b := make([]byte, 32)
 	rand.Read(b)

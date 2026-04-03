@@ -92,7 +92,7 @@ func (s *applicationService) Submit(userID uuid.UUID, req *dto.SubmitApplication
 		)
 
 		if err != nil {
-			slog.Error("failed to upload cv", "error", err.Error(), "userID", userID) // ← tambah .Error()
+			slog.Error("failed to upload cv", "error", err.Error(), "userID", userID)
 			return response.ErrInternal("failed to upload cv")
 		}
 	}

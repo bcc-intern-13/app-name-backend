@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// CVUploadResponse
 type CVUploadResponse struct {
 	CvURL string `json:"cv_url"`
 }
