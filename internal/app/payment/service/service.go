@@ -101,13 +101,12 @@ func (s *paymentService) CreateOrder(ctx context.Context, userID uuid.UUID) (*dt
 }
 
 func (s *paymentService) HandleWebhook(ctx context.Context, req *dto.WebhookRequest) *response.APIError {
-	// 1. Verify Callback Token (Security First!)
 	if !s.xendit.VerifyWebhook(req.CallbackToken, s.webhookToken) {
 		slog.Error("security alert: invalid xendit webhook token", "externalID", req.ExternalID)
 		return response.ErrUnAuthorized("invalid callback token")
 	}
 
-	// 2. Cari Order berdasarkan External ID Xendit
+	// find by xendit ID
 	order, err := s.orderRepo.FindByXenditExternalID(req.ExternalID)
 	if err != nil {
 		slog.Error("failed to find order", "error", err, "externalID", req.ExternalID)
@@ -120,13 +119,12 @@ func (s *paymentService) HandleWebhook(ctx context.Context, req *dto.WebhookRequ
 
 	var expiresAt *time.Time
 
-	// 3. Tentukan Status & Masa Aktif
 	switch req.Status {
 	case "PAID":
 		order.Status = "PAID"
-		order.PaymentType = req.PaymentMethod // Kode lama lu: simpan method pembayaran
+		order.PaymentType = req.PaymentMethod
 
-		// Set masa aktif 30 hari (Bisa lu sesuaikan)
+		//set expiry
 		t := time.Now().Add(30 * 24 * time.Hour)
 		expiresAt = &t
 
@@ -138,12 +136,11 @@ func (s *paymentService) HandleWebhook(ctx context.Context, req *dto.WebhookRequ
 
 	default:
 		slog.Info("received other webhook status", "status", req.Status, "orderID", order.ID)
-		return nil // Nggak perlu diproses kalau status lain
+		return nil
 	}
 
-	// 4. EKSEKUSI TRANSAKSI FINAL (Satu paket Order + User Premium)
+	// execute transaction
 	if err := s.orderRepo.FinalizePayment(order, expiresAt); err != nil {
-		// Log detail sudah ada di repository, di sini kita kasih log konteks service
 		slog.Error("critical failure: failed to finalize payment transaction",
 			"error", err,
 			"orderID", order.ID,
