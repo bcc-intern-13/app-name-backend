@@ -1,6 +1,8 @@
 package contract
 
 import (
+	"time"
+
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/entity"
 	"github.com/google/uuid"
 )
@@ -12,4 +14,5 @@ type OrderRepository interface {
 	FindByUserID(userID uuid.UUID) ([]entity.Order, error)
 	Update(order *entity.Order) error
 	FindPendingByUserID(userID uuid.UUID) (*entity.Order, error)
+	FinalizePayment(order *entity.Order, expiresAt *time.Time) error
 }

@@ -101,60 +101,63 @@ func (s *paymentService) CreateOrder(ctx context.Context, userID uuid.UUID) (*dt
 }
 
 func (s *paymentService) HandleWebhook(ctx context.Context, req *dto.WebhookRequest) *response.APIError {
-	// verify callback token
+	// 1. Verify Callback Token (Security First!)
 	if !s.xendit.VerifyWebhook(req.CallbackToken, s.webhookToken) {
-		slog.Error("invalid xendit webhook token", "externalID", req.ExternalID)
+		slog.Error("security alert: invalid xendit webhook token", "externalID", req.ExternalID)
 		return response.ErrUnAuthorized("invalid callback token")
 	}
 
-	// find order by xendit's external_id
+	// 2. Cari Order berdasarkan External ID Xendit
 	order, err := s.orderRepo.FindByXenditExternalID(req.ExternalID)
 	if err != nil {
 		slog.Error("failed to find order", "error", err, "externalID", req.ExternalID)
 		return response.ErrInternal("failed to find order")
 	}
 	if order == nil {
+		slog.Warn("webhook received for non-existent order", "externalID", req.ExternalID)
 		return response.ErrNotFound("order not found")
 	}
 
+	var expiresAt *time.Time
+
+	// 3. Tentukan Status & Masa Aktif
 	switch req.Status {
 	case "PAID":
 		order.Status = "PAID"
-		order.PaymentType = req.PaymentMethod
+		order.PaymentType = req.PaymentMethod // Kode lama lu: simpan method pembayaran
 
-		expiresAt := time.Now().Add(30 * 24 * time.Hour)
-		if err := s.userRepo.UpdatePremiumStatus(order.UserID, true, &expiresAt); err != nil {
-			slog.Error("failed to upgrade user to premium", "error", err, "userID", order.UserID)
-			return response.ErrInternal("failed to upgrade user to premium")
-		}
+		// Set masa aktif 30 hari (Bisa lu sesuaikan)
+		t := time.Now().Add(30 * 24 * time.Hour)
+		expiresAt = &t
 
-		slog.Info("user upgraded to premium", "userID", order.UserID, "expires_at", expiresAt)
-
-		// upgrade user to premium
-		user, err := s.userRepo.FindByID(order.UserID.String())
-		if err != nil || user == nil {
-			slog.Error("failed to find user for premium upgrade", "error", err, "userID", order.UserID)
-			return response.ErrInternal("failed to upgrade user")
-		}
-		user.IsPremium = true
-		if err := s.userRepo.UpdateIsPremium(user.ID); err != nil {
-			slog.Error("failed to upgrade user to premium", "error", err, "userID", order.UserID)
-			return response.ErrInternal("failed to upgrade user to premium")
-		}
-		slog.Info("user upgraded to premium", "userID", order.UserID)
+		slog.Info("processing paid invoice", "orderID", order.ID, "userID", order.UserID)
 
 	case "EXPIRED":
 		order.Status = "EXPIRED"
+		slog.Info("invoice expired", "orderID", order.ID)
+
+	default:
+		slog.Info("received other webhook status", "status", req.Status, "orderID", order.ID)
+		return nil // Nggak perlu diproses kalau status lain
 	}
 
-	if err := s.orderRepo.Update(order); err != nil {
-		slog.Error("failed to update order", "error", err, "externalID", req.ExternalID)
-		return response.ErrInternal("failed to update order")
+	// 4. EKSEKUSI TRANSAKSI FINAL (Satu paket Order + User Premium)
+	if err := s.orderRepo.FinalizePayment(order, expiresAt); err != nil {
+		// Log detail sudah ada di repository, di sini kita kasih log konteks service
+		slog.Error("critical failure: failed to finalize payment transaction",
+			"error", err,
+			"orderID", order.ID,
+			"userID", order.UserID,
+		)
+		return response.ErrInternal("failed to finalize payment processing")
+	}
+
+	if order.Status == "PAID" {
+		slog.Info("payment success: user upgraded to premium", "userID", order.UserID, "orderID", order.ID)
 	}
 
 	return nil
 }
-
 func (s *paymentService) GetOrderHistory(ctx context.Context, userID uuid.UUID) ([]dto.OrderResponse, *response.APIError) {
 	orders, err := s.orderRepo.FindByUserID(userID)
 	if err != nil {
