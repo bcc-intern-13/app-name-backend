@@ -174,6 +174,8 @@ func (s *applicationService) GetByID(userID, id uuid.UUID) (*dto.ApplicationDeta
 		InterviewLink:   application.InterviewLink,
 		InterviewPdfURL: application.InterviewPdfURL,
 		InterviewNotes:  application.InterviewNotes,
+		InterviewDate:   application.InterviewDate,
+		Interviewer:     application.Interviewer,
 	}, nil
 }
 
