@@ -85,3 +85,22 @@ func (r *userRepository) FindByResetToken(token string) (*entity.User, error) {
 	}
 	return &user, nil
 }
+
+func (r *userRepository) RegisterTransaction(user *entity.User, token *entity.VerificationToken) error {
+
+	return r.db.Transaction(func(tx *gorm.DB) error {
+
+		// saving user
+		if err := tx.Create(user).Error; err != nil {
+			return err
+		}
+
+		// save verification token
+		if err := tx.Create(token).Error; err != nil {
+			return err
+		}
+
+		//if no erro commit.
+		return nil
+	})
+}

@@ -24,6 +24,7 @@ type UserRepository interface {
 	UpdatePremiumStatus(userID uuid.UUID, isPremium bool, expiresAt *time.Time) error
 	Update(user *entity.User) error
 	FindByResetToken(token string) (*entity.User, error)
+	RegisterTransaction(user *entity.User, token *entity.VerificationToken) error
 }
 
 type VerificationTokenRepository interface {

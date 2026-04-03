@@ -1,213 +1,35 @@
-```
-app-name
-├─ .VSCodeCounter
-│  ├─ 2026-03-20_06-40-16
-│  │  ├─ details.md
-│  │  ├─ diff-details.md
-│  │  ├─ diff.csv
-│  │  ├─ diff.md
-│  │  ├─ diff.txt
-│  │  ├─ results.csv
-│  │  ├─ results.json
-│  │  ├─ results.md
-│  │  └─ results.txt
-│  └─ 2026-03-22_16-19-42
-│     ├─ details.md
-│     ├─ diff-details.md
-│     ├─ diff.csv
-│     ├─ diff.md
-│     ├─ diff.txt
-│     ├─ results.csv
-│     ├─ results.json
-│     ├─ results.md
-│     └─ results.txt
-├─ Dockerfile
-├─ README.md
-├─ cmd
-│  ├─ api
-│  │  └─ main.go
-│  └─ bootsrap
-│     └─ bootstrap.go
-├─ config
-│  └─ config.go
-├─ docker-compose.yaml
-├─ docs
-│  └─ openapi.yaml
-├─ go.mod
-├─ go.sum
-├─ internal
-│  ├─ app
-│  │  ├─ applications
-│  │  │  ├─ contract
-│  │  │  │  ├─ repository.go
-│  │  │  │  └─ service.go
-│  │  │  ├─ dto
-│  │  │  │  ├─ request.go
-│  │  │  │  └─ response.go
-│  │  │  ├─ entity
-│  │  │  │  └─ applications.go
-│  │  │  ├─ handler
-│  │  │  │  ├─ handler.go
-│  │  │  │  └─ routes.go
-│  │  │  ├─ repository
-│  │  │  │  └─ repository.go
-│  │  │  └─ service
-│  │  │     └─ service.go
-│  │  ├─ career_mapping
-│  │  │  ├─ contract
-│  │  │  │  ├─ repository.go
-│  │  │  │  └─ service.go
-│  │  │  ├─ dto
-│  │  │  │  ├─ request.go
-│  │  │  │  └─ response.go
-│  │  │  ├─ entity
-│  │  │  │  └─ career_mapping.go
-│  │  │  ├─ handler
-│  │  │  │  ├─ handler.go
-│  │  │  │  └─ routes.go
-│  │  │  ├─ repository
-│  │  │  │  └─ repository.go
-│  │  │  └─ service
-│  │  │     └─ service.go
-│  │  ├─ company
-│  │  │  ├─ contract
-│  │  │  │  ├─ repository.go
-│  │  │  │  └─ service.go
-│  │  │  ├─ dto
-│  │  │  │  └─ response.go
-│  │  │  ├─ entity
-│  │  │  │  └─ company.go
-│  │  │  ├─ handler
-│  │  │  │  ├─ handler.go
-│  │  │  │  └─ routes.go
-│  │  │  ├─ repository
-│  │  │  │  └─ repository.go
-│  │  │  └─ service
-│  │  │     └─ service.go
-│  │  ├─ gemini
-│  │  │  ├─ contract
-│  │  │  │  ├─ repository.go
-│  │  │  │  └─ service.go
-│  │  │  ├─ dto
-│  │  │  │  ├─ request.go
-│  │  │  │  └─ response.go
-│  │  │  ├─ entity
-│  │  │  │  └─ cv.go
-│  │  │  ├─ handler
-│  │  │  │  ├─ handler.go
-│  │  │  │  └─ routes.go
-│  │  │  ├─ repository
-│  │  │  │  └─ repository.go
-│  │  │  └─ service
-│  │  │     └─ service.go
-│  │  ├─ home
-│  │  │  ├─ dto
-│  │  │  │  └─ response.go
-│  │  │  ├─ handler
-│  │  │  │  ├─ handler.go
-│  │  │  │  └─ routes.go
-│  │  │  ├─ repository
-│  │  │  └─ service
-│  │  │     └─ service.go
-│  │  ├─ job_board
-│  │  │  ├─ contract
-│  │  │  │  ├─ repository.go
-│  │  │  │  └─ service.go
-│  │  │  ├─ dto
-│  │  │  │  ├─ request.go
-│  │  │  │  └─ response.go
-│  │  │  ├─ entity
-│  │  │  │  ├─ job_listing.go
-│  │  │  │  └─ saved_jobs.go
-│  │  │  ├─ handler
-│  │  │  │  ├─ handler.go
-│  │  │  │  └─ routes.go
-│  │  │  ├─ repository
-│  │  │  │  └─ repository.go
-│  │  │  └─ service
-│  │  │     └─ service.go
-│  │  ├─ onboarding
-│  │  │  ├─ contract
-│  │  │  │  ├─ repository.go
-│  │  │  │  └─ service.go
-│  │  │  ├─ dto
-│  │  │  │  ├─ request.go
-│  │  │  │  └─ response.go
-│  │  │  ├─ handler
-│  │  │  │  ├─ handler.go
-│  │  │  │  └─ routes.go
-│  │  │  ├─ repository
-│  │  │  │  └─ repository.go
-│  │  │  └─ service
-│  │  │     └─ service.go
-│  │  ├─ payment
-│  │  │  ├─ contract
-│  │  │  │  ├─ repository.go
-│  │  │  │  └─ service.go
-│  │  │  ├─ dto
-│  │  │  │  ├─ request.go
-│  │  │  │  └─ response.go
-│  │  │  ├─ entity
-│  │  │  │  └─ order.go
-│  │  │  ├─ handler
-│  │  │  │  ├─ handler.go
-│  │  │  │  └─ routes.go
-│  │  │  ├─ repository
-│  │  │  │  └─ repository.go
-│  │  │  └─ service
-│  │  │     └─ service.go
-│  │  ├─ smart_profile
-│  │  │  ├─ contract
-│  │  │  │  └─ service.go
-│  │  │  ├─ dto
-│  │  │  │  └─ response.go
-│  │  │  ├─ handler
-│  │  │  │  ├─ handler.go
-│  │  │  │  └─ routes.go
-│  │  │  └─ service
-│  │  │     └─ service.go
-│  │  └─ user
-│  │     ├─ contract
-│  │     │  ├─ repository.go
-│  │     │  └─ service.go
-│  │     ├─ dto
-│  │     │  ├─ request.go
-│  │     │  └─ response.go
-│  │     ├─ entity
-│  │     │  ├─ refresh_token.go
-│  │     │  ├─ user.go
-│  │     │  └─ verification_token.go
-│  │     ├─ handler
-│  │     │  ├─ auth_handler.go
-│  │     │  ├─ routes.go
-│  │     │  └─ user_handler.go
-│  │     ├─ repository
-│  │     │  ├─ refresh_token_repositroy.go
-│  │     │  ├─ repository.go
-│  │     │  └─ verification_token_repository.go
-│  │     └─ service
-│  │        └─ service.go
-│  ├─ infra
-│  │  └─ database
-│  │     ├─ connection.go
-│  │     ├─ migration.go
-│  │     └─ seed.go
-│  └─ middleware
-│     └─ jwt.go
-└─ pkg
-   ├─ email
-   │  ├─ email.go
-   │  └─ template.go
-   ├─ gemini
-   │  └─ gemini.go
-   ├─ jwt
-   │  └─ jwt.go
-   ├─ response
-   │  ├─ error.go
-   │  └─ response.go
-   ├─ storage
-   │  └─ storage.go
-   └─ xendit
-      └─ xendit.go
+# WorkAble Backend API
 
+WorkAble Backend API adalah _core system_ yang menggerakkan platform WorkAble. Proyek ini dibangun menggunakan arsitektur berbasis **Domain-Driven Design (DDD)** yang dimodifikasi untuk memastikan modularitas, skalabilitas, dan kemudahan pemeliharaan (_maintainability_). API ini menangani seluruh proses bisnis utama, mulai dari autentikasi pengguna, pemrosesan profil cerdas menggunakan AI, manajemen lowongan pekerjaan, hingga integrasi gerbang pembayaran (_payment gateway_).
+
+## 🛠️ Tech Stack & Tools
+
+Proyek ini dikembangkan menggunakan teknologi berikut:
+
+- **Language & Framework:** Golang + Go Fiber (Dipilih untuk performa tinggi dan _concurrency_).
+- **Database:** PostgreSQL (Relational Database Management System utama).
+- **Caching:** Redis (Diimplementasikan untuk optimasi _response time_ pada _endpoint_ dengan beban baca tinggi, seperti _Home Summary_).
+- **AI Engine:** Google Gemini API (Digunakan untuk _Career Mapping_ dan analisis profil pengguna).
+- **Payment Gateway:** Xendit (Untuk pemrosesan transaksi yang aman dan otomatis).
+- **Infrastructure:** Docker & Docker Compose (Untuk konsistensi _environment_ pengembangan dan _deployment_).
+
+---
+
+## 📁 Struktur Anatomi (Folder Structure)
+
+Proyek ini mengadopsi standar tata letak proyek Go yang terstruktur berdasarkan domain bisnis:
+
+```text
+.
+├── cmd/                # Entry point utama dari aplikasi (main.go).
+├── config/             # Manajemen konfigurasi dan pemuatan environment variables (.env).
+├── internal/           # Kode aplikasi internal (business logic) yang tidak dapat diakses oleh package luar.
+│   ├── app/            # Kumpulan domain/modul fitur (User, Job Board, Home, dll).
+│   │   ├── handler/    # Presentation layer (Menerima HTTP request dan mengembalikan HTTP response).
+│   │   ├── service/    # Business logic layer (Memproses data dan aturan bisnis).
+│   │   ├── repository/ # Data access layer (Berinteraksi langsung dengan Database/Redis).
+│   │   └── dto/        # Data Transfer Objects (Struktur data untuk request/response).
+│   ├── infra/          # Konfigurasi infrastruktur (Koneksi DB, Migrasi, Seeding).
+│   └── middleware/     # Interceptor untuk HTTP requests (Validasi JWT token, dll).
+└── pkg/                # Reusable packages/libraries yang dapat digunakan oleh modul lain (Email, Xendit, Gemini, Storage).
 ```

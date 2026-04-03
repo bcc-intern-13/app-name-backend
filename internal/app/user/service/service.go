@@ -17,6 +17,7 @@ import (
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/storage"
 	util "github.com/bcc-intern-13/WorkAble-backend/pkg/utils"
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,6 +28,7 @@ type userAuthService struct {
 	email                 *email.EmailService
 	verificationTokenRepo contract.VerificationTokenRepository
 	storage               *storage.StorageService
+	redisClient           *redis.Client
 }
 
 func NewUserAuthService(
@@ -36,6 +38,7 @@ func NewUserAuthService(
 	verificationTokenRepo contract.VerificationTokenRepository,
 	email *email.EmailService,
 	storageSvc *storage.StorageService,
+	redisClient *redis.Client,
 ) contract.UserAuthService {
 	return &userAuthService{
 		repo:                  repo,
@@ -44,27 +47,22 @@ func NewUserAuthService(
 		email:                 email,
 		jwtSecret:             jwtSecret,
 		storage:               storageSvc,
+		redisClient:           redisClient,
 	}
 }
 
 func (s *userAuthService) Register(req *dto.RegisterRequest) (*entity.User, *response.APIError) {
-
 	if err := util.ValidatePassword(req.Password); err != nil {
 		return nil, response.ErrBadRequest(err.Error())
 	}
 
-	existing, err := s.repo.FindByEmail(req.Email)
-	if err != nil {
-		slog.Error("failed to check existing user", "error", err)
-		return nil, response.ErrInternal("failed to check existing user")
-	}
+	existing, _ := s.repo.FindByEmail(req.Email)
 	if existing != nil {
 		return nil, response.ErrConflict("user is already registered")
 	}
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		slog.Error("failed to hash password", "error", err)
 		return nil, response.ErrInternal("could not hash password")
 	}
 
@@ -75,11 +73,6 @@ func (s *userAuthService) Register(req *dto.RegisterRequest) (*entity.User, *res
 		Password: string(hashed),
 	}
 
-	if err := s.repo.Create(user); err != nil {
-		slog.Error("failed to create user", "error", err, "email", req.Email)
-		return nil, response.ErrInternal("failed to create user")
-	}
-
 	verificationTokenStr := jwt.GenerateRefreshToken()
 	verificationToken := &entity.VerificationToken{
 		ID:        uuid.New(),
@@ -88,15 +81,12 @@ func (s *userAuthService) Register(req *dto.RegisterRequest) (*entity.User, *res
 		ExpiredAt: time.Now().Add(24 * time.Hour),
 	}
 
-	if err := s.verificationTokenRepo.Create(verificationToken); err != nil {
-		slog.Error("failed to save verification token", "error", err, "userID", user.ID)
-		return nil, response.ErrInternal("failed to save verification token")
+	if err := s.repo.RegisterTransaction(user, verificationToken); err != nil {
+		slog.Error("failed to process registration transaction", "error", err)
+		return nil, response.ErrInternal("failed to save registration data")
 	}
 
-	if err := s.email.SendVerificationEmail(user.Email, verificationTokenStr); err != nil {
-		slog.Error("failed to send verification email", "error", err, "email", user.Email)
-		return nil, response.ErrInternal("failed to send verification email")
-	}
+	go s.email.SendVerificationEmail(user.Email, verificationTokenStr)
 
 	return user, nil
 }
@@ -229,7 +219,6 @@ func (s *userAuthService) VerifyEmail(token string) *response.APIError {
 		return response.ErrBadRequest("invalid or expired verification link")
 	}
 
-	//note updatge boolean user verified is using the dto interface of user repository not userautheservice.
 	if err := s.repo.UpdateVerified(verificationToken.UserID); err != nil {
 		slog.Error("failed to update verification status", "error", err, "userID", verificationToken.UserID)
 		return response.ErrInternal("failed to update verification status")
@@ -244,6 +233,21 @@ func (s *userAuthService) VerifyEmail(token string) *response.APIError {
 }
 
 func (s *userAuthService) ResendVerificationEmail(email string) *response.APIError {
+
+	//rate limiter
+	ctx := context.Background()
+
+	limitKey := "limit:resend_email:" + email
+
+	isAllowed, err := s.redisClient.SetNX(ctx, limitKey, "1", 1*time.Minute).Result()
+	if err != nil {
+		slog.Error("Redis error on rate limit", "error", err)
+	}
+
+	if !isAllowed {
+		return response.ErrBadRequest("Too many attemps, please wait 1 minute.")
+	}
+
 	//find user by gmail
 	user, err := s.repo.FindByEmail(email)
 	if err != nil {
