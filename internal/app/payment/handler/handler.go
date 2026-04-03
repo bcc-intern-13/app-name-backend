@@ -12,7 +12,6 @@ type paymentHandler struct {
 	service contract.PaymentService
 }
 
-// create order
 func (h *paymentHandler) createOrder(ctx *fiber.Ctx) error {
 	userID, err := getUserID(ctx)
 	if err != nil {
@@ -44,7 +43,6 @@ func (h *paymentHandler) handleWebhook(ctx *fiber.Ctx) error {
 	return response.Success(ctx, fiber.StatusOK, "webhook processed", nil)
 }
 
-// history
 func (h *paymentHandler) getOrderHistory(ctx *fiber.Ctx) error {
 	userID, err := getUserID(ctx)
 	if err != nil {

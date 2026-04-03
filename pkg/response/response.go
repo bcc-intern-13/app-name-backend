@@ -41,5 +41,3 @@ func Error(ctx *fiber.Ctx, apiErr *APIError, err error) error {
 
 	return ctx.Status(apiErr.Status).JSON(resp)
 }
-
-//note added status on response.

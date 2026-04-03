@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	bootstrap "github.com/bcc-intern-13/WorkAble-backend/cmd/bootsrap"
@@ -58,15 +59,16 @@ import (
 
 	//allow cors for fe implementaion
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	//google oatuh packages
 )
 
 func main() {
 	app := bootstrap.NewApp()
 
+	redisAddr := fmt.Sprintf("%s:%s", app.Config.REDISHost, app.Config.REDISPort)
+
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
+		Addr:     redisAddr,
+		Password: app.Config.REDISPassword,
 		DB:       0,
 	})
 
@@ -128,7 +130,7 @@ func main() {
 	jobBoardHandler.RegisterJobBoardRoutes(app.Fiber, jobBoardSvc, app.Config.JWTSecret)
 
 	// home domain
-	homeSvc := homeService.NewHomeService(onboardingRepo, jobBoardSvc, careerMappingSvc, userRepo)
+	homeSvc := homeService.NewHomeService(onboardingRepo, jobBoardSvc, careerMappingSvc, userRepo, redisClient)
 
 	// home routes
 	homeHandler.RegisterHomeRoutes(app.Fiber, homeSvc, app.Config.JWTSecret)

@@ -288,8 +288,7 @@ func toCVResponse(cv *entity.CV) *dto.CVResponse {
 	}
 }
 
-//AI featurs ----
-
+// AI feature Preimum user needed
 // Imporve sentence give suggestions to make cv sentences more impactful, based on the extracted data and Gemini's analysis
 func (s *cvService) ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto.ImproveSentenceResponse, *response.APIError) {
 	cv, apiErr := s.checkAndIncrementAICall(ctx, userID)
@@ -327,7 +326,6 @@ func (s *cvService) ImproveSentence(ctx context.Context, userID uuid.UUID) (*dto
 }
 
 // SuggestKeywords identificate important keyword that is missing
-
 func (s *cvService) SuggestKeywords(ctx context.Context, userID uuid.UUID) (*dto.SuggestKeywordResponse, *response.APIError) {
 	cv, apiErr := s.checkAndIncrementAICall(ctx, userID)
 	if apiErr != nil {

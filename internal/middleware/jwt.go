@@ -22,7 +22,6 @@ func JWTProtected(secret string) fiber.Handler {
 			return response.Error(ctx, response.ErrUnAuthorized("invalid or expired token"), err)
 		}
 
-		//todo pahamin kodingan ini
 		ctx.Locals("userID", claims.UserID)
 		ctx.Locals("email", claims.Email)
 

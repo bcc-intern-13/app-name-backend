@@ -11,11 +11,11 @@ type APIError struct {
 	Message string            `json:"message"`
 	Detail  string            `json:"detail,omitempty"`
 	Status  int               `json:"status"`
-	Fields  map[string]string `json:"fields,omitempty"` //note for post validation error, like wrong gmail pasword and others
+	Fields  map[string]string `json:"fields,omitempty"`
 }
 
 func newAPIError(status int, errType, message, detail string) *APIError {
-	return &APIError{ //note kenapa kalo di golang itu kayak begini kalo bikin constructor balikkin pointer sama dereference ?
+	return &APIError{
 		Type:    errType,
 		Message: message,
 		Detail:  detail,
