@@ -11,15 +11,17 @@ type EmailService struct {
 	email    string
 	password string
 	appURL   string
+	appURLFe string
 }
 
-func NewEmailService(host, port, email, password, appURL string) *EmailService {
+func NewEmailService(host, port, email, password, appURL string, appURLFe string) *EmailService {
 	return &EmailService{
 		host:     host,
 		port:     port,
 		email:    email,
 		password: password,
 		appURL:   appURL,
+		appURLFe: appURLFe,
 	}
 }
 

@@ -28,6 +28,7 @@ type Config struct {
 	SMTPEmail    string
 	SMTPPassword string
 	AppURL       string
+	AppURLFe     string
 
 	//gemini api key
 	GeminiAPIKey string
@@ -44,7 +45,7 @@ type Config struct {
 
 func Load() *Config {
 	if err := godotenv.Load(); err != nil {
-		log.Println("⚠️  .env not found, using system env")
+		log.Println("env not found, using system env")
 	}
 
 	return &Config{
@@ -66,6 +67,7 @@ func Load() *Config {
 		SMTPEmail:    mustGetEnv("SMTP_EMAIL"),
 		SMTPPassword: mustGetEnv("SMTP_PASSWORD"),
 		AppURL:       mustGetEnv("APP_URL"),
+		AppURLFe:     mustGetEnv("APP_URL_FE"),
 
 		//gemini api key
 		GeminiAPIKey: mustGetEnv("GEMINI_API_KEY"),

@@ -49,6 +49,7 @@ func NewApp() *App {
 		cfg.SMTPEmail,
 		cfg.SMTPPassword,
 		cfg.AppURL,
+		cfg.AppURLFe,
 	)
 
 	// storage services package
@@ -61,10 +62,10 @@ func NewApp() *App {
 
 	// gemini service package
 	geminiService, err := gemini.NewGeminiService(cfg.GeminiAPIKey)
-	// log.Printf("Gemini API Key loaded: %s...", cfg.GeminiAPIKey[:10])
-	// if err != nil {
-	//  log.Fatal("Failed to initialize Gemini:", err)
-	// }
+	log.Printf("Gemini API Key loaded: %s...", cfg.GeminiAPIKey[:10])
+	if err != nil {
+		log.Fatal("Failed to initialize Gemini:", err)
+	}
 
 	// xendit service package
 	xenditService := xendit.NewXenditService(cfg.XenditSecretKey)
