@@ -98,6 +98,7 @@ func main() {
 		verificationTokenRepo,
 		app.EmailService,
 		app.StorageService,
+		redisClient,
 	)
 
 	// onboarding domain
