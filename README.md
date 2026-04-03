@@ -1,4 +1,27 @@
-```
+# WorkAble Backend API
+
+> "Mencari kerja itu seperti mencari jodoh. Kadang butuh algoritma, kadang butuh keajaiban. Kami menyediakan algoritmanya."
+
+WorkAble Backend adalah sistem di balik layar yang menggerakkan platform WorkAble. Dibangun dengan arsitektur yang menjunjung tinggi modularitas (karena hidup udah cukup berantakan, kodingan jangan), API ini menangani segalanya: mulai dari autentikasi _user_, pencocokan karir menggunakan AI, pengelolaan loker, sampai urusan duit via _payment gateway_.
+
+## Tech Stack & Tools
+
+Ibarat bangun rumah, ini bahan bangunan yang kita pakai:
+
+- **Bahasa & Framework:** Golang 🐹 + Go Fiber (Cepat, ringan, dan nggak rewel).
+- **Database:** PostgreSQL (Buat nyimpen data yang butuh komitmen jangka panjang).
+- **Caching:** Redis (Si etalase cepat yang sempat bikin drama _connection refused_ jam 3 pagi).
+- **AI Engine:** Google Gemini API (Buat ngasih rekomendasi karir dan _screening_ CV).
+- **Payment Gateway:** Xendit (Karena ngurus pembayaran manual itu capek).
+- **Infrastructure:** Docker & Docker Compose.
+
+---
+
+## 📁 Struktur Anatomi (Folder Structure)
+
+Proyek ini menggunakan pendekatan **Domain-Driven Design (DDD)** yang dimodifikasi. Biar gampang nyari letak _bug_ kalau lagi _error_:
+
+```text
 app-name
 ├─ .VSCodeCounter
 │  ├─ 2026-03-20_06-40-16
@@ -209,5 +232,4 @@ app-name
    │  └─ storage.go
    └─ xendit
       └─ xendit.go
-
 ```
