@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	bootstrap "github.com/bcc-intern-13/WorkAble-backend/cmd/bootsrap"
+	"github.com/redis/go-redis/v9"
 	"github.com/robfig/cron/v3"
 
 	// user domain packages
@@ -62,6 +63,19 @@ import (
 
 func main() {
 	app := bootstrap.NewApp()
+
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+
+	// check connection
+	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+		slog.Error("Error connecting to redis", "error", err)
+	} else {
+		slog.Info("Redis connected!")
+	}
 
 	// CORS configuration
 	app.Fiber.Use(cors.New(cors.Config{

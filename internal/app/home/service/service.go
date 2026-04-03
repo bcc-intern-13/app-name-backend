@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+	"encoding/json"
 	"log/slog"
 	"time"
 
@@ -15,6 +17,7 @@ import (
 	onboardingContract "github.com/bcc-intern-13/WorkAble-backend/internal/app/onboarding/contract"
 	"github.com/bcc-intern-13/WorkAble-backend/pkg/response"
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 )
 
 type HomeService interface {
@@ -26,6 +29,7 @@ type homeService struct {
 	jobBoardService  jobBoardContract.JobBoardService
 	careerMappingSvc careerMappingContract.CareerMappingService
 	userRepo         userContract.UserRepository
+	redisClient      *redis.Client
 }
 
 func NewHomeService(
@@ -33,17 +37,34 @@ func NewHomeService(
 	jobBoardService jobBoardContract.JobBoardService,
 	careerMappingSvc careerMappingContract.CareerMappingService,
 	userRepo userContract.UserRepository,
+	redisClient *redis.Client,
 ) HomeService {
 	return &homeService{
 		onboardingRepo:   onboardingRepo,
 		jobBoardService:  jobBoardService,
 		careerMappingSvc: careerMappingSvc,
 		userRepo:         userRepo,
+		redisClient:      redisClient,
 	}
 }
 
 func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *response.APIError) {
-	//Get profile
+	ctx := context.Background()
+	cacheKey := "home_summary:user:" + userID.String()
+
+	// cek cached data
+	cachedData, err := s.redisClient.Get(ctx, cacheKey).Result()
+	if err == nil {
+		// cache hit data availabe in redi, changing data
+		var responseData dto.HomeSummaryResponse
+		if jsonErr := json.Unmarshal([]byte(cachedData), &responseData); jsonErr == nil {
+			slog.Info("REDIS CACHE HIT!", "userID", userID)
+			return &responseData, nil
+		}
+	}
+
+	slog.Info("REDIS CACHE MISS! Fetching from DB...", "userID", userID)
+
 	profile, err := s.onboardingRepo.FindByUserID(userID)
 	nama := ""
 	if err != nil {
@@ -52,7 +73,6 @@ func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *r
 		nama = profile.Name
 	}
 
-	// Get Avatar
 	avatarURL := ""
 	user, err := s.userRepo.FindByID(userID.String())
 	if err != nil {
@@ -84,7 +104,6 @@ func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *r
 
 	if careerMapping != nil && len(careerMapping.TopCategories) > 0 {
 		filter.JobField = mapCategoryToField(careerMapping.TopCategories[0].Code)
-
 	} else if profile != nil {
 		filter.JobField = profile.JobField
 	}
@@ -97,11 +116,17 @@ func (s *homeService) GetSummary(userID uuid.UUID) (*dto.HomeSummaryResponse, *r
 		jobRecommendations = result.Data
 	}
 
-	return &dto.HomeSummaryResponse{
+	finalResponse := &dto.HomeSummaryResponse{
 		Greeting:           greeting,
 		JobRecommendations: jobRecommendations,
 		CareerMapping:      careerMapping,
-	}, nil
+	}
+
+	if cacheBytes, err := json.Marshal(finalResponse); err == nil {
+		s.redisClient.Set(ctx, cacheKey, cacheBytes, 5*time.Minute)
+	}
+
+	return finalResponse, nil
 }
 
 func mapCategoryToField(code string) string {
