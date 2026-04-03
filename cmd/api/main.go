@@ -128,7 +128,7 @@ func main() {
 	jobBoardHandler.RegisterJobBoardRoutes(app.Fiber, jobBoardSvc, app.Config.JWTSecret)
 
 	// home domain
-	homeSvc := homeService.NewHomeService(onboardingRepo, jobBoardSvc, careerMappingSvc, userRepo)
+	homeSvc := homeService.NewHomeService(onboardingRepo, jobBoardSvc, careerMappingSvc, userRepo, redisClient)
 
 	// home routes
 	homeHandler.RegisterHomeRoutes(app.Fiber, homeSvc, app.Config.JWTSecret)
