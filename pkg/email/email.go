@@ -44,9 +44,8 @@ func (e *EmailService) SendVerificationEmail(toEmail, token string) error {
 }
 
 func (e *EmailService) SendResetPasswordEmail(toEmail, token string) error {
-	// Catatan: Pastikan e.appURL ini adalah URL Frontend lu (misal: https://workable-fe.vercel.app)
-	// Karena halaman reset password itu ada di Frontend, bukan Backend.
-	link := fmt.Sprintf("%s/reset-password?token=%s", e.appURL, token)
+
+	link := fmt.Sprintf("%s/reset-password?token=%s", e.appURLFe, token)
 	fmt.Println("SENDING RESET LINK:", link)
 
 	subject := "Reset Your WorkAble Password"
