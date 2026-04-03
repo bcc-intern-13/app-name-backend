@@ -52,23 +52,17 @@ func NewUserAuthService(
 }
 
 func (s *userAuthService) Register(req *dto.RegisterRequest) (*entity.User, *response.APIError) {
-
 	if err := util.ValidatePassword(req.Password); err != nil {
 		return nil, response.ErrBadRequest(err.Error())
 	}
 
-	existing, err := s.repo.FindByEmail(req.Email)
-	if err != nil {
-		slog.Error("failed to check existing user", "error", err)
-		return nil, response.ErrInternal("failed to check existing user")
-	}
+	existing, _ := s.repo.FindByEmail(req.Email)
 	if existing != nil {
 		return nil, response.ErrConflict("user is already registered")
 	}
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		slog.Error("failed to hash password", "error", err)
 		return nil, response.ErrInternal("could not hash password")
 	}
 
@@ -79,11 +73,6 @@ func (s *userAuthService) Register(req *dto.RegisterRequest) (*entity.User, *res
 		Password: string(hashed),
 	}
 
-	if err := s.repo.Create(user); err != nil {
-		slog.Error("failed to create user", "error", err, "email", req.Email)
-		return nil, response.ErrInternal("failed to create user")
-	}
-
 	verificationTokenStr := jwt.GenerateRefreshToken()
 	verificationToken := &entity.VerificationToken{
 		ID:        uuid.New(),
@@ -92,15 +81,12 @@ func (s *userAuthService) Register(req *dto.RegisterRequest) (*entity.User, *res
 		ExpiredAt: time.Now().Add(24 * time.Hour),
 	}
 
-	if err := s.verificationTokenRepo.Create(verificationToken); err != nil {
-		slog.Error("failed to save verification token", "error", err, "userID", user.ID)
-		return nil, response.ErrInternal("failed to save verification token")
+	if err := s.repo.RegisterTransaction(user, verificationToken); err != nil {
+		slog.Error("failed to process registration transaction", "error", err)
+		return nil, response.ErrInternal("failed to save registration data")
 	}
 
-	if err := s.email.SendVerificationEmail(user.Email, verificationTokenStr); err != nil {
-		slog.Error("failed to send verification email", "error", err, "email", user.Email)
-		return nil, response.ErrInternal("failed to send verification email")
-	}
+	go s.email.SendVerificationEmail(user.Email, verificationTokenStr)
 
 	return user, nil
 }
