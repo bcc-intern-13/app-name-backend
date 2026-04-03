@@ -2,6 +2,9 @@ package repository
 
 import (
 	"errors"
+	"fmt"
+	"log/slog"
+	"time"
 
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/contract"
 	"github.com/bcc-intern-13/WorkAble-backend/internal/app/payment/entity"
@@ -56,4 +59,35 @@ func (r *orderRepository) FindPendingByUserID(userID uuid.UUID) (*entity.Order, 
 		return nil, nil
 	}
 	return &order, err
+}
+
+func (r *orderRepository) FinalizePayment(order *entity.Order, expiresAt *time.Time) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+
+		if err := tx.Save(order).Error; err != nil {
+			slog.Error("database error: failed to update order status", "error", err, "orderID", order.ID)
+			return err
+		}
+
+		if order.Status == "PAID" {
+
+			result := tx.Table("users").Where("id = ?", order.UserID).Updates(map[string]interface{}{
+				"is_premium":         true,
+				"premium_expires_at": expiresAt,
+				"updated_at":         time.Now(),
+			})
+
+			if result.Error != nil {
+				slog.Error("database error: failed to upgrade user to premium", "error", result.Error, "userID", order.UserID)
+				return result.Error
+			}
+
+			if result.RowsAffected == 0 {
+				slog.Warn("database warning: user not found during premium upgrade", "userID", order.UserID)
+				return fmt.Errorf("user not found: %s", order.UserID)
+			}
+		}
+
+		return nil
+	})
 }
