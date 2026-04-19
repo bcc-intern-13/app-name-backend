@@ -10,5 +10,5 @@ func RegisterHomeRoutes(app *fiber.App, svc service.HomeService, jwtSecret strin
 	h := &homeHandler{service: svc}
 
 	home := app.Group("/api/v1/home", middleware.JWTProtected(jwtSecret))
-	home.Get("/summary", h.getSummary)
+	home.Get("/summary", h.getSummaryHome)
 }

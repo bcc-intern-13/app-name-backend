@@ -11,7 +11,7 @@ type homeHandler struct {
 	service service.HomeService
 }
 
-func (h *homeHandler) getSummary(ctx *fiber.Ctx) error {
+func (h *homeHandler) getSummaryHome(ctx *fiber.Ctx) error {
 	userIDStr := ctx.Locals("userID").(string)
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
