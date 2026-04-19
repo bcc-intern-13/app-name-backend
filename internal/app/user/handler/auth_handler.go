@@ -67,13 +67,13 @@ func (h *authHandler) login(ctx *fiber.Ctx) error {
 		SameSite: "None",
 	})
 
-	// Hapus refresh token dari body
+	// Hapus refresh token from body
 	res.RefreshToken = ""
 
 	return response.Success(ctx, fiber.StatusOK, "Login Success", res)
 }
 func (h *authHandler) refresh(ctx *fiber.Ctx) error {
-	// Ambil refresh token dari cookie, bukan body
+	// take refresh token from cookie
 	refreshToken := ctx.Cookies("refresh_token")
 	if refreshToken == "" {
 		return response.Error(ctx, response.ErrUnAuthorized("refresh token not found"), nil)
@@ -100,7 +100,7 @@ func (h *authHandler) refresh(ctx *fiber.Ctx) error {
 }
 
 func (h *authHandler) logout(ctx *fiber.Ctx) error {
-	// Ambil dari cookie
+	// get from cookie
 	refreshToken := ctx.Cookies("refresh_token")
 	if refreshToken == "" {
 		return response.Error(ctx, response.ErrBadRequest("refresh token not found"), nil)
@@ -111,7 +111,7 @@ func (h *authHandler) logout(ctx *fiber.Ctx) error {
 		return response.Error(ctx, apiErr, nil)
 	}
 
-	// Hapus cookie
+	// delete cookie
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "refresh_token",
 		Value:    "",
@@ -188,7 +188,7 @@ func (h *authHandler) googleCallback(ctx *fiber.Ctx) error {
 		return response.Error(ctx, apiErr, nil)
 	}
 
-	// Set refresh token ke cookie juga untuk Google login
+	// Set refresh token to Google login
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "refresh_token",
 		Value:    res.RefreshToken,
@@ -217,12 +217,12 @@ func (h *authHandler) resendVerification(ctx *fiber.Ctx) error {
 	return response.Success(ctx, fiber.StatusOK, "Verification email has been resent successfully", nil)
 }
 
-// Tambahin di struct handler lu
+
 
 func (h *authHandler) ForgotPassword(ctx *fiber.Ctx) error {
 	var req dto.ForgotPasswordRequest
 
-	// Parsing body request dari FE
+	// Parsing body request from FE
 	if err := ctx.BodyParser(&req); err != nil {
 		return response.Error(ctx, response.ErrBadRequest("Invalid Request Format"), nil)
 	}
